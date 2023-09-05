@@ -1,7 +1,8 @@
 import App from "@/App";
-import { UserProvider } from "@/Contexts/UserContext";
-import "@/Styles/index.css";
-import { ConfigProvider } from "antd";
+import ThemeProvider from "@/Contexts/ThemeProvider";
+import UserProvider from "@/Contexts/UserContext";
+import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
+import "@/styles/index.css";
 import "antd/dist/reset.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -11,15 +12,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <UserProvider>
-        <ConfigProvider
-          theme={{
-            // algorithm: theme.darkAlgorithm,
-            token: {
-              fontFamily: "SVN-Poppins",
-            },
-          }}>
+        <ThemeProvider>
           <App />
-        </ConfigProvider>
+        </ThemeProvider>
       </UserProvider>
     </BrowserRouter>
   </React.StrictMode>

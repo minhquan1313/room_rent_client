@@ -1,148 +1,138 @@
-import { IUser } from "@/Services/IUser";
-import { fetcherPost } from "@/Services/fetcher";
-import { ReactNode, createContext, useEffect, useState } from "react";
+import { fetcher } from "@/services/fetcher";
+import { IUser, UserLoginPayload, UserRegisterPayload } from "@/types/IUser";
+import { ReactNode, createContext, useCallback, useEffect, useState } from "react";
 
-interface IUserContext {
-  user: IUser | null;
+interface IUserContext<T = IUser | null> {
+  user: T;
   isLogging: boolean;
-  store: (u: TUserLogin) => void;
-  login: (u: TUserLogin) => Promise<boolean>;
-  register: (u: TUserRegister) => Promise<boolean>;
+  login: (u: UserLoginPayload, remember: boolean) => Promise<T>;
   logout: () => void;
-  refresh: () => void;
-  setUserAvatar: (url: string) => void;
+  register: (u: UserRegisterPayload, remember: boolean) => Promise<T>;
+  loginTokenBackground: (token: string, remember: boolean) => Promise<T>;
 }
-
-const UserContext = createContext<IUserContext>({
-  user: null,
-  isLogging: false,
-  refresh() {},
-  store() {},
-  logout() {},
-  login() {
-    return new Promise(() => {});
-  },
-  register() {
-    return new Promise(() => {});
-  },
-  setUserAvatar: function (): void {},
-});
-
 interface IProps {
   children: ReactNode;
 }
-export type TUserLogin = Pick<IUser, "username" | "password">;
-export type TUserRegister = Pick<IUser, "username" | "password" | "firstName">;
 
-function UserProvider({ children }: IProps) {
-  const [user, setUser] = useState<IUser | null>(null);
+function clearData() {
+  localStorage.removeItem("user");
+  sessionStorage.removeItem("user");
+
+  fetcher.update({ token: null });
+}
+function saveData(u: IUser, remember: boolean) {
+  (remember ? localStorage : sessionStorage).setItem("user", JSON.stringify(u));
+
+  u.token && fetcher.update({ token: u.token });
+}
+
+function getData() {
+  try {
+    let userJson = localStorage.getItem("user");
+    if (userJson) {
+      isRemember = true;
+    } else {
+      isRemember = false;
+      userJson = sessionStorage.getItem("user");
+    }
+
+    if (!userJson) throw new Error();
+
+    const json: IUser = JSON.parse(userJson);
+    return json;
+  } catch (error) {
+    return null;
+  }
+}
+
+let isRemember = false;
+
+export const UserContext = createContext<IUserContext>(null as never);
+
+export default function UserProvider({ children }: IProps) {
+  const [user, setUser] = useState<IUserContext["user"]>(getData());
   const [isLogging, setIsLogging] = useState(false);
 
-  const clear = () => {
-    console.log(`CLEAR`);
-
-    localStorage.removeItem("user.username");
-    localStorage.removeItem("user.password");
-  };
-  const store = (u: TUserLogin) => {
-    localStorage.setItem("user.username", u.username);
-    localStorage.setItem("user.password", u.password);
-  };
-  const get = () => {
-    const username = localStorage.getItem("user.username");
-    const password = localStorage.getItem("user.password");
-
-    if (username && password) {
-      const u: TUserLogin = { username, password };
-      return u;
-    }
-    return null;
-  };
-
-  const login = async (u: TUserLogin) => {
-    const url = `/login/`;
-
-    setIsLogging(true);
-
-    const d: IUser[] = await fetcherPost(u)(url);
-
-    setIsLogging(false);
-
-    console.log({ d });
-
-    if (d && d[0]) {
-      setUser(d[0]);
-      return true;
-    }
-
-    return false;
-  };
-  const register = async (u: TUserRegister) => {
-    const url = `/register/`;
+  const login = useCallback(async (u: UserLoginPayload, remember: boolean) => {
     try {
-      const d: IUser[] = await fetcherPost(u)(url);
+      const url = `/users/login`;
+      setIsLogging(true);
 
-      console.log({ d });
+      const d = await fetcher.post<IUser>(url, u);
+      console.log(`🚀 ~ file: UserContext.tsx:52 ~ login ~ d:`, d);
 
-      if (d[0]) {
-        setUser(d[0]);
-        return true;
-      }
+      const user = d.data;
+
+      saveData(user, remember);
+      setUser(() => user);
+
+      return user;
     } catch (error) {
-      /* empty */
+      logout();
+
+      return null;
     }
+  }, []);
+  const loginTokenBackground = useCallback(async (token: string, remember: boolean) => {
+    try {
+      const url = `/users/login-token`;
 
-    return false;
-  };
+      fetcher.update({
+        token,
+      });
+
+      const d = await fetcher.post<IUser>(url);
+      console.log(`🚀 ~ file: UserContext.tsx:83 ~ loginTokenBackground ~ d:`, d);
+
+      const user = d.data;
+
+      saveData(user, remember);
+      setUser(() => user);
+
+      return user;
+    } catch (error) {
+      logout();
+
+      return null;
+    }
+  }, []);
+  const register = useCallback(async (u: UserRegisterPayload, remember: boolean) => {
+    try {
+      const url = `/users/register/`;
+      const d = await fetcher.post<IUser>(url, u);
+      console.log(`🚀 ~ file: UserContext.tsx:73 ~ register ~ d:`, d);
+
+      const user = d.data;
+      saveData(user, remember);
+      setUser(() => user);
+
+      return user;
+    } catch (error) {
+      logout();
+
+      return null;
+    }
+  }, []);
   const logout = () => {
-    if (!user) return;
-
-    clear();
-    setUser(null);
+    clearData();
+    setUser(() => null);
   };
 
-  // auto login
+  // refresh token on app start and get user change
   useEffect(() => {
-    if (user) return;
+    user && user.token && loginTokenBackground(user.token, isRemember);
+    console.log(`🚀 ~ file: UserContext.tsx:120 ~ useEffect ~ user:`, user);
 
-    const u = get();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    if (!u) return;
-
-    (async () => {
-      const logged = await login(u);
-
-      if (!logged) {
-        clear();
-      }
-    })();
-  }, [user]);
-
-  const refresh = () => {
-    const u = get();
-
-    if (u) login(u);
-  };
-
-  const setUserAvatar = function (url: string): void {
-    if (!user) return;
-
-    const { ...rest } = user;
-
-    setUser({ ...rest, avatar: url });
-  };
-  const value: IUserContext = {
+  const value = {
     user,
     isLogging,
-    store,
     login,
     logout,
     register,
-    refresh,
-    setUserAvatar,
+    loginTokenBackground,
   };
-
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
-
-export { UserContext, UserProvider };

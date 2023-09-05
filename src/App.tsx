@@ -1,15 +1,17 @@
-import Booking from "@/Pages/Booking";
+import { UserContext } from "@/Contexts/UserContext";
 import Home from "@/Pages/Home";
 import MyLayout from "@/Pages/Layout";
 import Login from "@/Pages/Login";
 import NotFound from "@/Pages/NotFound";
 import Register from "@/Pages/Register";
-import Ticket from "@/Pages/Ticket";
-import Tickets from "@/Pages/Tickets";
-import Trips from "@/Pages/Trips";
+import { pageTitle } from "@/utils/pageTitle";
+import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 function App() {
+  const { user } = useContext(UserContext);
+  pageTitle("");
+
   return (
     <Routes>
       <Route
@@ -20,34 +22,17 @@ function App() {
           element={<Home />}
         />
         <Route
-          path="trips"
-          element={<Trips />}
-        />
-
-        <Route
-          path="booking"
-          element={<Navigate to={"/trips"} />}
-        />
-        <Route
-          path="booking/:tripId"
-          element={<Booking />}
-        />
-        <Route
-          path="tickets"
-          element={<Tickets />}
-        />
-        <Route
-          path="tickets/:ticketId"
-          element={<Ticket />}
+          path="/trips"
+          element={user ? <Home /> : <Navigate to="/login" />}
         />
       </Route>
 
       <Route
-        path="login"
+        path="/login"
         element={<Login />}
       />
       <Route
-        path="register"
+        path="/register"
         element={<Register />}
       />
 

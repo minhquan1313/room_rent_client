@@ -1,37 +1,35 @@
 import MyButton from "@/Components/MyButton";
-import { TUserRegister, UserContext } from "@/Contexts/UserContext";
-import { Col, Form, Input, Row, Space, Typography } from "antd";
+import { UserContext } from "@/Contexts/UserContext";
+import { UserRegisterPayload } from "@/types/IUser";
+import { pageTitle } from "@/utils/pageTitle";
+import { Col, Form, Input, Row, Space, Typography, theme } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-type TFieldType = {
-  username: string;
-  password: string;
-  lastName?: string;
-  firstName: string;
-};
-
 function Register() {
+  pageTitle("Đăng ký");
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, store, isLogging, register } = useContext(UserContext);
+  const { user, isLogging, register } = useContext(UserContext);
   const [loginFail, setLoginFail] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const onFinish = (values: TFieldType) => {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
+  const onFinish = (values: UserRegisterPayload) => {
     setLoginFail(false);
-    const u: TUserRegister = values;
+    const u: UserRegisterPayload = values;
     setLoading(true);
     (async () => {
-      const d = await register(u);
+      const d = await register(u, true);
       setLoading(false);
 
       if (d) {
         // login success
-        // if (remember) {
-        store(u);
-        // }
       } else {
         setLoginFail(true);
         //login fail
@@ -41,16 +39,31 @@ function Register() {
     console.log("Success:", values);
   };
 
+  // if user already logged in
   useEffect(() => {
     if (!user) return;
 
-    if (location.key != "default") {
-      navigate(-1);
-    } else navigate({ pathname: "/" });
+    if (location.key === "default") navigate("/");
+    else navigate(-1);
   });
 
+  // when user press go back but not login
+  useEffect(() => {
+    const f = (e: PopStateEvent): void => {
+      e.preventDefault();
+
+      if (location.key === "default") navigate("/");
+      else navigate(-2);
+    };
+    window.addEventListener("popstate", f);
+
+    return () => {
+      window.removeEventListener("popstate", f);
+    };
+  }, []);
+
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", backgroundColor: colorBgContainer }}>
       <Row
         justify={"center"}
         align={"middle"}
@@ -60,9 +73,7 @@ function Register() {
           md={{ span: 12 }}
           lg={{ span: 10 }}
           xxl={{ span: 6 }}>
-          <Typography.Title style={{ textAlign: "center" }}>
-            Đăng ký
-          </Typography.Title>
+          <Typography.Title style={{ textAlign: "center" }}>Đăng ký</Typography.Title>
           <Form
             name="basic"
             labelCol={{ xs: { span: 7 } }}
@@ -74,31 +85,29 @@ function Register() {
             initialValues={{ remember: true }}
             onFinish={onFinish}
             autoComplete="off">
-            <Form.Item<TFieldType>
+            <Form.Item<UserRegisterPayload>
               label="Tên đăng nhập"
               name="username"
-              rules={[
-                { required: true, message: "Tên đăng nhập không bỏ trống" },
-              ]}>
+              rules={[{ required: true, message: "Tên đăng nhập không bỏ trống" }]}>
               <Input />
             </Form.Item>
 
-            <Form.Item<TFieldType>
+            <Form.Item<UserRegisterPayload>
               label="Mật khẩu"
               name="password"
               rules={[{ required: true, message: "Mật khẩu không bỏ trống" }]}>
               <Input.Password />
             </Form.Item>
 
-            <Form.Item<TFieldType>
+            <Form.Item<UserRegisterPayload>
               label="Họ và tên đệm"
-              name="lastName">
+              name="last_name">
               <Input />
             </Form.Item>
 
-            <Form.Item<TFieldType>
+            <Form.Item<UserRegisterPayload>
               label="Tên"
-              name="firstName"
+              name="first_name"
               rules={[{ required: true, message: "Tên  không bỏ trống" }]}>
               <Input />
             </Form.Item>
@@ -121,12 +130,7 @@ function Register() {
                   Đăng ký
                 </MyButton>
               </Space.Compact>
-              {loginFail && (
-                <Typography.Paragraph
-                  style={{ width: "100%", textAlign: "center", marginTop: 12 }}>
-                  Đăng ký thất bại
-                </Typography.Paragraph>
-              )}
+              {loginFail && <Typography.Paragraph style={{ width: "100%", textAlign: "center", marginTop: 12 }}>Đăng ký thất bại</Typography.Paragraph>}
             </Form.Item>
           </Form>
         </Col>

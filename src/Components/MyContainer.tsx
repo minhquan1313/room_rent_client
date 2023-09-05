@@ -22,20 +22,4 @@ function MyContainer({ children, justify = "center", style, ...rest }: IProps) {
   );
 }
 
-interface IRowProps extends RowProps {
-  children: ReactNode;
-}
-function MyRow({ children, gutter, ...rest }: IRowProps) {
-  return (
-    <div style={{ overflow: "hidden" }}>
-      <Row
-        gutter={gutter || [20, 20]}
-        {...rest}>
-        {children}
-      </Row>
-    </div>
-  );
-}
-
-MyContainer["Row"] = MyRow;
 export default MyContainer;
