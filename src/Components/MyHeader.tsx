@@ -1,9 +1,7 @@
-import MoonIcon from "@/Components/Icons/MoonIcon";
 import MyButton from "@/Components/MyButton";
-import { ThemeContext } from "@/Contexts/ThemeProvider";
+import ThemeSwitcher from "@/Components/ThemeSwitcher";
 import { UserContext } from "@/Contexts/UserContext";
-import { SearchOutlined } from "@ant-design/icons";
-import { Col, Dropdown, Row, Space, theme } from "antd";
+import { Col, Row, Space, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import { useContext } from "react";
 
@@ -13,7 +11,6 @@ export default function MyHeader() {
   } = theme.useToken();
   const { user, isLogging, logout } = useContext(UserContext);
 
-  const { myTheme, switchTheme } = useContext(ThemeContext);
   // const [isUploading, setIsUploading] = useState(false);
   // const [isImagePreloaded, setIsImagePreloaded] = useState(true);
   // const imageUploadSubmit = async (e: HTMLInputElement): Promise<void> => {
@@ -52,52 +49,7 @@ export default function MyHeader() {
 
         <Col>
           <Space>
-            <Dropdown
-              menu={{
-                items: [
-                  {
-                    key: "1",
-                    label: (
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://www.antgroup.com">
-                        1st menu item
-                      </a>
-                    ),
-                  },
-                  {
-                    key: "2",
-                    label: (
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://www.aliyun.com">
-                        2nd menu item
-                      </a>
-                    ),
-                  },
-                  {
-                    key: "3",
-                    label: (
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://www.luohanacademy.com">
-                        3rd menu item
-                      </a>
-                    ),
-                  },
-                ],
-              }}
-              placement="bottom">
-              <MyButton
-                type="primary"
-                shape="circle"
-                size="large"
-                icon={myTheme === "dark" ? <MoonIcon /> : <SearchOutlined />}
-              />
-            </Dropdown>
+            <ThemeSwitcher />
 
             {user ? (
               <>

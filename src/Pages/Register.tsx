@@ -112,7 +112,7 @@ function Register() {
               <Input />
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 0, span: 0 }}>
+            <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
               <Space.Compact block>
                 <MyButton
                   block

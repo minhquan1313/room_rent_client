@@ -1,24 +1,24 @@
-import { Col, Row, RowProps } from "antd";
-import { ReactNode } from "react";
+import { theme } from "antd";
+import { HTMLAttributes, ReactNode } from "react";
 
-interface IProps extends RowProps {
+interface IProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-function MyContainer({ children, justify = "center", style, ...rest }: IProps) {
+function MyContainer({ children, ...rest }: IProps) {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
   return (
-    <Row
-      justify={justify}
-      style={{ ...style, padding: "20px" }}
-      {...rest}>
-      <Col
-        xs={{ span: 24 }}
-        xl={{ span: 20 }}
-        // lg={{ span: 24 }}
-        xxl={{ span: 18 }}>
+    <div style={{ backgroundColor: colorBgContainer }}>
+      <div
+        {...rest}
+        className={"bg-red-3001 container bg-red-300" + rest.className}
+      >
         {children}
-      </Col>
-    </Row>
+      </div>
+    </div>
   );
 }
 

@@ -1,8 +1,9 @@
 import MyButton from "@/Components/MyButton";
+import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserContext";
 import { UserLoginPayload } from "@/types/IUser";
 import { pageTitle } from "@/utils/pageTitle";
-import { Checkbox, Col, Form, Input, Row, Space, Typography, theme } from "antd";
+import { Checkbox, Col, Form, Input, Row, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -19,10 +20,6 @@ function Login() {
   const { user, isLogging, login } = useContext(UserContext);
   const [isFail, setIsFail] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
 
   const onFinish = (values: FieldType) => {
     setIsFail(false);
@@ -73,32 +70,56 @@ function Login() {
   }, []);
 
   return (
-    <div style={{ position: "relative", backgroundColor: colorBgContainer }}>
+    <MyContainer>
       <Row
         justify={"center"}
         align={"middle"}
         style={{ height: "100vh" }}>
         <Col
-          xs={{ span: 18 }}
-          md={{ span: 12 }}
-          lg={{ span: 10 }}
-          xxl={{ span: 6 }}>
-          <Typography.Title style={{ textAlign: "center" }}>Đăng nhập</Typography.Title>
+          xs={{ span: 24 }}
+          // xs={{ span: 18 }}
+          // md={{ span: 12 }}
+          // xl={{ span: 10 }}
+        >
+          <Typography.Title style={{ marginBottom: 0, textAlign: "center" }}>Đăng nhập</Typography.Title>
           <Form
-            name="basic"
-            labelCol={{ xs: { span: 7 } }}
-            wrapperCol={{ span: 20 }}
-            onChange={() => {
-              setIsFail(false);
-            }}
+            // labelCol={{
+            //   xs: { span: 24 },
+            //   sm: { span: 8 },
+            // }}
+            // wrapperCol={{
+            //   xs: { span: 24 },
+            //   sm: { span: 24 - 8 },
+            // }}
+            className="max-w-xl"
+            layout="vertical"
+            onChange={() => setIsFail(false)}
             disabled={isSubmitting || isLogging}
-            initialValues={{ remember: true }}
+            initialValues={{
+              remember: true,
+              username: "12321",
+            }}
+            // size="large"
             onFinish={onFinish}
-            autoComplete="off">
+            // autoComplete="off"
+          >
             <Form.Item<FieldType>
               label="Tên đăng nhập"
               name="username"
-              rules={[{ required: true, message: "Tên đăng nhập không bỏ trống" }]}>
+              rules={[
+                {
+                  required: true,
+                  message: "Tên đăng nhập không bỏ trống",
+                },
+                {
+                  min: 6,
+                  message: "Tên người dùng từ 6 kí tự trở lên",
+                },
+                {
+                  whitespace: false,
+                  message: "Tên người dùng không chứa khoảng trắng",
+                },
+              ]}>
               <Input />
             </Form.Item>
 
@@ -109,14 +130,47 @@ function Login() {
               <Input.Password />
             </Form.Item>
 
-            <Form.Item<FieldType>
-              name="remember"
-              valuePropName="checked"
-              wrapperCol={{ offset: 8, span: 16 }}>
-              <Checkbox>Ghi nhớ</Checkbox>
+            <Form.Item>
+              <Form.Item<FieldType>
+                name="remember"
+                valuePropName="checked"
+                noStyle>
+                <Checkbox>Ghi nhớ</Checkbox>
+              </Form.Item>
+
+              <a
+                className="login-form-forgot"
+                href="#">
+                Forgot password
+              </a>
             </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 0, span: 0 }}>
+            {/* <Form.Item<FieldType>
+              name="remember"
+              valuePropName="checked"
+              labelAlign="right"
+              // wrapperCol={{
+              //   xs: { span: 24 },
+              //   sm: { offset: 8, span: 24 - 8 },
+              // }}
+            >
+              <Checkbox>Ghi nhớ</Checkbox>
+
+              <a
+                className="login-form-forgot"
+                href="">
+                Forgot password
+              </a>
+            </Form.Item> */}
+
+            <Form.Item
+            // wrapperCol={
+            //   {
+            //     // xs: { span: 24 },
+            //     // sm: { offset: 8, span: 24 - 8 },
+            //   }
+            // }
+            >
               <Space.Compact block>
                 <MyButton
                   block
@@ -138,7 +192,7 @@ function Login() {
           </Form>
         </Col>
       </Row>
-    </div>
+    </MyContainer>
   );
 }
 

@@ -2,7 +2,7 @@ import App from "@/App";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserProvider from "@/Contexts/UserContext";
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
-import "@/styles/index.css";
+import "@/styles/tailwind.css";
 import "antd/dist/reset.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
