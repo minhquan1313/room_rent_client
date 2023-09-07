@@ -18,7 +18,7 @@ function MyLayout() {
         <Outlet />
       </Content>
 
-      {/* <MyContainer style={{ flex: 1 }}>
+      {/* <MyContainer outerClassName="flex-1">
         <Outlet />
       </MyContainer> */}
       <Footer style={{ textAlign: "center" }}>

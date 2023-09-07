@@ -1,49 +1,37 @@
 import { Button, ButtonProps } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import classNames from "classnames";
+import { Link } from "react-router-dom";
 
 interface IProps extends ButtonProps {
   to?: string;
+  rawTo?: boolean;
   loading?: boolean;
   display?: "inline";
 }
-function MyButton({
-  to = "",
-  type = "default",
-  onClick,
+function MyButton({ to, rawTo, type = "default", children, ...rest }: IProps) {
+  const props: IProps = {
+    ...rest,
+    type: type,
+  };
 
-  children,
-  ...rest
-}: IProps) {
-  const nav = useNavigate();
+  if (!to) return <Button {...props}>{children}</Button>;
 
-  return (
-    <Button
-      type={type}
-      style={{
-        position: "relative",
-      }}
-      onClick={(e) => {
-        onClick && onClick(e);
-        to &&
-          nav({
-            pathname: to,
-          });
-      }}
-      {...rest}>
-      {children ||
-        (to && (
-          <>
-            {to && (
-              <Link
-                to={to}
-                style={{ position: "absolute", inset: 0, opacity: 0 }}>
-                {children}
-              </Link>
-            )}
-          </>
-        ))}
-    </Button>
+  // const className=rawTo?classNames("inline-block", rest.className):
+  const r = rawTo ? rest : {};
+  const MyLink = (
+    <Link
+      to={to}
+      {...r}
+      className={classNames("inline-block", rawTo && rest.className)}
+    >
+      {children}
+
+      {/* MASK */}
+      <div className="absolute inset-0 opacity-0" />
+    </Link>
   );
+
+  return rawTo ? MyLink : <Button {...props}>{MyLink}</Button>;
 }
 
 export default MyButton;

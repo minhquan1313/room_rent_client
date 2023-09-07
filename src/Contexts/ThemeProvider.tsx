@@ -56,12 +56,11 @@ export default function ThemeProvider({ children }: Props) {
   }, [themeChangedManually]);
 
   useEffect(() => {
-    console.log(`🚀 ~ useEffect ~ lightToken:`, lightToken);
-
-    console.log(`🚀 ~ useEffect ~ darkToken:`, darkToken);
     setMetaTheme(
       myTheme,
-      myTheme === "dark" ? darkToken?.colorBgBase : lightToken?.colorBgBase,
+      myTheme === "dark"
+        ? darkToken?.colorBgContainer
+        : lightToken?.colorBgContainer,
     );
   }, [myTheme]);
 

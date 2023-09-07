@@ -77,10 +77,10 @@ function Login() {
   });
 
   return (
-    <MyContainer.Center className="py-5">
+    <MyContainer.Center className="max-w-sm py-5">
       <Typography.Title>Đăng nhập</Typography.Title>
       <Form
-        className="w-full max-w-sm"
+        className="w-full"
         layout="vertical"
         onChange={() => setError(undefined)}
         disabled={submitting || isLogging}

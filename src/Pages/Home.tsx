@@ -1,11 +1,13 @@
+import MyButton from "@/Components/MyButton";
+import MyContainer from "@/Components/MyContainer";
 import { pageTitle } from "@/utils/pageTitle";
-import { Typography } from "antd";
+import { Space, Typography } from "antd";
 
 function Home() {
   pageTitle("");
 
   return (
-    <div>
+    <MyContainer>
       <Typography.Title
         level={2}
         style={{ textAlign: "center", paddingTop: 20 }}
@@ -15,7 +17,11 @@ function Home() {
       <Typography.Paragraph style={{ textAlign: "center" }}>
         Tìm và đặt chuyến ngay thoi!
       </Typography.Paragraph>
-    </div>
+
+      <Space>
+        <MyButton to="/rooms/add">Thêm phòng</MyButton>
+      </Space>
+    </MyContainer>
   );
 }
 

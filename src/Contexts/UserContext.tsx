@@ -34,8 +34,6 @@ function clearData() {
   fetcher.update({ token: null });
 }
 function saveData(u: IUser, remember: boolean) {
-  console.log(`🚀 ~ saveData ~ u:`, u);
-
   (remember ? localStorage : sessionStorage).setItem("user", JSON.stringify(u));
   if (u.token) {
     (remember ? localStorage : sessionStorage).setItem("token", u.token);
@@ -98,13 +96,10 @@ export default function UserProvider({ children }: IProps) {
       setIsLogging(() => true);
       const url = `/users/login-token`;
 
-      console.log("login token");
-
       try {
         const user = await fetcher.post<never, IUser>(url, undefined, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("login token ok", user);
 
         fetcher.update({
           token,
@@ -117,8 +112,6 @@ export default function UserProvider({ children }: IProps) {
 
         return user;
       } catch (error) {
-        console.log(`🚀 ~login token error:`, error);
-
         logout();
         setIsLogging(() => false);
 
@@ -169,6 +162,8 @@ export default function UserProvider({ children }: IProps) {
       },
       function (error) {
         error.response.status === 401 && logout();
+        // throw error;
+        return Promise.reject(error);
       },
     );
 

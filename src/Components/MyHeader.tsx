@@ -2,11 +2,24 @@ import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import ThemeSwitcher from "@/Components/ThemeSwitcher";
 import { UserContext } from "@/Contexts/UserContext";
+import { ADMIN_ROLES, OWNER_ROLES } from "@/config/roleType";
 import { fetcher } from "@/services/fetcher";
+import { userNameDisplay } from "@/utils/dataDisplay";
 import { preloadImage } from "@/utils/preloadImage";
-import { UserOutlined } from "@ant-design/icons";
-import { Avatar, Col, Row, Space, Spin, Tooltip, message, theme } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
+import {
+  Avatar,
+  Badge,
+  Col,
+  Dropdown,
+  Row,
+  Space,
+  Spin,
+  message,
+  theme,
+} from "antd";
 import { Header } from "antd/es/layout/layout";
+import classNames from "classnames";
 import { useContext, useEffect, useState } from "react";
 
 export default function MyHeader() {
@@ -60,33 +73,73 @@ export default function MyHeader() {
               <ThemeSwitcher />
 
               {user ? (
-                <>
-                  <Spin spinning={isUploading || !isImagePreloaded}>
-                    <Tooltip title="Bấm để thay avatar">
-                      <Avatar
-                        // size="large"
-                        src={user.image}
-                        icon={<UserOutlined />}
-                        onClick={() => {
-                          (() => {
-                            const input = document.createElement("input");
-                            input.type = "file";
-                            input.accept = "image/*";
+                <Spin spinning={isUploading || !isImagePreloaded}>
+                  <Dropdown
+                    className="cursor-pointer"
+                    menu={{
+                      items: [
+                        {
+                          key: "info",
+                          label: (
+                            <MyButton to="/info" rawTo>
+                              <Space>
+                                {userNameDisplay(user)}
+                                {[...ADMIN_ROLES, ...OWNER_ROLES].includes(
+                                  user.role.title,
+                                ) && (
+                                  <Badge
+                                    title={user.role.display_name ?? ""}
+                                    size="default"
+                                    // count={3}
+                                    color="cyan"
+                                    count={user.role.display_name}
+                                  />
+                                )}
+                              </Space>
+                            </MyButton>
+                          ),
+                          disabled: false,
+                        },
+                        {
+                          type: "divider",
+                        },
+                        {
+                          key: "logout",
+                          icon: <LogoutOutlined />,
+                          label: "Đăng xuất",
+                          disabled: false,
+                          onClick: logout,
+                        },
+                      ],
+                    }}
+                    arrow
+                    autoAdjustOverflow
+                    // open={true}
+                  >
+                    <Avatar
+                      size="large"
+                      src={user.image}
+                      className={classNames("select-none", {
+                        "border-2 border-solid border-yellow-500":
+                          ADMIN_ROLES.includes(user.role.title),
+                      })}
+                      // icon={<UserOutlined />}
+                      // onClick={() => {
+                      //   (() => {
+                      //     const input = document.createElement("input");
+                      //     input.type = "file";
+                      //     input.accept = "image/*";
 
-                            input.onchange = () => imageUploadSubmit(input);
+                      //     input.onchange = () => imageUploadSubmit(input);
 
-                            input.click();
-                          })();
-                        }}
-                      />
-                    </Tooltip>
-                  </Spin>
-
-                  <MyButton>
-                    {user.last_name} {user.first_name}
-                  </MyButton>
-                  <MyButton onClick={logout}>Đăng xuất</MyButton>
-                </>
+                      //     input.click();
+                      //   })();
+                      // }}
+                    >
+                      {user.first_name[0]}
+                    </Avatar>
+                  </Dropdown>
+                </Spin>
               ) : (
                 <>
                   <MyButton loading={isLogging} to="/login">

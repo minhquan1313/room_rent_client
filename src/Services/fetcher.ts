@@ -30,7 +30,7 @@ export const fetcher = (() => {
 
   i.interceptors.response.use(
     function (response) {
-      console.log(`🚀 ~ fetcher ~ response.data:`, response.data);
+      // console.log(`🚀 ~ fetcher ~ response.data:`, response.data);
 
       const r = response.data as unknown as IUser;
 
@@ -43,8 +43,8 @@ export const fetcher = (() => {
     function (error) {
       console.log(`🚀 ~ fetcher ~ error:`, error);
 
-      throw error;
-      // return Promise.reject(error);
+      // throw error;
+      return Promise.reject(error);
     },
   );
 

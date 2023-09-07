@@ -20,7 +20,7 @@ function MyContainer({
 
   return (
     <div
-      className={outerClassName}
+      className={classNames("min-w-full", outerClassName)}
       style={{
         backgroundColor: colorBgContainer,
         ...style,
@@ -37,12 +37,12 @@ function Center({ children, className, ...rest }: IProps) {
   return (
     <MyContainer
       {...rest}
-      outerClassName="fixed inset-0"
-      className={classNames("flex min-h-full", className)}
+      outerClassName="flex"
+      className={classNames("mx-auto my-auto", className)}
     >
-      <div className="my-auto flex flex-1 flex-col items-center">
-        {children}
-      </div>
+      {/* <div className="my-auto flex flex-1 flex-col items-center"> */}
+      {children}
+      {/* </div> */}
     </MyContainer>
   );
 }
