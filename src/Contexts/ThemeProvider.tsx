@@ -1,10 +1,12 @@
-import { ConfigProvider, ThemeConfig, theme } from "antd";
+import { darkToken, lightToken } from "@/config/themeToken";
+import { setMetaTheme } from "@/utils/setMeta";
+import { ConfigProvider, theme } from "antd";
 import { ReactNode, createContext, useEffect, useState } from "react";
 
 type Props = {
   children: ReactNode;
 };
-type TTheme = "light" | "dark";
+export type TTheme = "light" | "dark";
 interface IThemeContext {
   myTheme: TTheme;
   systemTheme: TTheme;
@@ -14,33 +16,13 @@ interface IThemeContext {
 
 const initTheme = getInitTheme();
 
-const darkToken: ThemeConfig["token"] = {};
-const lightToken: ThemeConfig["token"] = {};
-
 export const ThemeContext = createContext<IThemeContext>(null as never);
-
-function getInitTheme(): { theme: TTheme; systemTheme: TTheme; manual: boolean } {
-  const systemTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-
-  const themeStr = localStorage.getItem(`theme`);
-  if (themeStr && ["light", "dark"].includes(themeStr))
-    return {
-      theme: themeStr as TTheme,
-      manual: true,
-      systemTheme,
-    };
-
-  return {
-    theme: systemTheme,
-    manual: false,
-    systemTheme,
-  };
-}
-
 export default function ThemeProvider({ children }: Props) {
   const [myTheme, setMyTheme] = useState<TTheme>(initTheme.theme);
   const [systemTheme, setSystemTheme] = useState<TTheme>(initTheme.systemTheme);
-  const [themeChangedManually, setThemeChangedManually] = useState(initTheme.manual);
+  const [themeChangedManually, setThemeChangedManually] = useState(
+    initTheme.manual,
+  );
 
   function switchTheme(theme: TTheme | "system") {
     if (theme === "system") {
@@ -73,6 +55,16 @@ export default function ThemeProvider({ children }: Props) {
     };
   }, [themeChangedManually]);
 
+  useEffect(() => {
+    console.log(`🚀 ~ useEffect ~ lightToken:`, lightToken);
+
+    console.log(`🚀 ~ useEffect ~ darkToken:`, darkToken);
+    setMetaTheme(
+      myTheme,
+      myTheme === "dark" ? darkToken?.colorBgBase : lightToken?.colorBgBase,
+    );
+  }, [myTheme]);
+
   const value = {
     myTheme,
     systemTheme,
@@ -83,14 +75,42 @@ export default function ThemeProvider({ children }: Props) {
     <ThemeContext.Provider value={value}>
       <ConfigProvider
         theme={{
-          algorithm: myTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
+          algorithm:
+            myTheme === "dark" ? theme.darkAlgorithm : theme.defaultAlgorithm,
           token: {
             ...(myTheme === "dark" ? darkToken : lightToken),
             fontFamily: "SVNPoppins",
           },
-        }}>
+        }}
+      >
         {children}
       </ConfigProvider>
     </ThemeContext.Provider>
   );
+}
+
+function getInitTheme(): {
+  theme: TTheme;
+  systemTheme: TTheme;
+  manual: boolean;
+} {
+  const systemTheme =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+
+  const themeStr = localStorage.getItem(`theme`);
+  if (themeStr && ["light", "dark"].includes(themeStr))
+    return {
+      theme: themeStr as TTheme,
+      manual: true,
+      systemTheme,
+    };
+
+  return {
+    theme: systemTheme,
+    manual: false,
+    systemTheme,
+  };
 }

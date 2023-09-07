@@ -37,12 +37,10 @@ export type UserRegisterPayload = {
   disabled?: boolean;
 
   gender?: TGender;
+  role?: TRole;
+  email?: string;
 
   image?: string;
   last_name?: string;
-
-  role?: TRole;
-
   owner_banner?: string;
-  email?: string;
 };

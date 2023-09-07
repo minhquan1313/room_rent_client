@@ -1,6 +1,6 @@
 import MyFooter from "@/Components/MyFooter";
 import MyHeader from "@/Components/MyHeader";
-import { Layout, theme } from "antd";
+import { theme } from "antd";
 import { Content, Footer } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
 
@@ -12,20 +12,20 @@ function MyLayout() {
   } = theme.useToken();
 
   return (
-    <Layout
-      className=""
-      style={{ minHeight: "100vh" }}>
-      <Layout>
-        <MyHeader />
-        <Content style={{ background: colorBgContainer }}>
-          <Outlet />
-        </Content>
-        <Footer style={{ textAlign: "center" }}>
-          {/* Ant Design ©2023 Created by Ant UED */}
-          <MyFooter />
-        </Footer>
-      </Layout>
-    </Layout>
+    <div className="flex min-h-full min-w-full flex-col">
+      <MyHeader />
+      <Content className="flex-1" style={{ background: colorBgContainer }}>
+        <Outlet />
+      </Content>
+
+      {/* <MyContainer style={{ flex: 1 }}>
+        <Outlet />
+      </MyContainer> */}
+      <Footer style={{ textAlign: "center" }}>
+        {/* Ant Design ©2023 Created by Ant UED */}
+        <MyFooter />
+      </Footer>
+    </div>
   );
 }
 

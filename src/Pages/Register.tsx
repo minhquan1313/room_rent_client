@@ -1,10 +1,31 @@
 import MyButton from "@/Components/MyButton";
+import MyContainer from "@/Components/MyContainer";
+import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserContext";
+import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { UserRegisterPayload } from "@/types/IUser";
+import { isValidPhone } from "@/utils/isValidPhoneNumber";
 import { pageTitle } from "@/utils/pageTitle";
-import { Col, Form, Input, Row, Space, Typography, theme } from "antd";
+import {
+  Alert,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Skeleton,
+  Space,
+  Typography,
+} from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+const telCodes = [
+  {
+    region: "VN",
+    code: "+84",
+  },
+];
 
 function Register() {
   pageTitle("Đăng ký");
@@ -13,38 +34,33 @@ function Register() {
   const location = useLocation();
 
   const { user, isLogging, register } = useContext(UserContext);
-  const [loginFail, setLoginFail] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
+  const { roles, genders } = useContext(GlobalDataContext);
+  const [error, setError] = useState<ErrorJsonResponse>();
+  const [submitting, setSubmitting] = useState(false);
 
   const onFinish = (values: UserRegisterPayload) => {
-    setLoginFail(false);
-    const u: UserRegisterPayload = values;
-    setLoading(true);
-    (async () => {
-      const d = await register(u, true);
-      setLoading(false);
+    setError(undefined);
+    setSubmitting(true);
 
-      if (d) {
-        // login success
-      } else {
-        setLoginFail(true);
-        //login fail
+    (async () => {
+      try {
+        const d = await register(values, true);
+      } catch (error: any) {
+        console.log(`🚀 ~ error:`, error);
+
+        setError(error.response.data as ErrorJsonResponse);
       }
     })();
-
-    console.log("Success:", values);
+    setSubmitting(false);
   };
 
   // if user already logged in
   useEffect(() => {
     if (!user) return;
 
-    if (location.key === "default") navigate("/");
-    else navigate(-1);
+    location.state?.previous
+      ? navigate(location.state.previous)
+      : navigate("/");
   });
 
   // when user press go back but not login
@@ -60,82 +76,227 @@ function Register() {
     return () => {
       window.removeEventListener("popstate", f);
     };
-  }, []);
+  }, [location.key, navigate]);
+
+  useEffect(() => {
+    // genders;
+    // console.log(`🚀 ~ file: Register.tsx:62 ~ useEffect ~ genders:`, genders);
+    // role;
+    // console.log(`🚀 ~ file: Register.tsx:67 ~ useEffect ~ role:`, role);
+    // roles;
+    // console.log(`🚀 ~ file: Register.tsx:79 ~ useEffect ~ roles:`, roles);
+  });
 
   return (
-    <div style={{ position: "relative", backgroundColor: colorBgContainer }}>
-      <Row
-        justify={"center"}
-        align={"middle"}
-        style={{ height: "100vh" }}>
-        <Col
-          xs={{ span: 18 }}
-          md={{ span: 12 }}
-          lg={{ span: 10 }}
-          xxl={{ span: 6 }}>
-          <Typography.Title style={{ textAlign: "center" }}>Đăng ký</Typography.Title>
-          <Form
-            name="basic"
-            labelCol={{ xs: { span: 7 } }}
-            wrapperCol={{ span: 20 }}
-            onChange={() => {
-              setLoginFail(false);
-            }}
-            disabled={loading || isLogging}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            autoComplete="off">
-            <Form.Item<UserRegisterPayload>
-              label="Tên đăng nhập"
-              name="username"
-              rules={[{ required: true, message: "Tên đăng nhập không bỏ trống" }]}>
-              <Input />
-            </Form.Item>
+    <MyContainer.Center className="py-5">
+      <Typography.Title>Đăng ký</Typography.Title>
 
-            <Form.Item<UserRegisterPayload>
-              label="Mật khẩu"
-              name="password"
-              rules={[{ required: true, message: "Mật khẩu không bỏ trống" }]}>
-              <Input.Password />
-            </Form.Item>
+      <Form
+        name="register"
+        className="w-full max-w-sm"
+        layout="vertical"
+        onChange={() => setError(undefined)}
+        disabled={submitting || isLogging}
+        initialValues={{
+          region_code: telCodes[0].region,
+          first_name: "Binh",
+          tell: 889379138,
+          username: "binh",
+          password: "1",
+        }}
+        onFinish={onFinish}
+      >
+        <Form.Item<UserRegisterPayload>
+          label="Tên đăng nhập"
+          name="username"
+          rules={[
+            {
+              required: true,
+              message: "Tên đăng nhập không bỏ trống",
+            },
+            // {
+            //   min: 6,
+            //   message: "Tên người dùng từ 6 kí tự trở lên",
+            // },
+            {
+              pattern: /^[^\s]*$/,
+              message: "Tên người dùng không chứa khoảng trắng",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
+        <Form.Item<UserRegisterPayload>
+          label="Mật khẩu"
+          name="password"
+          rules={[
+            {
+              required: true,
+              message: "Mật khẩu không bỏ trống",
+            },
+            // {
+            //   min: 6,
+            //   message: "Mật khẩu từ 6 kí tự trở lên",
+            // },
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
+
+        <Row gutter={12}>
+          <Col span={12}>
             <Form.Item<UserRegisterPayload>
               label="Họ và tên đệm"
-              name="last_name">
+              name="last_name"
+            >
               <Input />
             </Form.Item>
-
+          </Col>
+          <Col span={12}>
             <Form.Item<UserRegisterPayload>
               label="Tên"
               name="first_name"
-              rules={[{ required: true, message: "Tên  không bỏ trống" }]}>
+              rules={[
+                {
+                  required: true,
+                  message: "Tên không bỏ trống",
+                },
+                {
+                  pattern: /^[^\s]*$/,
+                  message: "Tên không chứa khoảng trắng",
+                },
+              ]}
+            >
               <Input />
             </Form.Item>
+          </Col>
+        </Row>
 
-            <Form.Item wrapperCol={{ offset: 0, span: 24 }}>
-              <Space.Compact block>
-                <MyButton
-                  block
-                  loading={isLogging}
-                  type="default"
-                  to="/login">
-                  Đăng nhập
-                </MyButton>
-                <MyButton
-                  block
-                  type="primary"
-                  loading={loading}
-                  danger={loginFail}
-                  htmlType="submit">
-                  Đăng ký
-                </MyButton>
-              </Space.Compact>
-              {loginFail && <Typography.Paragraph style={{ width: "100%", textAlign: "center", marginTop: 12 }}>Đăng ký thất bại</Typography.Paragraph>}
+        <Form.Item<UserRegisterPayload>
+          label="Số điện thoại"
+          name="tell"
+          rules={[
+            {
+              message: "Số điện thoại không được trống",
+              required: true,
+            },
+            ({ getFieldValue }) => ({
+              message: "Số điện thoại không hợp lệ",
+              validator(rule, value, callback) {
+                const rc = getFieldValue("region_code");
+
+                if (value && rc && isValidPhone(value, rc))
+                  return Promise.resolve();
+
+                return Promise.reject();
+              },
+            }),
+          ]}
+        >
+          <Input
+            addonBefore={
+              <Form.Item<UserRegisterPayload> name="region_code" noStyle>
+                <Select>
+                  {telCodes.map(({ code, region }) => (
+                    <Select.Option key={region} value={region}>
+                      {code}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            }
+          />
+        </Form.Item>
+
+        <Form.Item noStyle={!!roles}>
+          {!roles ? (
+            <Skeleton.Input active block />
+          ) : (
+            <Form.Item<UserRegisterPayload>
+              label="Vai trò"
+              name="role"
+              // required={false}
+              initialValue={roles.find(({ title }) => title === "user")?.title}
+              rules={[
+                {
+                  message: "Không được trống",
+                  required: true,
+                },
+              ]}
+            >
+              <Select>
+                {roles.map(({ display_name, title }) => (
+                  <Select.Option key={title} value={title}>
+                    {display_name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
-          </Form>
-        </Col>
-      </Row>
-    </div>
+          )}
+        </Form.Item>
+        <Form.Item noStyle={!!genders}>
+          {!genders ? (
+            <Skeleton.Input active block />
+          ) : (
+            <Form.Item<UserRegisterPayload>
+              label="Giới tính"
+              name="gender"
+              // required={false}
+              initialValue={
+                genders.find(({ title }) => title === "male")?.title
+              }
+              rules={[
+                {
+                  message: "Không được trống",
+                  required: true,
+                },
+              ]}
+            >
+              <Select>
+                {genders.map(({ display_name, title }) => (
+                  <Select.Option key={title} value={title}>
+                    {display_name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
+        </Form.Item>
+
+        <Form.Item noStyle={!error}>
+          <Space.Compact block>
+            <MyButton block loading={isLogging} type="default" to="/login">
+              Đăng nhập
+            </MyButton>
+
+            <MyButton
+              block
+              type="primary"
+              loading={submitting}
+              disabled={!roles || !genders}
+              danger={!!error}
+              htmlType="submit"
+            >
+              Đăng ký
+            </MyButton>
+          </Space.Compact>
+        </Form.Item>
+
+        <Form.Item noStyle>
+          {error && (
+            <Alert
+              type="error"
+              message={error.error.map(({ msg }) => (
+                <div key={msg} className="text-center">
+                  <Typography.Text type="danger">{msg}</Typography.Text>
+                </div>
+              ))}
+            />
+          )}
+        </Form.Item>
+      </Form>
+    </MyContainer.Center>
   );
 }
 
