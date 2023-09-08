@@ -1,7 +1,8 @@
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
-import { UserContext } from "@/Contexts/UserContext";
+import { UserContext } from "@/Contexts/UserProvider";
+import { telCodes } from "@/constants/telCodes";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { UserRegisterPayload } from "@/types/IUser";
 import { isValidPhone } from "@/utils/isValidPhoneNumber";
@@ -17,15 +18,8 @@ import {
   Space,
   Typography,
 } from "antd";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-const telCodes = [
-  {
-    region: "VN",
-    code: "+84",
-  },
-];
 
 function Register() {
   pageTitle("Đăng ký");
@@ -39,20 +33,36 @@ function Register() {
   const [submitting, setSubmitting] = useState(false);
 
   const onFinish = (values: UserRegisterPayload) => {
-    setError(undefined);
-    setSubmitting(true);
+    console.log(`🚀 ~ onFinish ~ values:`, values);
+    return;
 
-    (async () => {
-      try {
-        const d = await register(values, true);
-      } catch (error: any) {
-        console.log(`🚀 ~ error:`, error);
+    // setError(undefined);
+    // setSubmitting(true);
 
-        setError(error.response.data as ErrorJsonResponse);
-      }
-    })();
-    setSubmitting(false);
+    // (async () => {
+    //   try {
+    //     const d = await register(values, true);
+    //   } catch (error: any) {
+    //     console.log(`🚀 ~ error:`, error);
+
+    //     setError(error.response.data as ErrorJsonResponse);
+    //   }
+    // })();
+    // setSubmitting(false);
   };
+
+  const phoneRegionSelectJsx = useMemo(
+    () => (
+      <Select className="min-w-[5rem]">
+        {telCodes.map(({ code, label }) => (
+          <Select.Option key={code} value={code}>
+            +{label}
+          </Select.Option>
+        ))}
+      </Select>
+    ),
+    [],
+  );
 
   // if user already logged in
   useEffect(() => {
@@ -98,7 +108,7 @@ function Register() {
         onChange={() => setError(undefined)}
         disabled={submitting || isLogging}
         initialValues={{
-          region_code: telCodes[0].region,
+          region_code: "VN",
           first_name: "Binh",
           tell: 889379138,
           username: "binh",
@@ -183,7 +193,7 @@ function Register() {
             },
             ({ getFieldValue }) => ({
               message: "Số điện thoại không hợp lệ",
-              validator(rule, value, callback) {
+              validator(rule, value) {
                 const rc = getFieldValue("region_code");
 
                 if (value && rc && isValidPhone(value, rc))
@@ -197,13 +207,7 @@ function Register() {
           <Input
             addonBefore={
               <Form.Item<UserRegisterPayload> name="region_code" noStyle>
-                <Select>
-                  {telCodes.map(({ code, region }) => (
-                    <Select.Option key={region} value={region}>
-                      {code}
-                    </Select.Option>
-                  ))}
-                </Select>
+                {phoneRegionSelectJsx}
               </Form.Item>
             }
           />
@@ -216,8 +220,7 @@ function Register() {
             <Form.Item<UserRegisterPayload>
               label="Vai trò"
               name="role"
-              // required={false}
-              initialValue={roles.find(({ title }) => title === "user")?.title}
+              initialValue="user"
               rules={[
                 {
                   message: "Không được trống",
@@ -243,9 +246,7 @@ function Register() {
               label="Giới tính"
               name="gender"
               // required={false}
-              initialValue={
-                genders.find(({ title }) => title === "male")?.title
-              }
+              initialValue="male"
               rules={[
                 {
                   message: "Không được trống",

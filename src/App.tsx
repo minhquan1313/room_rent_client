@@ -1,19 +1,37 @@
 import MyContainer from "@/Components/MyContainer";
-import { UserContext } from "@/Contexts/UserContext";
+import { UserContext } from "@/Contexts/UserProvider";
 import AddRoom from "@/Pages/AddRoom";
 import Home from "@/Pages/Home";
 import Login from "@/Pages/Login";
 import MyLayout from "@/Pages/MyLayout";
 import NotFound from "@/Pages/NotFound";
 import Register from "@/Pages/Register";
-import { OWNER_ROLES } from "@/config/roleType";
+import { OWNER_ROLES } from "@/constants/roleType";
 import { pageTitle } from "@/utils/pageTitle";
 import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
+// import { defineConfig } from "vite";
+// import react from "@vitejs/plugin-react";
+
+// // https://vitejs.dev/config/
+// export default defineConfig({
+//   plugins: [react()],
+//   define: {
+//     global: "window",
+//   },
+//   build: {
+//     rollupOptions: {
+//       external: ["graphql"],
+//     },
+//   },
+// });
+
 function App() {
   const { user } = useContext(UserContext);
   pageTitle("");
+
+  // console.clear();
 
   return (
     <MyContainer.Raw>

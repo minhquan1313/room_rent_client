@@ -1,7 +1,7 @@
 import { IRoomImage } from "./IRoomImage";
 import { IRoomLocation } from "./IRoomLocation";
-import { IRoomService } from "./IRoomService";
-import { IRoomType } from "./IRoomType";
+import { IRoomService, TRoomService } from "./IRoomService";
+import { IRoomType, TRoomType } from "./IRoomType";
 import { IUser } from "./IUser";
 
 export interface IRoom {
@@ -16,13 +16,51 @@ export interface IRoom {
   name: string;
   sub_name: string | null;
   description: string | null;
+
   price_per_month: number;
+  price_currency_code: string;
+
   usable_area: number | null;
-  number_of_room: number | null;
+  number_of_living_room: number | null;
   number_of_bedroom: number | null;
   number_of_bathroom: number | null;
   number_of_floor: number;
 
+  available: boolean;
+
   updatedAt: Date;
   createdAt: Date;
 }
+
+export type RoomPayload = {
+  owner?: string;
+  room_type: TRoomType;
+  name: string;
+
+  services?: TRoomService[];
+
+  // id of services
+  images?: string[];
+  imagesOrders?: number[];
+
+  location: RoomLocationPayload;
+
+  sub_name?: string;
+  description?: string;
+
+  price_per_month: number;
+  price_currency_code: string;
+
+  usable_area?: number;
+  number_of_living_room?: number;
+  number_of_bedroom?: number;
+  number_of_bathroom?: number;
+  number_of_floor?: number;
+
+  available?: boolean;
+};
+
+export type RoomLocationPayload = Omit<
+  IRoomLocation,
+  "_id" | "room" | "updatedAt" | "createdAt"
+>;

@@ -1,8 +1,9 @@
+import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import ThemeSwitcher from "@/Components/ThemeSwitcher";
-import { UserContext } from "@/Contexts/UserContext";
-import { ADMIN_ROLES, OWNER_ROLES } from "@/config/roleType";
+import { UserContext } from "@/Contexts/UserProvider";
+import { ADMIN_ROLES, OWNER_ROLES } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
 import { userNameDisplay } from "@/utils/dataDisplay";
 import { preloadImage } from "@/utils/preloadImage";
@@ -21,6 +22,7 @@ import {
 import { Header } from "antd/es/layout/layout";
 import classNames from "classnames";
 import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function MyHeader() {
   const { token } = theme.useToken();
@@ -65,8 +67,12 @@ export default function MyHeader() {
       <MyContainer
       // style={{ backgroundColor: token.colorBgSpotlight }}
       >
-        <Row justify="space-between">
-          <Col></Col>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Link to="/" className="flex">
+              <AppLogoIcon className="text-5xl" />
+            </Link>
+          </Col>
 
           <Col>
             <Space>
@@ -75,13 +81,12 @@ export default function MyHeader() {
               {user ? (
                 <Spin spinning={isUploading || !isImagePreloaded}>
                   <Dropdown
-                    className="cursor-pointer"
                     menu={{
                       items: [
                         {
                           key: "info",
                           label: (
-                            <MyButton to="/info" rawTo>
+                            <Link to="/info">
                               <Space>
                                 {userNameDisplay(user)}
                                 {[...ADMIN_ROLES, ...OWNER_ROLES].includes(
@@ -96,7 +101,7 @@ export default function MyHeader() {
                                   />
                                 )}
                               </Space>
-                            </MyButton>
+                            </Link>
                           ),
                           disabled: false,
                         },

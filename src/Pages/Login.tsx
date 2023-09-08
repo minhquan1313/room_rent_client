@@ -1,6 +1,6 @@
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
-import { UserContext } from "@/Contexts/UserContext";
+import { UserContext } from "@/Contexts/UserProvider";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 
 import { UserLoginPayload } from "@/types/IUser";
@@ -139,7 +139,7 @@ function Login() {
           </Form.Item>
         </Form.Item>
 
-        <Form.Item noStyle>
+        <Form.Item noStyle={!error}>
           <Space.Compact block>
             <MyButton
               block
