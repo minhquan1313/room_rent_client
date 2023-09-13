@@ -1,9 +1,12 @@
+import FilesUpload3 from "@/Components/FilesUpload";
+import LocationFormInputs from "@/Components/LocationFormInputs";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { currencyCodes } from "@/constants/currencyCodes";
 import { measureUnitCodes } from "@/constants/measureUnitCodes";
+import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { pageTitle } from "@/utils/pageTitle";
@@ -17,41 +20,69 @@ import {
   Skeleton,
   Space,
   Typography,
+  message,
 } from "antd";
+import { useContext, useMemo, useRef, useState } from "react";
 
-import { useContext, useEffect, useMemo, useState } from "react";
-
-export default function AddRoom() {
+function AddRoom() {
   pageTitle("Thêm phòng");
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const { isLogging } = useContext(UserContext);
   const { roomServices, roomTypes } = useContext(GlobalDataContext);
   const [submitting, setSubmitting] = useState(false);
   // const [editorState, setEditorState] = useState(EditorState.createEmpty);
   const [error, setError] = useState<ErrorJsonResponse>();
+  const files = useRef<File[]>();
+  const location = useRef<RoomLocationPayload>();
+  // const [files, setFiles] = useState<MyFile[]>();
 
   const onFinish = (values: RoomPayload) => {
+    console.log(`🚀 ~ onFinish ~ files:`, files);
+    console.log(`🚀 ~ onFinish ~ location:`, location);
     console.log(`🚀 ~ onFinish ~ values:`, values);
 
-    // setError(undefined);
-    // setSubmitting(true);
-    // // const { remember } = values;
+    if (!location.current) {
+      messageApi.open({
+        type: "error",
+        content: "Hãy chọn toạ độ trên bản đồ và điền đầy đủ thông tin",
+      });
 
-    // (async () => {
-    //   try {
-    //     // const d = await login(values, remember);
-    //   } catch (error: any) {
-    //     console.log(`🚀 ~ error:`, error);
+      return;
+    }
 
-    //     setError(error.response.data as ErrorJsonResponse);
-    //   }
-    // })();
-    // setSubmitting(false);
+    setError(undefined);
+    setSubmitting(true);
+    // const { remember } = values;
+
+    (async () => {
+      try {
+        values.location = location.current!;
+        if (values.owner === "") {
+          delete values.owner;
+        }
+
+        const json = JSON.stringify(values);
+
+        const r = await fetcher.postForm("/rooms", {
+          files: files.current,
+          json,
+        });
+        setSubmitting(false);
+        console.log(`🚀 ~ r:`, r);
+
+        // const d = await login(values, remember);
+      } catch (error: any) {
+        setSubmitting(false);
+        setError(error.response.data as ErrorJsonResponse);
+      }
+    })();
   };
 
   const currencySelectJsx = useMemo(
     () => (
-      <Select defaultValue={"VND"} className="min-w-[8rem]">
+      <Select className="min-w-[8rem]">
         {currencyCodes.map(({ code, label }) => (
           <Select.Option key={code} value={code}>
             {code}({label})
@@ -61,31 +92,50 @@ export default function AddRoom() {
     ),
     [],
   );
-  const serviceSelectOptions = useMemo(
-    () =>
-      roomServices &&
-      roomServices.map(({ display_name, title }) => ({
-        label: display_name,
-        value: title,
-      })),
-    [roomServices],
-  );
-  const roomTypesSelectJsx = useMemo(
-    () =>
-      roomTypes && (
-        <Select defaultValue={"nt"}>
-          {roomTypes.map(({ display_name, title }) => (
+
+  const serviceSelectJsx = useMemo(
+    () => (
+      <Select
+        notFoundContent={
+          <Empty
+            description="Không có dữ liệu nha"
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            className="m-2"
+          />
+        }
+        filterOption={(input: string, option?: { label: string | null }) => {
+          if (!option?.label) return false;
+
+          return option.label.toLowerCase().includes(input.toLowerCase());
+        }}
+        mode="multiple"
+      >
+        {roomServices &&
+          roomServices.map(({ display_name, title }) => (
             <Select.Option key={title} value={title}>
               {display_name}
             </Select.Option>
           ))}
-        </Select>
-      ),
+      </Select>
+    ),
+    [roomServices],
+  );
+  const roomTypesSelectJsx = useMemo(
+    () => (
+      <Select>
+        {roomTypes &&
+          roomTypes.map(({ display_name, title }) => (
+            <Select.Option key={title} value={title}>
+              {display_name}
+            </Select.Option>
+          ))}
+      </Select>
+    ),
     [roomTypes],
   );
   const measureSelectJsx = useMemo(
     () => (
-      <Select defaultValue={"m2"} className="min-w-[4rem]">
+      <Select className="min-w-[4rem]">
         {measureUnitCodes.map(({ code, label, sup }) => (
           <Select.Option key={code} value={code}>
             {label}
@@ -97,22 +147,15 @@ export default function AddRoom() {
     [],
   );
 
-  useEffect(() => {
-    //
-    // const z = convert(2000, "m2").to("best");
-    // console.log(`🚀 ~ useEffect ~ z:`, z.toString());
-  });
+  // useEffect(() => {
+  //
+  // const z = convert(2000, "m2").to("best");
+  // console.log(`🚀 ~ useEffect ~ z:`, z.toString());
+  // });
 
-  const serviceFilterOption = (
-    input: string,
-    option?: { label: string | null },
-  ) => {
-    if (!option?.label) return false;
-
-    return option.label.toLowerCase().includes(input.toLowerCase());
-  };
   return (
     <MyContainer className="py-5">
+      {contextHolder}
       <Typography.Title>Thêm phòng mới</Typography.Title>
       <Form
         name="room"
@@ -125,6 +168,17 @@ export default function AddRoom() {
           number_of_bathroom: 1,
           number_of_bedroom: 1,
           number_of_floor: 1,
+          price_currency_code: "VND",
+
+          usable_area: 12,
+          usable_area_unit: "m2",
+
+          room_type: "nt",
+          name: "Tên phòng nè " + Math.random(),
+
+          price_per_month: 2,
+
+          // lat: 2,
         }}
         // size="large"
         onFinish={onFinish}
@@ -151,61 +205,28 @@ export default function AddRoom() {
           <Input />
         </Form.Item>
 
-        <Form.Item noStyle={!!roomTypes}>
-          {!roomTypes ? (
-            <Skeleton.Input active block />
-          ) : (
-            <Form.Item<RoomPayload>
-              rules={[
-                {
-                  required: true,
-                  message: " không bỏ trống",
-                },
-              ]}
-              label="Kiểu phòng"
-              name="room_type"
-            >
-              {roomTypesSelectJsx}
-            </Form.Item>
-          )}
-        </Form.Item>
-
-        <Form.Item noStyle={!!roomServices}>
-          {!roomServices ? (
-            <Skeleton.Input active block />
-          ) : (
-            <Form.Item<RoomPayload> label="Các dịch vụ" name="services">
-              <Select
-                notFoundContent={
-                  <Empty
-                    description="Không có dữ liệu nha"
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    className="m-2"
-                  />
-                }
-                options={serviceSelectOptions}
-                filterOption={serviceFilterOption}
-                mode="multiple"
-              />
-            </Form.Item>
-          )}
-        </Form.Item>
-
-        <Form.Item<RoomPayload> label="Chọn ảnh cho phòng" name="images">
-          <Input />
-        </Form.Item>
-
-        <Form.Item<RoomLocationPayload>
+        <Form.Item<RoomPayload>
           rules={[
             {
               required: true,
               message: " không bỏ trống",
             },
           ]}
-          label="location.lat"
-          name="lat"
+          label="Kiểu phòng"
+          name="room_type"
         >
-          <Input />
+          {!roomTypes ? <Skeleton.Input active block /> : roomTypesSelectJsx}
+        </Form.Item>
+
+        <Form.Item<RoomPayload> label="Các dịch vụ" name="services">
+          {!roomServices ? <Skeleton.Input active block /> : serviceSelectJsx}
+        </Form.Item>
+
+        <Form.Item<RoomPayload>
+          label="Chọn ảnh cho phòng"
+          tooltip="Sau khi chọn ảnh, bấm giữ ảnh và kéo để thay đổi thứ tự"
+        >
+          <FilesUpload3 ref={files} />
         </Form.Item>
 
         <Form.Item<RoomPayload>
@@ -220,16 +241,16 @@ export default function AddRoom() {
               setEditorState(s);
             }}
           /> */}
-          <Input />
+          <Input.TextArea />
         </Form.Item>
 
         <Form.Item<RoomPayload>
-          rules={[
-            {
-              required: true,
-              message: " không bỏ trống",
-            },
-          ]}
+          // rules={[
+          //   {
+          //     required: true,
+          //     message: " không bỏ trống",
+          //   },
+          // ]}
           label="Giá tiền thuê mỗi tháng"
           name="price_per_month"
         >
@@ -244,7 +265,14 @@ export default function AddRoom() {
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Diện tích phòng" name="usable_area">
-          <InputNumber className="w-full" addonAfter={measureSelectJsx} />
+          <InputNumber
+            className="w-full"
+            addonAfter={
+              <Form.Item<RoomPayload> name="usable_area_unit" noStyle>
+                {measureSelectJsx}
+              </Form.Item>
+            }
+          />
         </Form.Item>
 
         <Form.Item<RoomPayload>
@@ -267,6 +295,10 @@ export default function AddRoom() {
 
         <Form.Item<RoomPayload> label="Số tầng" name="number_of_floor">
           <InputNumber className="w-full" />
+        </Form.Item>
+
+        <Form.Item label="Chọn vị trí">
+          <LocationFormInputs ref={location} />
         </Form.Item>
         {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
         <Form.Item noStyle={!error}>
@@ -300,3 +332,5 @@ export default function AddRoom() {
     </MyContainer>
   );
 }
+
+export default AddRoom;

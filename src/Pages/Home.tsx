@@ -18,6 +18,8 @@ function Home() {
         Tìm và đặt chuyến ngay thoi!
       </Typography.Paragraph>
 
+      {/* <Test /> */}
+
       <Space>
         <MyButton to="/rooms/add">Thêm phòng</MyButton>
       </Space>

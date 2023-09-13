@@ -1,5 +1,6 @@
 import App from "@/App";
 import GlobalDataProvider from "@/Contexts/GlobalDataProvider";
+import GoogleMapProvider from "@/Contexts/GoogleMapProvider";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserProvider from "@/Contexts/UserProvider";
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
@@ -13,13 +14,15 @@ import { BrowserRouter } from "react-router-dom";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <GlobalDataProvider>
-        <UserProvider>
-          <ThemeProvider>
-            <App />
-          </ThemeProvider>
-        </UserProvider>
-      </GlobalDataProvider>
+      <ThemeProvider>
+        <GlobalDataProvider>
+          <UserProvider>
+            <GoogleMapProvider>
+              <App />
+            </GoogleMapProvider>
+          </UserProvider>
+        </GlobalDataProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

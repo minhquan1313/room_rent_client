@@ -8,24 +8,14 @@ import { fetcher } from "@/services/fetcher";
 import { userNameDisplay } from "@/utils/dataDisplay";
 import { preloadImage } from "@/utils/preloadImage";
 import { LogoutOutlined } from "@ant-design/icons";
-import {
-  Avatar,
-  Badge,
-  Col,
-  Dropdown,
-  Row,
-  Space,
-  Spin,
-  message,
-  theme,
-} from "antd";
+import { Avatar, Badge, Col, Dropdown, Row, Space, Spin, message } from "antd";
 import { Header } from "antd/es/layout/layout";
 import classNames from "classnames";
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function MyHeader() {
-  const { token } = theme.useToken();
+  // const { token } = theme.useToken();
   const { user, isLogging, logout, refresh } = useContext(UserContext);
   const [isUploading, setIsUploading] = useState(false);
   const [isImagePreloaded, setIsImagePreloaded] = useState(true);

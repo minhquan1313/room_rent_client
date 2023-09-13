@@ -21,6 +21,8 @@ export interface IRoom {
   price_currency_code: string;
 
   usable_area: number | null;
+  usable_area_unit: string | null;
+
   number_of_living_room: number | null;
   number_of_bedroom: number | null;
   number_of_bathroom: number | null;
@@ -42,6 +44,7 @@ export type RoomPayload = {
   // id of services
   images?: string[];
   imagesOrders?: number[];
+  files?: File[];
 
   location: RoomLocationPayload;
 
@@ -52,6 +55,8 @@ export type RoomPayload = {
   price_currency_code: string;
 
   usable_area?: number;
+  usable_area_unit?: string;
+
   number_of_living_room?: number;
   number_of_bedroom?: number;
   number_of_bathroom?: number;

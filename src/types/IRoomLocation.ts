@@ -6,12 +6,11 @@ export interface IRoomLocation {
   room: IRoom;
   lat: number;
   long: number;
+
+  country: string;
   province: string;
-  province_code: number;
-  district: string;
-  district_code: number;
-  ward: string;
-  ward_code: number;
+  district?: string;
+  ward?: string;
   detail_location: string;
 
   updatedAt: Date;

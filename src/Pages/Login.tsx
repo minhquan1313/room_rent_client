@@ -88,8 +88,8 @@ function Login() {
           remember: true,
           // username: "12321",
         }}
-        // size="large"
         onFinish={onFinish}
+        size="large"
       >
         <Form.Item<TUserLoginPayload>
           label="Tên đăng nhập"

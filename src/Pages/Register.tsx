@@ -34,21 +34,20 @@ function Register() {
 
   const onFinish = (values: UserRegisterPayload) => {
     console.log(`🚀 ~ onFinish ~ values:`, values);
-    return;
 
-    // setError(undefined);
-    // setSubmitting(true);
+    setError(undefined);
+    setSubmitting(true);
 
-    // (async () => {
-    //   try {
-    //     const d = await register(values, true);
-    //   } catch (error: any) {
-    //     console.log(`🚀 ~ error:`, error);
+    (async () => {
+      try {
+        const d = await register(values, true);
+      } catch (error: any) {
+        console.log(`🚀 ~ error:`, error);
 
-    //     setError(error.response.data as ErrorJsonResponse);
-    //   }
-    // })();
-    // setSubmitting(false);
+        setError(error.response.data as ErrorJsonResponse);
+      }
+    })();
+    setSubmitting(false);
   };
 
   const phoneRegionSelectJsx = useMemo(
@@ -62,6 +61,33 @@ function Register() {
       </Select>
     ),
     [],
+  );
+
+  const roleSelectJsx = useMemo(
+    () => (
+      <Select>
+        {roles &&
+          roles.map(({ display_name, title }) => (
+            <Select.Option key={title} value={title}>
+              {display_name}
+            </Select.Option>
+          ))}
+      </Select>
+    ),
+    [roles],
+  );
+  const genderSelectJsx = useMemo(
+    () => (
+      <Select>
+        {genders &&
+          genders.map(({ display_name, title }) => (
+            <Select.Option key={title} value={title}>
+              {display_name}
+            </Select.Option>
+          ))}
+      </Select>
+    ),
+    [genders],
   );
 
   // if user already logged in
@@ -113,8 +139,11 @@ function Register() {
           tell: 889379138,
           username: "binh",
           password: "1",
+          role: "user",
+          gender: "male",
         }}
         onFinish={onFinish}
+        size="large"
       >
         <Form.Item<UserRegisterPayload>
           label="Tên đăng nhập"
@@ -213,56 +242,30 @@ function Register() {
           />
         </Form.Item>
 
-        <Form.Item noStyle={!!roles}>
-          {!roles ? (
-            <Skeleton.Input active block />
-          ) : (
-            <Form.Item<UserRegisterPayload>
-              label="Vai trò"
-              name="role"
-              initialValue="user"
-              rules={[
-                {
-                  message: "Không được trống",
-                  required: true,
-                },
-              ]}
-            >
-              <Select>
-                {roles.map(({ display_name, title }) => (
-                  <Select.Option key={title} value={title}>
-                    {display_name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
+        <Form.Item<UserRegisterPayload>
+          label="Vai trò"
+          name="role"
+          rules={[
+            {
+              message: "Không được trống",
+              required: true,
+            },
+          ]}
+        >
+          {!roles ? <Skeleton.Input active block /> : roleSelectJsx}
         </Form.Item>
-        <Form.Item noStyle={!!genders}>
-          {!genders ? (
-            <Skeleton.Input active block />
-          ) : (
-            <Form.Item<UserRegisterPayload>
-              label="Giới tính"
-              name="gender"
-              // required={false}
-              initialValue="male"
-              rules={[
-                {
-                  message: "Không được trống",
-                  required: true,
-                },
-              ]}
-            >
-              <Select>
-                {genders.map(({ display_name, title }) => (
-                  <Select.Option key={title} value={title}>
-                    {display_name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Form.Item>
-          )}
+
+        <Form.Item<UserRegisterPayload>
+          label="Giới tính"
+          name="gender"
+          rules={[
+            {
+              message: "Không được trống",
+              required: true,
+            },
+          ]}
+        >
+          {!roles ? <Skeleton.Input active block /> : genderSelectJsx}
         </Form.Item>
 
         <Form.Item noStyle={!error}>

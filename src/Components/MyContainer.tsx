@@ -49,7 +49,8 @@ function Center({ children, className, ...rest }: IProps) {
 
 function Raw({ children }: Pick<IProps, "children">) {
   useEffect(() => {
-    document.documentElement.className = "overflow-y-scroll";
+    // document.documentElement.className = "overflow-y-scroll";
+    // document.body.className = "overflow-y-scroll";
   }, []);
 
   return <>{children}</>;

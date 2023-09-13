@@ -1,6 +1,8 @@
 import { CodeMap } from "@/types/CodeMap";
 import codes from "country-calling-code";
 
+const supportRegion = ["VN"];
+
 export const telCodes: CodeMap[] = codes
   .filter((r) => {
     return !r.countryCodes[0].includes("-");
@@ -27,4 +29,5 @@ export const telCodes: CodeMap[] = codes
       code: isoCode2,
       label: countryCodes[0],
     };
-  });
+  })
+  .filter(({ code }) => supportRegion.includes(code));
