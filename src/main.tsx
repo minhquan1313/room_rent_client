@@ -6,7 +6,6 @@ import UserProvider from "@/Contexts/UserProvider";
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
 import "@/styles/tailwind.css";
 import "antd/dist/reset.css";
-import "draft-js/dist/Draft.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
