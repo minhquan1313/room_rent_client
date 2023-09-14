@@ -6,6 +6,7 @@ import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { currencyCodes } from "@/constants/currencyCodes";
 import { measureUnitCodes } from "@/constants/measureUnitCodes";
+import { isRoleAdmin } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { RoomLocationPayload, RoomPayload } from "@/types/IRoom";
@@ -29,13 +30,13 @@ function AddRoom() {
 
   const [messageApi, contextHolder] = message.useMessage();
 
-  const { isLogging } = useContext(UserContext);
+  const { isLogging, user } = useContext(UserContext);
   const { roomServices, roomTypes } = useContext(GlobalDataContext);
   const [submitting, setSubmitting] = useState(false);
   // const [editorState, setEditorState] = useState(EditorState.createEmpty);
   const [error, setError] = useState<ErrorJsonResponse>();
   const files = useRef<File[]>();
-  const location = useRef<RoomLocationPayload>();
+  const location = useRef<RoomLocationPayload>(null);
   // const [files, setFiles] = useState<MyFile[]>();
 
   const onFinish = (values: RoomPayload) => {
@@ -46,10 +47,39 @@ function AddRoom() {
     if (!location.current) {
       messageApi.open({
         type: "error",
-        content: "Hãy chọn toạ độ trên bản đồ và điền đầy đủ thông tin",
+        content: "Điền thông tin về vị trí",
       });
 
       return;
+    } else if (location.current.lat === 0 || location.current.long === 0) {
+      console.log(`🚀 ~ onFinish ~ long:`, location.current.lat);
+
+      console.log(`🚀 ~ onFinish ~ lat:`, location.current.long);
+
+      messageApi.open({
+        type: "error",
+        content: "Hãy ghim trên bản đồ",
+      });
+
+      return;
+    } else if (location.current.country === "") {
+      messageApi.open({
+        type: "error",
+        content: "Thiếu thông tin về quốc gia",
+      });
+
+      return;
+    } else if (location.current.province === "") {
+      messageApi.open({
+        type: "error",
+        content: "Thiếu thông tin về tỉnh thành",
+      });
+      return;
+    } else if (location.current.detail_location === "") {
+      messageApi.open({
+        type: "warning",
+        content: "Nếu có hãy thêm địa chỉ chi tiết để mọi người dễ tìm hơn",
+      });
     }
 
     setError(undefined);
@@ -164,19 +194,19 @@ function AddRoom() {
         onChange={() => setError(undefined)}
         disabled={submitting || isLogging}
         initialValues={{
-          number_of_living_room: 0,
+          number_of_living_room: 1,
           number_of_bathroom: 1,
           number_of_bedroom: 1,
           number_of_floor: 1,
           price_currency_code: "VND",
 
-          usable_area: 12,
+          usable_area: 100,
           usable_area_unit: "m2",
 
           room_type: "nt",
-          name: "Tên phòng nè " + Math.random(),
-
-          price_per_month: 2,
+          name: "Tên phòng ",
+          //  + Math.random()
+          price_per_month: 450000,
 
           // lat: 2,
         }}
@@ -184,7 +214,11 @@ function AddRoom() {
         onFinish={onFinish}
         autoComplete="on"
       >
-        <Form.Item<RoomPayload> label="ID chủ phòng" name="owner">
+        <Form.Item<RoomPayload>
+          label="ID chủ phòng"
+          name="owner"
+          // hidden={!isRoleAdmin(user?.role.title)}
+        >
           <Input />
         </Form.Item>
 
@@ -203,6 +237,18 @@ function AddRoom() {
 
         <Form.Item<RoomPayload> label="Giới thiệu ngắn" name="sub_name">
           <Input />
+        </Form.Item>
+
+        <Form.Item<RoomPayload> label="Mô tả chi tiết" name="description">
+          {/* <Editor
+            editorState={editorState}
+            onChange={(s) => {
+              console.log(`🚀 ~ AddRoom ~ s:`, s);
+
+              setEditorState(s);
+            }}
+          /> */}
+          <Input.TextArea autoSize />
         </Form.Item>
 
         <Form.Item<RoomPayload>
@@ -230,48 +276,50 @@ function AddRoom() {
         </Form.Item>
 
         <Form.Item<RoomPayload>
-          label="Mô tả chi tiết về phòng"
-          name="description"
-        >
-          {/* <Editor
-            editorState={editorState}
-            onChange={(s) => {
-              console.log(`🚀 ~ AddRoom ~ s:`, s);
-
-              setEditorState(s);
-            }}
-          /> */}
-          <Input.TextArea />
-        </Form.Item>
-
-        <Form.Item<RoomPayload>
-          // rules={[
-          //   {
-          //     required: true,
-          //     message: " không bỏ trống",
-          //   },
-          // ]}
+          rules={[
+            {
+              required: true,
+              message: " không bỏ trống",
+            },
+          ]}
           label="Giá tiền thuê mỗi tháng"
           name="price_per_month"
         >
           <InputNumber
-            className="w-full"
             addonAfter={
               <Form.Item<RoomPayload> name="price_currency_code" noStyle>
                 {currencySelectJsx}
               </Form.Item>
             }
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            className="w-full"
           />
         </Form.Item>
 
-        <Form.Item<RoomPayload> label="Diện tích phòng" name="usable_area">
+        <Form.Item<RoomPayload>
+          rules={[
+            {
+              required: true,
+              message: " không bỏ trống",
+            },
+          ]}
+          label="Diện tích phòng"
+          name="usable_area"
+        >
           <InputNumber
-            className="w-full"
             addonAfter={
               <Form.Item<RoomPayload> name="usable_area_unit" noStyle>
                 {measureSelectJsx}
               </Form.Item>
             }
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            className="w-full"
           />
         </Form.Item>
 
@@ -279,25 +327,49 @@ function AddRoom() {
           label="Số phòng khách"
           name="number_of_living_room"
         >
-          <InputNumber className="w-full" />
+          <InputNumber
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            className="w-full"
+          />
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Số phòng ngủ" name="number_of_bedroom">
-          <InputNumber className="w-full" />
+          <InputNumber
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            className="w-full"
+          />
         </Form.Item>
 
         <Form.Item<RoomPayload>
           label="Số nhà vệ sinh"
           name="number_of_bathroom"
         >
-          <InputNumber className="w-full" />
+          <InputNumber
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            className="w-full"
+          />
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Số tầng" name="number_of_floor">
-          <InputNumber className="w-full" />
+          <InputNumber
+            formatter={(value) =>
+              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
+            className="w-full"
+          />
         </Form.Item>
 
-        <Form.Item label="Chọn vị trí">
+        <Form.Item label="Chọn vị trí" required>
           <LocationFormInputs ref={location} />
         </Form.Item>
         {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}

@@ -11,7 +11,7 @@ export interface IRoomLocation {
   province: string;
   district?: string;
   ward?: string;
-  detail_location: string;
+  detail_location?: string;
 
   updatedAt: Date;
   createdAt: Date;

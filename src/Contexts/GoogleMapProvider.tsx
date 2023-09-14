@@ -18,6 +18,7 @@ interface IContext {
   getAddressFromMarker: (
     latLng: Coords,
   ) => Promise<google.maps.GeocoderResult | null>;
+  getCoordsFromAddress: (address: string) => Promise<google.maps.LatLng | null>;
   calculateDistance: (user: Coords, target: Coords) => number;
   clearMarker: (marker: google.maps.Marker) => Promise<void>;
 }
@@ -78,8 +79,38 @@ export default function GoogleMapProvider({ children }: Props) {
             return r(null);
           }
         }
+
         console.log("Lỗi khi lấy địa chỉ: " + status);
-        return r(null);
+        return rj();
+      });
+    });
+  }
+  function getCoordsFromAddress(address: string) {
+    return new Promise<google.maps.LatLng | null>((r, rj) => {
+      if (!geocoder) return r(null);
+
+      console.log(`🚀 ~ getCoordsFromAddress ~ address:`, address);
+      geocoder.geocode({ address: address }, function (results, status) {
+        console.log(`🚀 ~ status:`, status);
+        console.log(`🚀 ~ results:`, results);
+        if (status === "OK") {
+          if (results && results[0]) {
+            const location = results[0].geometry.location;
+            console.log(`🚀 ~ location:`, location);
+
+            const latitude = location.lat();
+            const longitude = location.lng();
+
+            // Hiển thị kết quả
+            return r(location);
+          } else {
+            return r(null);
+          }
+        }
+
+        console.log(status);
+
+        return rj(`Có lỗi khi lấy thông tin '${address}'`);
       });
     });
   }
@@ -207,7 +238,7 @@ export default function GoogleMapProvider({ children }: Props) {
 
     script.id = `googleMapScript`;
     script.src = `https://maps.googleapis.com/maps/api/js?key=${
-      import.meta.env.VITE_GOOGLE_MAP_API_KEY
+      import.meta.env.VITE_GOOGLE_MAP_API_KEY ?? ""
     }&callback=${functionName}&v=weekly&language=${"vi"}&region=${"VN"}`;
     // script.innerHTML =
     //   '(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key: "' +
@@ -229,6 +260,7 @@ export default function GoogleMapProvider({ children }: Props) {
     getUserCoords,
     addMarker,
     getAddressFromMarker,
+    getCoordsFromAddress,
     calculateDistance,
     clearMarker,
   }))();

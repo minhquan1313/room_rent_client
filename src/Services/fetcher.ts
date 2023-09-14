@@ -1,4 +1,4 @@
-import { IUser } from "@/types/IUser";
+import { mutateImageFromResponse } from "@/utils/attachServerToImageRes";
 import axios, { AxiosInstance } from "axios";
 
 const API = import.meta.env.VITE_API;
@@ -32,11 +32,12 @@ export const fetcher = (() => {
     function (response) {
       // console.log(`🚀 ~ fetcher ~ response.data:`, response.data);
 
-      const r = response.data as unknown as IUser;
+      // const r = response.data as unknown as IUser;
 
-      if (r?.image && r?.username) {
-        r.image = import.meta.env.VITE_SERVER + r.image;
-      }
+      mutateImageFromResponse(response.data);
+      // if (r?.image && r?.username) {
+      //   r.image = import.meta.env.VITE_SERVER + r.image;
+      // }
 
       return response.data;
     },

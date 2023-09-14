@@ -1,7 +1,7 @@
 export default function MyFooter() {
   return (
     <div>
-      <p>Xe khách Bình Hưng - Made by MTB@2023</p>
+      <p>Đồ án xây dựng website tìm nhà trọ</p>
     </div>
   );
 }

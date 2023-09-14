@@ -6,7 +6,7 @@ import Login from "@/Pages/Login";
 import MyLayout from "@/Pages/MyLayout";
 import NotFound from "@/Pages/NotFound";
 import Register from "@/Pages/Register";
-import { OWNER_ROLES } from "@/constants/roleType";
+import { isRoleOwner } from "@/constants/roleType";
 import { pageTitle } from "@/utils/pageTitle";
 import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -46,11 +46,7 @@ function App() {
           <Route
             path="/rooms/add"
             element={
-              OWNER_ROLES.includes(user?.role.title) ? (
-                <AddRoom />
-              ) : (
-                <Navigate to="/" />
-              )
+              isRoleOwner(user?.role.title) ? <AddRoom /> : <Navigate to="/" />
             }
           />
         </Route>

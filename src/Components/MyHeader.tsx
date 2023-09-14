@@ -3,7 +3,7 @@ import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import ThemeSwitcher from "@/Components/ThemeSwitcher";
 import { UserContext } from "@/Contexts/UserProvider";
-import { ADMIN_ROLES, OWNER_ROLES } from "@/constants/roleType";
+import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
 import { userNameDisplay } from "@/utils/dataDisplay";
 import { preloadImage } from "@/utils/preloadImage";
@@ -79,9 +79,7 @@ export default function MyHeader() {
                             <Link to="/info">
                               <Space>
                                 {userNameDisplay(user)}
-                                {[...ADMIN_ROLES, ...OWNER_ROLES].includes(
-                                  user.role.title,
-                                ) && (
+                                {isRoleOwner(user.role.title) && (
                                   <Badge
                                     title={user.role.display_name ?? ""}
                                     size="default"
@@ -115,8 +113,9 @@ export default function MyHeader() {
                       size="large"
                       src={user.image}
                       className={classNames("select-none", {
-                        "border-2 border-solid border-yellow-500":
-                          ADMIN_ROLES.includes(user.role.title),
+                        "border-2 border-solid border-yellow-500": isRoleAdmin(
+                          user.role.title,
+                        ),
                       })}
                       // icon={<UserOutlined />}
                       // onClick={() => {
