@@ -1,5 +1,7 @@
+import MyButton from "@/Components/MyButton";
+import MyImage from "@/Components/MyImage";
 import fileImg from "@/assets/file.svg";
-import { PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   DndContext,
   DragOverlay,
@@ -16,7 +18,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Col, Image, Row, Space, Upload } from "antd";
+import { Col, Image, Row, Space, Upload, message } from "antd";
 import { RcFile, UploadProps } from "antd/es/upload";
 import { arrayMoveImmutable } from "array-move";
 import classNames from "classnames";
@@ -24,15 +26,40 @@ import {
   ForwardRefRenderFunction,
   forwardRef,
   memo,
+  useCallback,
   useImperativeHandle,
   useState,
 } from "react";
+
+type FileAcceptType =
+  | "image/*"
+  | "image/jpeg"
+  | "image/png"
+  | "image/gif"
+  | "image/svg+xml"
+  | "audio/*"
+  | "audio/mpeg"
+  | "audio/wav"
+  | "audio/ogg"
+  | "video/*"
+  | "video/mp4"
+  | "video/webm"
+  | "application/pdf"
+  | "application/msword"
+  | "application/vnd.ms-excel"
+  | "application/vnd.ms-powerpoint"
+  | ".jpg"
+  | ".jpeg"
+  | ".png"
+  | ".txt"
+  | "*/*"; // Wildcard for all file types
 
 interface Props extends UploadProps {
   //
   beforeUpload?: never;
   fileList?: never;
   multiple?: never;
+  accept?: FileAcceptType;
 }
 export interface MyFile {
   src: string;
@@ -45,6 +72,8 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
   p,
   ref,
 ) => {
+  const [messageApi, contextHolder] = message.useMessage();
+
   const [files, setFiles] = useState<MyFile[]>();
   const [activeFile, setActiveFile] = useState<MyFile>();
 
@@ -65,6 +94,22 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
   );
 
   const beforeUpload = (file: RcFile) => {
+    const accept = !p.accept
+      ? ""
+      : p.accept.includes("*")
+      ? p.accept.slice(0, -1)
+      : p.accept;
+
+    if (!file.type.includes(accept)) {
+      console.log(`yes`);
+
+      messageApi.open({
+        type: "error",
+        content: "Kiểu file không hỗ trợ",
+      });
+      return;
+    }
+
     setFiles((files) => {
       const duplicate = files?.find(
         ({ file: { name, size } }) => file.name === name && file.size === size,
@@ -87,10 +132,15 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
     return false;
   };
 
+  const removeImage = useCallback<SortableItemProps["onRemove"]>((id) => {
+    setFiles((files) => files?.filter((r) => r.id !== id));
+  }, []);
+
   useImperativeHandle(ref, () => files?.map((r) => r.file), [files]);
 
   return (
-    <Space direction="vertical" size="middle" style={{ display: "flex" }}>
+    <Space direction="vertical" style={{ display: "flex" }}>
+      {contextHolder}
       {files && (
         <Image.PreviewGroup>
           <Row
@@ -126,8 +176,13 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
                 items={files}
                 strategy={horizontalListSortingStrategy}
               >
-                {files.map(({ src, id }, i) => (
-                  <SortableItem key={src} src={src} id={id} active={i == 1} />
+                {files.map(({ src, id }) => (
+                  <SortableItem
+                    key={src}
+                    src={src}
+                    id={id}
+                    onRemove={removeImage}
+                  />
                 ))}
               </SortableContext>
               <DragOverlay>
@@ -138,7 +193,13 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
         </Image.PreviewGroup>
       )}
 
-      <Upload.Dragger {...p} fileList={[]} beforeUpload={beforeUpload} multiple>
+      <Upload.Dragger
+        {...p}
+        // accept=""
+        fileList={[]}
+        beforeUpload={beforeUpload}
+        multiple
+      >
         <div>
           <PlusOutlined />
           <div style={{ marginTop: 8 }}>Upload</div>
@@ -148,12 +209,13 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
   );
 };
 
-type T = {
+type SortableItemProps = {
   src: string;
   id: string;
-  active?: boolean;
+  // active?: boolean;
+  onRemove(id: string): void;
 };
-function SortableItem({ src, id, active }: T) {
+const SortableItem = ({ src, id, onRemove }: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -183,22 +245,35 @@ function SortableItem({ src, id, active }: T) {
       {...attributes}
       {...listeners}
     >
-      <Image
-        className={classNames(
-          "aspect-square select-none rounded-lg object-cover",
-        )}
-        // rootClassName={}
-        width={`100%`}
-        src={src}
-        previewPrefixCls=""
-        preview={!isDragging && !isSorting}
-      />
+      <div className="relative">
+        <MyImage
+          className={classNames(
+            "aspect-square select-none rounded-lg object-cover",
+          )}
+          width={`100%`}
+          src={src}
+          preview={!isDragging && !isSorting}
+          // rootClassName={}
+        />
+        <div className="absolute right-0 top-0">
+          <MyButton
+            onClick={() => onRemove && onRemove(id)}
+            className="rounded-br-none rounded-tl-none"
+            icon={<DeleteOutlined />}
+            type="primary"
+            shape="default"
+            danger
+          />
+        </div>
+      </div>
     </Col>
   );
-}
-function SortableItemOverlay({ src }: Omit<T, "id">) {
+};
+function SortableItemOverlay({
+  src,
+}: Omit<SortableItemProps, "id" | "onRemove">) {
   return (
-    <Col span={24} className="z-10 cursor-grabbing">
+    <Col span={24} className="cursor-grabbing">
       <Image
         className="aspect-square rounded-lg object-cover shadow-2xl"
         width={`100%`}

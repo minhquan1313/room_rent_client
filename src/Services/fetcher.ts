@@ -1,6 +1,6 @@
-import { mutateImageFromResponse } from "@/utils/attachServerToImageRes";
 import axios, { AxiosInstance } from "axios";
 
+// const VITE_SERVER = import.meta.env.VITE_SERVER;
 const API = import.meta.env.VITE_API;
 if (!API) throw new Error(`Missing API`);
 
@@ -31,13 +31,6 @@ export const fetcher = (() => {
   i.interceptors.response.use(
     function (response) {
       // console.log(`🚀 ~ fetcher ~ response.data:`, response.data);
-
-      // const r = response.data as unknown as IUser;
-
-      mutateImageFromResponse(response.data);
-      // if (r?.image && r?.username) {
-      //   r.image = import.meta.env.VITE_SERVER + r.image;
-      // }
 
       return response.data;
     },

@@ -1,95 +1,40 @@
-import ImgErrorIcon from "@/Components/Icons/ImgErrorIcon";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
+import img_fail from "@/assets/imgError.svg";
+import img_fail_light from "@/assets/imgErrorLight.svg";
 import { preloadImage } from "@/utils/preloadImage";
-import img_fail from "@Pub/img_fail.png";
-import img_fail_light from "@Pub/img_fail_light.png";
-import { Image, ImageProps, Skeleton } from "antd";
-import classNames from "classnames";
-import { useContext, useEffect, useState } from "react";
+import { Image, ImageProps, Skeleton, theme } from "antd";
+import { useContext } from "react";
 
-interface Props extends Omit<ImageProps, "placeholder"> {}
+const VITE_SERVER = import.meta.env.VITE_SERVER;
+
+interface Props extends Omit<ImageProps, "placeholder"> {
+  addServer?: boolean;
+}
 
 preloadImage(img_fail);
 preloadImage(img_fail_light);
 
-function MyImage({ src, width, height, ...rest }: Props) {
+function MyImage({ src, addServer, ...rest }: Props) {
   const { myTheme } = useContext(ThemeContext);
-  const [failed, setFailed] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    preloadImage(src)
-      .then(() => setLoaded(true))
-      .catch(() => setFailed(true));
-  }, [src]);
-
-  // if (failed)
-  //   return (
-  //     <div
-  //       {...rest}
-  //       style={{ width, height, ...rest.style }}
-  //       className={classNames(rest.className, "inline-block bg-red-400")}
-  //     >
-  //       <ImgErrorIcon style={{ fontSize: "1000%" }} />
-  //       {/* <img
-  //         src={myTheme === "dark" ? img_fail_light : img_fail}
-  //         className="w-full p-5"
-  //       /> */}
-  //     </div>
-  //   );
+  const { token } = theme.useToken();
+  // console.log(`🚀 ~ MyImage ~ token:`, token);
+  // console.log(addServer ? VITE_SERVER + src : src);
 
   return (
-    // loaded ?
-    <div
+    // <img {...rest} src={addServer ? VITE_SERVER + src : src} />
+    <Image
       {...rest}
-      style={{
-        width,
-        height,
-        ...rest.style,
-      }}
-      className={classNames(rest.className, "relative inline-block")}
-    >
-      {failed ? (
-        <ImgErrorIcon style={{ fontSize: "1000%" }} />
-      ) : (
-        <Image
-          loading="eager"
-          // width={width}
-          // height={height}
-          src={src}
-          className={"block"}
+      src={addServer ? VITE_SERVER + src : src}
+      placeholder={
+        <Skeleton.Image
+          active={true}
+          className="!h-full !w-full"
+          style={{ backgroundColor: token.colorBgLayout }}
         />
-      )}
-      <Skeleton.Image
-        active={true}
-        rootClassName={classNames(
-          "!h-full !w-full absolute inset-0 transition-all duration-500",
-          {
-            "opacity-100": !loaded && !failed,
-            "opacity-0": loaded || failed,
-          },
-        )}
-        className="!h-full !w-full"
-      />
-    </div>
+      }
+      fallback={myTheme === "light" ? img_fail : img_fail_light}
+    />
   );
-  // : (
-  //   <div
-  //     {...rest}
-  //     style={{
-  //       width,
-  //       height,
-  //       ...rest.style,
-  //     }}
-  //     className={classNames(rest.className, "relative")}
-  //   >
-  //     <Skeleton.Image
-  //       active={true}
-  //       rootClassName="!h-full !w-full"
-  //       className="!h-full !w-full"
-  //     />
-  //   </div>
-  // );
 }
 
 export default MyImage;

@@ -24,43 +24,6 @@ interface IProps {
   children: ReactNode;
 }
 
-function clearData() {
-  localStorage.removeItem("user");
-  localStorage.removeItem("token");
-
-  sessionStorage.removeItem("user");
-  sessionStorage.removeItem("token");
-
-  fetcher.update({ token: null });
-}
-function saveData(u: IUser, remember: boolean) {
-  (remember ? localStorage : sessionStorage).setItem("user", JSON.stringify(u));
-  if (u.token) {
-    (remember ? localStorage : sessionStorage).setItem("token", u.token);
-
-    fetcher.update({ token: u.token });
-  }
-}
-
-function getData() {
-  try {
-    let userJson = localStorage.getItem("user");
-    if (userJson) {
-      isRemember = true;
-    } else {
-      isRemember = false;
-      userJson = sessionStorage.getItem("user");
-    }
-
-    if (!userJson) throw new Error();
-
-    const json: IUser = JSON.parse(userJson);
-    return json;
-  } catch (error) {
-    return null;
-  }
-}
-
 let isRemember = false;
 
 export const UserContext = createContext<IUserContext>(null as never);
@@ -93,7 +56,7 @@ export default function UserProvider({ children }: IProps) {
 
   const loginTokenBackground = useCallback(
     async (token: string, remember: boolean) => {
-      setIsLogging(() => true);
+      // setIsLogging(() => true);
       const url = `/users/login-token`;
 
       try {
@@ -105,7 +68,7 @@ export default function UserProvider({ children }: IProps) {
           token,
         });
 
-        setIsLogging(() => false);
+        // setIsLogging(() => false);
 
         saveData(user, remember);
         setUser(() => user);
@@ -113,7 +76,7 @@ export default function UserProvider({ children }: IProps) {
         return user;
       } catch (error) {
         logout();
-        setIsLogging(() => false);
+        // setIsLogging(() => false);
 
         return null;
       }
@@ -149,9 +112,15 @@ export default function UserProvider({ children }: IProps) {
 
   // refresh token on app start and get user change
   useEffect(() => {
-    user && user.token && loginTokenBackground(user.token, isRemember);
-    // console.log(`🚀 ~ file: UserContext.tsx:120 ~ useEffect ~ user:`, user);
+    function autoLogin() {
+      user && user.token && loginTokenBackground(user.token, isRemember);
+    }
 
+    autoLogin();
+
+    const itv = setInterval(autoLogin, 60000);
+
+    return () => clearInterval(itv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -182,4 +151,41 @@ export default function UserProvider({ children }: IProps) {
     refresh,
   };
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+}
+
+function clearData() {
+  localStorage.removeItem("user");
+  localStorage.removeItem("token");
+
+  sessionStorage.removeItem("user");
+  sessionStorage.removeItem("token");
+
+  fetcher.update({ token: null });
+}
+function saveData(u: IUser, remember: boolean) {
+  (remember ? localStorage : sessionStorage).setItem("user", JSON.stringify(u));
+  if (u.token) {
+    (remember ? localStorage : sessionStorage).setItem("token", u.token);
+
+    fetcher.update({ token: u.token });
+  }
+}
+
+function getData() {
+  try {
+    let userJson = localStorage.getItem("user");
+    if (userJson) {
+      isRemember = true;
+    } else {
+      isRemember = false;
+      userJson = sessionStorage.getItem("user");
+    }
+
+    if (!userJson) throw new Error();
+
+    const json: IUser = JSON.parse(userJson);
+    return json;
+  } catch (error) {
+    return null;
+  }
 }

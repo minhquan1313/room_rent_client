@@ -3,14 +3,16 @@ import classNames from "classnames";
 import { HTMLAttributes, ReactNode, useEffect } from "react";
 
 interface IProps extends HTMLAttributes<HTMLDivElement> {
-  outerClassName?: HTMLAttributes<HTMLDivElement>["className"];
+  innerClassName?: HTMLAttributes<HTMLDivElement>["className"];
+  noBg?: boolean;
   children?: ReactNode;
 }
 
 function MyContainer({
   children,
   className,
-  outerClassName,
+  innerClassName,
+  noBg,
   style,
   ...rest
 }: IProps) {
@@ -20,13 +22,16 @@ function MyContainer({
 
   return (
     <div
-      className={classNames("min-w-full", outerClassName)}
+      className={classNames("min-w-full transition", className)}
       style={{
-        backgroundColor: colorBgContainer,
+        backgroundColor: noBg ? "transparent" : colorBgContainer,
         ...style,
       }}
     >
-      <div {...rest} className={classNames("bg-red-3001 container", className)}>
+      <div
+        {...rest}
+        className={classNames("bg-red-3001 container", innerClassName)}
+      >
         {children}
       </div>
     </div>
@@ -37,8 +42,8 @@ function Center({ children, className, ...rest }: IProps) {
   return (
     <MyContainer
       {...rest}
-      outerClassName="flex"
-      className={classNames("mx-auto my-auto", className)}
+      className="flex"
+      innerClassName={classNames("mx-auto my-auto", className)}
     >
       {/* <div className="my-auto flex flex-1 flex-col items-center"> */}
       {children}
@@ -50,7 +55,7 @@ function Center({ children, className, ...rest }: IProps) {
 function Raw({ children }: Pick<IProps, "children">) {
   useEffect(() => {
     // document.documentElement.className = "overflow-y-scroll";
-    // document.body.className = "overflow-y-scroll";
+    document.body.className = "overflow-x-hidden";
   }, []);
 
   return <>{children}</>;

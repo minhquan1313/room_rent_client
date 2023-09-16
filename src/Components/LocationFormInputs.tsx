@@ -1,11 +1,14 @@
 import MyButton from "@/Components/MyButton";
+import NotFoundContent from "@/Components/NotFoundContent";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { fetcher } from "@/services/fetcher";
 import { GoogleClickEvent } from "@/types/GoogleClickEvent";
 import { RoomLocationPayload } from "@/types/IRoom";
 import { Location3rd, LocationResolve } from "@/types/Location3rd";
+import { isProduction } from "@/utils/isProduction";
+import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import {
-  Empty,
+  Card,
   Form,
   Input,
   Select,
@@ -18,10 +21,11 @@ import { Coords } from "google-map-react";
 import {
   ForwardRefRenderFunction,
   forwardRef,
+  memo,
+  useCallback,
   useContext,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -31,16 +35,15 @@ import useSWR from "swr";
 //   value?: RoomLocationPayload;
 //   onChange?: (value: RoomLocationPayload) => void;
 // }
-const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
-  _p,
-  ref,
-) => {
+const LocationFormInputs_: ForwardRefRenderFunction<
+  RoomLocationPayload | undefined
+> = (_p, ref) => {
   const {
     loadMapTo,
     addMarker,
     clearMarker,
     getAddressFromMarker,
-    getCoordsFromAddress,
+    // getCoordsFromAddress,
     getUserCoords,
   } = useContext(GoogleMapContext);
   const [messageApi, contextHolder] = message.useMessage();
@@ -52,7 +55,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
   const [coord, setCoords] = useState<Coords>();
   const [detailLocation, setDetailLocation] = useState<string>();
 
-  const [country, setCountry] = useState<string>();
+  const [country, setCountry] = useState<string | undefined>();
   const [province, setProvince] = useState<string>();
   const [district, setDistrict] = useState<string>();
   const [ward, setWard] = useState<string>();
@@ -60,21 +63,29 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
   const [gettingLocation, setGettingLocation] = useState(false);
   const [locationDenied, setLocationDenied] = useState<boolean>();
   const [allowSpecialFeature, setAllowSpecialFeature] = useState(false);
+  const [resolving, setResolving] = useState(false);
 
   const loaded = useRef(false);
 
-  const [thirdCountryCode, setThirdCountryCode] = useState<string>();
+  const [thirdCountryCode, setThirdCountryCode] = useState<string | undefined>(
+    "1",
+  );
   const [thirdProvinceCode, setThirdProvinceCode] = useState<string>();
   const [thirdDistrictCode, setThirdDistrictCode] = useState<string>();
-  const [thirdWardCode, setThirdWardCode] = useState<string>();
+  // const [thirdWardCode, setThirdWardCode] = useState<string>();
 
-  const { data: allCountryVn, isValidating: loadingCountryVn } = useSWR<
+  const { data: allCountryVn, isLoading: loadingCountryVn } = useSWR<
     Location3rd[]
   >(`/location/countries?all`, fetcher);
-  const { data: allProvincesVn, isValidating: loadingProvincesVn } = useSWR<
+  const { data: allProvincesVn, isLoading: loadingProvincesVn } = useSWR<
     Location3rd[]
-  >(`/location/provinces?all`, fetcher);
-  const { data: allDistrictsVn, isValidating: loadingDistrictsVn } = useSWR<
+  >(
+    thirdCountryCode
+      ? `/location/provinces?all&country=${thirdCountryCode}`
+      : undefined,
+    fetcher,
+  );
+  const { data: allDistrictsVn, isLoading: loadingDistrictsVn } = useSWR<
     Location3rd[]
   >(
     thirdProvinceCode
@@ -82,189 +93,59 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
       : undefined,
     fetcher,
   );
-  const { data: allWardsVn, isValidating: loadingWardsVn } = useSWR<
-    Location3rd[]
-  >(
+  const { data: allWardsVn, isLoading: loadingWardsVn } = useSWR<Location3rd[]>(
     thirdDistrictCode
       ? `/location/wards?all&district=${thirdDistrictCode}`
       : undefined,
     fetcher,
   );
-  console.log(`🚀 ~ allWardsVn:`, allWardsVn);
 
-  const thirdCountrySelectJsx = useMemo(
-    () => (
-      <Select
-        notFoundContent={
-          <Empty
-            description="Không có dữ liệu nha"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            className="m-2"
-          />
-        }
-        onSelect={(e, o) => {
-          setCountry(e);
-          setThirdCountryCode(o.value as any);
-        }}
-        value={country}
-      >
-        {allCountryVn &&
-          allCountryVn.map(({ code, name }) => (
-            <Select.Option key={code} value={name}>
-              {name}
-            </Select.Option>
-          ))}
-      </Select>
+  const thirdCountrySelect = useCallback<SelectOptionProps["onSelect"]>(
+    ({ code, name }) => {
+      setCountry(name);
+      setThirdCountryCode(code);
 
-      // <Select
-      //       options={
-      //         allCountryVn &&
-      //         allCountryVn.map(({ code, name }) => ({
-      //           label: name,
-      //           value: code,
-      //         }))
-      //       }
-      //     />
-    ),
-    [allCountryVn, country],
+      setProvince(undefined);
+      setThirdProvinceCode(undefined);
+
+      setDistrict(undefined);
+      setThirdDistrictCode(undefined);
+
+      setWard(undefined);
+      // setThirdWardCode(undefined);
+
+      setDetailLocation(undefined);
+    },
+    [],
   );
-  const thirdProvinceSelectJsx = useMemo(
-    () => (
-      <Select
-        notFoundContent={
-          <Empty
-            description="Không có dữ liệu nha"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            className="m-2"
-          />
-        }
-        onSelect={(e, o) => {
-          setProvince(e);
-          setThirdProvinceCode(o.value as any);
-        }}
-        value={province}
-      >
-        {allProvincesVn &&
-          allProvincesVn.map(({ code, name }) => (
-            <Select.Option key={code} value={name}>
-              {name}
-            </Select.Option>
-          ))}
-      </Select>
-      // <Select
-      //   notFoundContent={
-      //     <Empty
-      //       description="Không có dữ liệu nha"
-      //       image={Empty.PRESENTED_IMAGE_SIMPLE}
-      //       className="m-2"
-      //     />
-      //   }
-      //   onSelect={(e, o) => {
-      //     setProvince(o.label);
-      //     setThirdProvinceCode(e);
-      //   }}
-      //   options={
-      //     allProvincesVn &&
-      //     allProvincesVn.map(({ code, name }) => ({
-      //       label: name,
-      //       value: code,
-      //     }))
-      //   }
-      // />
-    ),
-    [allProvincesVn, province],
+  const thirdProvinceSelect = useCallback<SelectOptionProps["onSelect"]>(
+    ({ code, name }) => {
+      setProvince(name);
+      setThirdProvinceCode(code);
+
+      setDistrict(undefined);
+      setThirdDistrictCode(undefined);
+      setWard(undefined);
+      // setThirdWardCode(undefined);
+    },
+    [],
   );
-  const thirdDistrictSelectJsx = useMemo(
-    () => (
-      <Select
-        notFoundContent={
-          <Empty
-            description="Không có dữ liệu nha"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            className="m-2"
-          />
-        }
-        onSelect={(e, o) => {
-          setDistrict(e);
-          setThirdDistrictCode(o.value as any);
-        }}
-        value={district}
-      >
-        {allDistrictsVn &&
-          allDistrictsVn.map(({ code, name }) => (
-            <Select.Option key={code} value={name}>
-              {name}
-            </Select.Option>
-          ))}
-      </Select>
-      // <Select
-      //   notFoundContent={
-      //     <Empty
-      //       description="Không có dữ liệu nha"
-      //       image={Empty.PRESENTED_IMAGE_SIMPLE}
-      //       className="m-2"
-      //     />
-      //   }
-      //   onSelect={(e, o) => {
-      //     setDistrict(o.label);
-      //     setThirdDistrictCode(e);
-      //   }}
-      //   options={
-      //     allDistrictsVn &&
-      //     allDistrictsVn.map(({ code, name }) => ({
-      //       label: name,
-      //       value: code,
-      //     }))
-      //   }
-      // />
-    ),
-    [allDistrictsVn, district],
+  const thirdDistrictSelect = useCallback<SelectOptionProps["onSelect"]>(
+    ({ code, name }) => {
+      setDistrict(name);
+      setThirdDistrictCode(code);
+
+      setWard(undefined);
+      // setThirdWardCode(undefined);
+    },
+    [],
   );
-  const thirdWardSelectJsx = useMemo(
-    () => (
-      <Select
-        notFoundContent={
-          <Empty
-            description="Không có dữ liệu nha"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            className="m-2"
-          />
-        }
-        onSelect={(e, o) => {
-          setWard(e);
-          setThirdWardCode(o.value as any);
-        }}
-        defaultValue={ward}
-      >
-        {allWardsVn &&
-          allWardsVn.map(({ code, name }) => (
-            <Select.Option key={code} value={name}>
-              {name}
-            </Select.Option>
-          ))}
-      </Select>
-      // <Select
-      //   notFoundContent={
-      //     <Empty
-      //       description="Không có dữ liệu nha"
-      //       image={Empty.PRESENTED_IMAGE_SIMPLE}
-      //       className="m-2"
-      //     />
-      //   }
-      //   onSelect={(e, o) => {
-      //     setWard(o.label);
-      //     // setThirdWardCode(e);
-      //   }}
-      //   options={
-      //     allWardsVn &&
-      //     allWardsVn.map(({ code, name }) => ({
-      //       label: name,
-      //       value: code,
-      //     }))
-      //   }
-      // />
-    ),
-    [allWardsVn, ward],
+  const thirdWardSelect = useCallback<SelectOptionProps["onSelect"]>(
+    ({ name }) => {
+      setWard(name);
+      // setThirdWardCode(code);
+    },
+    [],
   );
 
   async function onCoordChange() {
@@ -282,40 +163,66 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
       z && z < 18 && map.setZoom(18);
     });
 
-    // resolveLocationFromGG(undefined, `Tiền Giang`, "Mỹ Tho");
+    // resolveLocationFromGG(
+    //   "Việt Nam",
+    //   `Thành phố Hồ Chí Minh`,
+    //   "Gò Vấp",
+    //   "Phường 11",
+    // );
     if (!allowSpecialFeature) return;
+    // setAllowSpecialFeature(false);
 
     let geoLocation;
+    setResolving(true);
     try {
       geoLocation = await getAddressFromMarker(coord);
     } catch (error) {
+      console.log(`🚀 ~ onCoordChange ~ error:`, error);
+
       messageApi.open({
         type: "error",
-        content: "Có lỗi khi lấy thông tin địa chỉ",
+        content:
+          error === "OVER_QUERY_LIMIT"
+            ? "API hết lượt dùng rồi :>"
+            : "Có lỗi khi lấy địa chỉ, mở console",
       });
     }
+    setResolving(false);
 
     if (geoLocation) {
       const str = geoLocation.formatted_address.split(", ");
 
-      // resolve
-
       const country = str.pop();
-      setCountry(country);
+      // setCountry(country);
 
       const province = str.pop();
-      setProvince(province);
+      // setProvince(province);
 
       const district = str.pop();
-      setDistrict(district);
+      // setDistrict(district);
 
       const ward = str.pop();
-      setWard(ward);
+      // setWard(ward);
 
-      const detailLocation = str.pop();
+      let detailLocation = str.pop();
+      if (geoLocation.address_components.length >= 5) {
+        const s = [];
+        for (const r of geoLocation.address_components) {
+          if (r.types.includes("political")) break;
+          s.push(r.long_name);
+        }
+        detailLocation = s.join(", ");
+      }
+
       setDetailLocation(detailLocation);
 
       resolveLocationFromGG(country, province, district, ward);
+      console.log(`🚀 ~ onCoordChange ~ country, province, district, ward:`, {
+        country,
+        province,
+        district,
+        ward,
+      });
     }
   }
 
@@ -325,26 +232,44 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
     district?: string,
     ward?: string,
   ) {
-    const params = new URLSearchParams();
-    province && params.append("province", province);
-    district && params.append("district", district);
-    ward && params.append("ward", ward);
+    try {
+      setResolving(true);
 
-    const url = `/location/resolve?${params.toString()}`;
+      const params = new URLSearchParams();
+      country && params.append("country", country);
+      province && params.append("province", province);
+      district && params.append("district", district);
+      ward && params.append("ward", ward);
 
-    console.log(`🚀 ~ resolveLocationFromGG ~ url:`, url);
+      const url = `/location/resolve?${params.toString()}`;
+      const data = await fetcher.get<never, LocationResolve>(url);
+      console.log(`🚀 ~ data:`, data);
+      setResolving(false);
 
-    const data = await fetcher.get<never, LocationResolve>(url);
-    setThirdProvinceCode(data.province ? data.province.code : undefined);
-    setProvince(() => (data.province ? data.province.name : undefined));
+      if (!Object.keys(data).length) {
+        //
+        messageApi.open({
+          type: "error",
+          content: "Vùng không hỗ trợ",
+        });
 
-    setThirdDistrictCode(data.district ? data.district.code : undefined);
-    setDistrict(() => (data.district ? data.district.name : undefined));
+        return;
+      }
 
-    setThirdWardCode(data.ward ? data.ward.code : undefined);
-    setWard(() => (data.ward ? data.ward.name : undefined));
+      setThirdCountryCode(data.country ? data.country.code : undefined);
+      setCountry(() => (data.country ? data.country.name : undefined));
 
-    console.log(`🚀 ~ resolveLocationFromGG ~ data:`, data);
+      setThirdProvinceCode(data.province ? data.province.code : undefined);
+      setProvince(() => (data.province ? data.province.name : undefined));
+
+      setThirdDistrictCode(data.district ? data.district.code : undefined);
+      setDistrict(() => (data.district ? data.district.name : undefined));
+
+      // setThirdWardCode(data.ward ? data.ward.code : undefined);
+      setWard(() => (data.ward ? data.ward.name : undefined));
+    } catch (error) {
+      setResolving(false);
+    }
   }
 
   useEffect(() => {
@@ -374,6 +299,20 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
         lat: env.latLng.lat(),
         lng: env.latLng.lng(),
       });
+
+      // setCountry(undefined);
+      // setThirdCountryCode(undefined);
+
+      // setProvince(undefined);
+      // setThirdProvinceCode(undefined);
+
+      // setDistrict(undefined);
+      // setThirdDistrictCode(undefined);
+
+      // setWard(undefined);
+      // // setThirdWardCode( undefined);
+
+      // setDetailLocation(undefined);
     });
   }, [map]);
 
@@ -383,12 +322,16 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
   }, [coord]);
 
   useImperativeHandle(ref, () => {
+    if (!coord?.lat && !coord?.lng && !country && !province && !district) {
+      return undefined;
+    }
+
     const obj: RoomLocationPayload = {
       lat: coord?.lat ?? 0,
       long: coord?.lng ?? 0,
       country: country ?? "",
       province: province ?? "",
-      district,
+      district: district ?? "",
       ward,
       detail_location: detailLocation,
     };
@@ -397,11 +340,31 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
   });
 
   return (
-    <div>
+    <>
       {contextHolder}
-      <Form.Item>
-        <Space.Compact direction="vertical" block>
-          <div ref={mapRef} className="aspect-video w-full rounded-t-lg" />
+      <Form.Item label="Chọn vị trí" required>
+        <Space.Compact direction="vertical" block className="relative">
+          <div className="relative">
+            <div
+              ref={mapRef}
+              className="aspect-square w-full rounded-t-lg lg:aspect-video"
+            />
+            <Card
+              onClick={() => {
+                setAllowSpecialFeature(!allowSpecialFeature);
+              }}
+              size="small"
+              className="absolute bottom-4 right-2 cursor-pointer"
+            >
+              <Space>
+                <Switch
+                  checked={allowSpecialFeature}
+                  disabled={locationDenied}
+                />
+                {allowSpecialFeature ? "Lấy địa chỉ" : "Lấy địa chỉ"}
+              </Space>
+            </Card>
+          </div>
           <MyButton
             onClick={async () => {
               setGettingLocation(true);
@@ -426,31 +389,36 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
         </Space.Compact>
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload>>
-        <Space>
-          <Switch
-            onClick={() => {
-              setAllowSpecialFeature(!allowSpecialFeature);
-            }}
-            checked={allowSpecialFeature}
-          />
-          {allowSpecialFeature ? "Lấy địa chỉ" : "Lấy địa chỉ"}
-        </Space>
+      {!isProduction && (
+        <Form.Item>
+          <MyButton
+            to={`https://www.google.com/maps/place/${encodeURIComponent(
+              coord?.lat + "," + coord?.lng,
+            )}`}
+            disabled={!coord?.lat || !coord?.lng}
+          >
+            [DEV] Click mở google map
+          </MyButton>
+        </Form.Item>
+      )}
+
+      <Form.Item<RoomLocationPayload> label="Vĩ độ" required>
+        <Input value={coord?.lat + ", " + coord?.lng} disabled />
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Vĩ độ">
-        <Input value={coord?.lat} disabled />
-      </Form.Item>
-
-      <Form.Item<RoomLocationPayload> label="Kinh độ">
+      <Form.Item<RoomLocationPayload> label="Kinh độ" required>
         <Input value={coord?.lng} disabled />
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Quốc gia">
-        {loadingCountryVn ? (
+      <Form.Item<RoomLocationPayload> label="Quốc gia" required>
+        {loadingCountryVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
-          thirdCountrySelectJsx
+          <SelectOptions
+            onSelect={thirdCountrySelect}
+            data={allCountryVn}
+            value={country}
+          />
         )}
 
         {/* <Input
@@ -463,11 +431,15 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
         /> */}
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Tỉnh">
-        {loadingProvincesVn ? (
+      <Form.Item<RoomLocationPayload> label="Tỉnh" required>
+        {loadingProvincesVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
-          thirdProvinceSelectJsx
+          <SelectOptions
+            onSelect={thirdProvinceSelect}
+            data={allProvincesVn}
+            value={province}
+          />
         )}
 
         {/* <Input
@@ -479,11 +451,15 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
         /> */}
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Quận / Huyện">
-        {loadingDistrictsVn ? (
+      <Form.Item<RoomLocationPayload> label="Quận / Huyện" required>
+        {loadingDistrictsVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
-          thirdDistrictSelectJsx
+          <SelectOptions
+            onSelect={thirdDistrictSelect}
+            data={allDistrictsVn}
+            value={district}
+          />
         )}
         {/* <Input
           onChange={(e) => {
@@ -495,7 +471,15 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
       </Form.Item>
 
       <Form.Item<RoomLocationPayload> label="Xã / Phường">
-        {loadingWardsVn ? <Skeleton.Input active block /> : thirdWardSelectJsx}
+        {loadingWardsVn || resolving ? (
+          <Skeleton.Input active block />
+        ) : (
+          <SelectOptions
+            onSelect={thirdWardSelect}
+            data={allWardsVn}
+            value={ward}
+          />
+        )}
         {/* <Input
           onChange={(e) => {
             setWard(e.target.value);
@@ -511,12 +495,56 @@ const LocationFormInputs_: ForwardRefRenderFunction<RoomLocationPayload> = (
             setDetailLocation(e.target.value);
           }}
           value={detailLocation}
+          disabled={resolving}
+          maxLength={100}
+          showCount
           // disabled={!!detailLocation}
         />
       </Form.Item>
-    </div>
+    </>
   );
 };
+
+interface SelectOptionProps {
+  data?: Location3rd[];
+  value?: string;
+  onSelect: (value: Location3rd) => void;
+}
+
+const SelectOptions = memo(function SelectOptions({
+  data,
+  value,
+  onSelect,
+}: SelectOptionProps) {
+  return (
+    <Select
+      notFoundContent={<NotFoundContent />}
+      onSelect={(_e, o) => {
+        if (!o.value || !o.key) return;
+
+        const obj: Location3rd = {
+          name: String(o.value),
+          // name: o.children,
+          code: o.key,
+        };
+        if (obj.name === value) return;
+
+        onSelect(obj);
+      }}
+      filterOption={searchFilterTextHasLabel}
+      showSearch
+      value={value}
+    >
+      {data &&
+        data.map(({ code, name }) => (
+          <Select.Option key={code} value={name} label={name}>
+            {/* <Select.Option key={code} value={removeAccents(name)}> */}
+            {name}
+          </Select.Option>
+        ))}
+    </Select>
+  );
+});
 
 const LocationFormInputs = forwardRef(LocationFormInputs_);
 export default LocationFormInputs;

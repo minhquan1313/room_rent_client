@@ -1,7 +1,9 @@
-import FilesUpload3 from "@/Components/FilesUpload";
+import FilesUpload from "@/Components/FilesUpload";
 import LocationFormInputs from "@/Components/LocationFormInputs";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
+import RoomTypeSelect from "@/Components/RoomTypeSelect";
+import ServiceSelect from "@/Components/ServiceSelect";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { currencyCodes } from "@/constants/currencyCodes";
@@ -10,10 +12,10 @@ import { isRoleAdmin } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { RoomLocationPayload, RoomPayload } from "@/types/IRoom";
+import { isMobile } from "@/utils/isMobile";
 import { pageTitle } from "@/utils/pageTitle";
 import {
   Alert,
-  Empty,
   Form,
   Input,
   InputNumber,
@@ -29,9 +31,10 @@ function AddRoom() {
   pageTitle("Thêm phòng");
 
   const [messageApi, contextHolder] = message.useMessage();
+  const [form] = Form.useForm();
 
   const { isLogging, user } = useContext(UserContext);
-  const { roomServices, roomTypes } = useContext(GlobalDataContext);
+  const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
   const [submitting, setSubmitting] = useState(false);
   // const [editorState, setEditorState] = useState(EditorState.createEmpty);
   const [error, setError] = useState<ErrorJsonResponse>();
@@ -52,10 +55,6 @@ function AddRoom() {
 
       return;
     } else if (location.current.lat === 0 || location.current.long === 0) {
-      console.log(`🚀 ~ onFinish ~ long:`, location.current.lat);
-
-      console.log(`🚀 ~ onFinish ~ lat:`, location.current.long);
-
       messageApi.open({
         type: "error",
         content: "Hãy ghim trên bản đồ",
@@ -102,7 +101,11 @@ function AddRoom() {
         setSubmitting(false);
         console.log(`🚀 ~ r:`, r);
 
-        // const d = await login(values, remember);
+        messageApi.open({
+          type: "success",
+          content: "Thêm thành công",
+        });
+        form.resetFields();
       } catch (error: any) {
         setSubmitting(false);
         setError(error.response.data as ErrorJsonResponse);
@@ -123,46 +126,6 @@ function AddRoom() {
     [],
   );
 
-  const serviceSelectJsx = useMemo(
-    () => (
-      <Select
-        notFoundContent={
-          <Empty
-            description="Không có dữ liệu nha"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            className="m-2"
-          />
-        }
-        filterOption={(input: string, option?: { label: string | null }) => {
-          if (!option?.label) return false;
-
-          return option.label.toLowerCase().includes(input.toLowerCase());
-        }}
-        mode="multiple"
-      >
-        {roomServices &&
-          roomServices.map(({ display_name, title }) => (
-            <Select.Option key={title} value={title}>
-              {display_name}
-            </Select.Option>
-          ))}
-      </Select>
-    ),
-    [roomServices],
-  );
-  const roomTypesSelectJsx = useMemo(
-    () => (
-      <Select>
-        {roomTypes &&
-          roomTypes.map(({ display_name, title }) => (
-            <Select.Option key={title} value={title}>
-              {display_name}
-            </Select.Option>
-          ))}
-      </Select>
-    ),
-    [roomTypes],
-  );
   const measureSelectJsx = useMemo(
     () => (
       <Select className="min-w-[4rem]">
@@ -188,11 +151,6 @@ function AddRoom() {
       {contextHolder}
       <Typography.Title>Thêm phòng mới</Typography.Title>
       <Form
-        name="room"
-        className="w-full"
-        layout="vertical"
-        onChange={() => setError(undefined)}
-        disabled={submitting || isLogging}
         initialValues={{
           number_of_living_room: 1,
           number_of_bathroom: 1,
@@ -210,14 +168,20 @@ function AddRoom() {
 
           // lat: 2,
         }}
-        // size="large"
+        name="room"
+        className="w-full"
+        layout="vertical"
+        onChange={() => setError(undefined)}
+        disabled={submitting || isLogging}
+        size={isMobile() ? "large" : undefined}
         onFinish={onFinish}
         autoComplete="on"
+        form={form}
       >
         <Form.Item<RoomPayload>
           label="ID chủ phòng"
           name="owner"
-          // hidden={!isRoleAdmin(user?.role.title)}
+          hidden={!isRoleAdmin(user?.role.title)}
         >
           <Input />
         </Form.Item>
@@ -232,23 +196,15 @@ function AddRoom() {
           label="Tên phòng"
           name="name"
         >
-          <Input />
+          <Input maxLength={50} showCount />
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Giới thiệu ngắn" name="sub_name">
-          <Input />
+          <Input maxLength={50} showCount />
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Mô tả chi tiết" name="description">
-          {/* <Editor
-            editorState={editorState}
-            onChange={(s) => {
-              console.log(`🚀 ~ AddRoom ~ s:`, s);
-
-              setEditorState(s);
-            }}
-          /> */}
-          <Input.TextArea autoSize />
+          <Input.TextArea maxLength={1000} showCount autoSize />
         </Form.Item>
 
         <Form.Item<RoomPayload>
@@ -261,18 +217,22 @@ function AddRoom() {
           label="Kiểu phòng"
           name="room_type"
         >
-          {!roomTypes ? <Skeleton.Input active block /> : roomTypesSelectJsx}
+          {!roomTypes ? <Skeleton.Input active block /> : <RoomTypeSelect />}
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Các dịch vụ" name="services">
-          {!roomServices ? <Skeleton.Input active block /> : serviceSelectJsx}
+          {!roomServicesConverted ? (
+            <Skeleton.Input active block />
+          ) : (
+            <ServiceSelect />
+          )}
         </Form.Item>
 
         <Form.Item<RoomPayload>
           label="Chọn ảnh cho phòng"
           tooltip="Sau khi chọn ảnh, bấm giữ ảnh và kéo để thay đổi thứ tự"
         >
-          <FilesUpload3 ref={files} />
+          <FilesUpload ref={files} accept="image/*" />
         </Form.Item>
 
         <Form.Item<RoomPayload>
@@ -306,7 +266,7 @@ function AddRoom() {
               message: " không bỏ trống",
             },
           ]}
-          label="Diện tích phòng"
+          label="Diện tích sử dụng"
           name="usable_area"
         >
           <InputNumber
@@ -369,7 +329,7 @@ function AddRoom() {
           />
         </Form.Item>
 
-        <Form.Item label="Chọn vị trí" required>
+        <Form.Item noStyle>
           <LocationFormInputs ref={location} />
         </Form.Item>
         {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
@@ -379,7 +339,7 @@ function AddRoom() {
               block
               type="primary"
               loading={submitting || isLogging}
-              disabled={!roomServices || !roomTypes}
+              disabled={!roomServicesConverted || !roomTypes}
               danger={!!error}
               htmlType="submit"
             >

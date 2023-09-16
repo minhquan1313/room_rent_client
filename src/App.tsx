@@ -38,10 +38,6 @@ function App() {
       <Routes>
         <Route path="/" element={<MyLayout />}>
           <Route index element={<Home />} />
-          {/* <Route
-            path="/trips"
-            element={user ? <Home /> : <Navigate to="/login" />}
-          /> */}
 
           <Route
             path="/rooms/add"

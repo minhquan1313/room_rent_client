@@ -29,6 +29,9 @@ export interface IRoom {
   number_of_floor: number;
 
   available: boolean;
+  disabled: boolean;
+  admin_checked: boolean;
+  verified: boolean;
 
   updatedAt: Date;
   createdAt: Date;

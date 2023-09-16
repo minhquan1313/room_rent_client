@@ -4,6 +4,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 
 import { UserLoginPayload } from "@/types/IUser";
+import { isMobile } from "@/utils/isMobile";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Checkbox, Form, Input, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
@@ -30,7 +31,7 @@ function Login() {
 
     (async () => {
       try {
-        const d = await login(values, remember);
+        await login(values, remember);
       } catch (error: any) {
         console.log(`🚀 ~ error:`, error);
 
@@ -89,7 +90,7 @@ function Login() {
           // username: "12321",
         }}
         onFinish={onFinish}
-        size="large"
+        size={isMobile() ? "large" : undefined}
       >
         <Form.Item<TUserLoginPayload>
           label="Tên đăng nhập"

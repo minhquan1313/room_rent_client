@@ -5,6 +5,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { telCodes } from "@/constants/telCodes";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { UserRegisterPayload } from "@/types/IUser";
+import { isMobile } from "@/utils/isMobile";
 import { isValidPhone } from "@/utils/isValidPhoneNumber";
 import { pageTitle } from "@/utils/pageTitle";
 import {
@@ -40,7 +41,7 @@ function Register() {
 
     (async () => {
       try {
-        const d = await register(values, true);
+        await register(values, true);
       } catch (error: any) {
         console.log(`🚀 ~ error:`, error);
 
@@ -143,7 +144,7 @@ function Register() {
           gender: "male",
         }}
         onFinish={onFinish}
-        size="large"
+        size={isMobile() ? "large" : undefined}
       >
         <Form.Item<UserRegisterPayload>
           label="Tên đăng nhập"

@@ -14,16 +14,31 @@ function MyButton({ to, type = "default", children, ...rest }: IProps) {
 
   if (!to) return <Button {...props}>{children}</Button>;
 
-  return (
-    <Button {...props}>
-      <Link to={to} className="inline-block">
-        {children}
+  if (to.startsWith("http")) {
+    // external
+    return (
+      <Button {...props}>
+        <a href={to} target="_blank" rel="noopener" className="inline-block">
+          {children}
 
-        {/* MASK */}
-        <div className="absolute inset-0 opacity-0" />
-      </Link>
-    </Button>
-  );
+          {/* MASK */}
+          <div className="absolute inset-0 opacity-0" />
+        </a>
+      </Button>
+    );
+  } else {
+    // internal
+    return (
+      <Button {...props}>
+        <Link to={to} className="inline-block">
+          {children}
+
+          {/* MASK */}
+          <div className="absolute inset-0 opacity-0" />
+        </Link>
+      </Button>
+    );
+  }
 }
 
 export default MyButton;
