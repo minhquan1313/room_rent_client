@@ -72,3 +72,9 @@ export type RoomLocationPayload = Omit<
   IRoomLocation,
   "_id" | "room" | "updatedAt" | "createdAt"
 >;
+
+export type CountRoom = {
+  province: string;
+  count: number;
+  image: string;
+};

@@ -9,7 +9,21 @@ interface IContext {
   loadMapTo: (detail: {
     ref: HTMLElement;
     coords?: Coords | null | undefined;
-  }) => Promise<google.maps.Map>;
+    extra?:
+      | {
+          autocomplete?:
+            | {
+                ref: HTMLInputElement;
+                onChange(places: google.maps.places.PlaceResult): void;
+              }
+            | undefined;
+        }
+      | undefined;
+  }) => Promise<{
+    map: google.maps.Map;
+    // place,
+    autocomplete: google.maps.places.Autocomplete | undefined;
+  }>;
   getUserCoords: () => Promise<Coords | null>;
   addMarker: (
     map: google.maps.Map,
@@ -22,6 +36,11 @@ interface IContext {
   calculateDistance: (user: Coords, target: Coords) => number;
   clearMarker: (marker: google.maps.Marker) => Promise<void>;
   getCoordsCloseTo: (d: { target: Coords; items: Coords[] }) => Coords[];
+  placeSearch: (
+    input: string,
+    place: google.maps.places.PlacesService,
+    map: google.maps.Map,
+  ) => Promise<any>;
 }
 
 export const GoogleMapContext = createContext<IContext>(null as never);
@@ -69,10 +88,10 @@ export default function GoogleMapProvider({ children }: Props) {
       console.log(`🚀 ~ getCoordsFromAddress ~ address:`, address);
       geocoder.geocode({ address: address }, function (results, status) {
         console.log(`🚀 ~ status:`, status);
-        console.log(`🚀 ~ results:`, results);
         if (status === "OK") {
           if (results && results[0]) {
             const location = results[0].geometry.location;
+            console.log(`🚀 ~ results:`, results);
             console.log(`🚀 ~ location:`, location);
 
             // const latitude = location.lat();
@@ -86,7 +105,6 @@ export default function GoogleMapProvider({ children }: Props) {
         }
 
         console.log(`Có lỗi khi lấy thông tin '${address}'`);
-        console.log(`🚀 ~ status:`, status);
 
         return rj(status);
       });
@@ -115,13 +133,19 @@ export default function GoogleMapProvider({ children }: Props) {
   async function loadMapTo(detail: {
     ref: HTMLElement;
     coords?: Coords | null;
+    extra?: {
+      autocomplete?: {
+        ref: HTMLInputElement;
+        onChange(places: google.maps.places.PlaceResult): void;
+      };
+    };
   }) {
     console.log(`calling`);
 
     if (!isReady) await waitForMapToBeLoaded();
     console.log(`calling ok`);
 
-    const { coords, ref } = detail;
+    const { coords, ref, extra } = detail;
 
     const mapOptions: google.maps.MapOptions = {
       zoom: 10,
@@ -137,9 +161,93 @@ export default function GoogleMapProvider({ children }: Props) {
       // mapTypeId: google.maps.MapTypeId.HYBRID,
     };
 
-    return new google.maps.Map(ref, mapOptions);
-    // setMap(ref ? new google.maps.Map(ref, mapOptions) : undefined);
-    // setMarkers([]);
+    const map = new google.maps.Map(ref, mapOptions);
+    // const place = new google.maps.places.PlacesService(map);
+    let autocomplete_: google.maps.places.Autocomplete | undefined;
+
+    if (extra) {
+      const { autocomplete: autocompleteEx } = extra;
+      if (autocompleteEx) {
+        const { ref, onChange } = autocompleteEx;
+
+        const autocomplete = new google.maps.places.Autocomplete(ref, {
+          types: ["geocode"], // Specify the type of place data to retrieve
+          fields: ["address_components", "formatted_address", "geometry"], // Requested fields
+        });
+        autocomplete_ = autocomplete;
+
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          place.address_components;
+          console.log(
+            `🚀 ~ autocomplete.addListener ~ place.address_components:`,
+            place.address_components,
+          );
+
+          place.geometry;
+          console.log(
+            `🚀 ~ autocomplete.addListener ~ place.geometry:`,
+            place.geometry,
+          );
+
+          onChange(place);
+          // if (!place.geometry) {
+          //   console.error("No details available for input: " + place.name);
+          //   return;
+          // }
+
+          // Handle the selected place (e.g., display its details on the map)
+          // console.log(
+          //   "Selected Place:",
+          //   place.formatted_address,
+          //   place.geometry.location,
+          // );
+        });
+      }
+    }
+    return {
+      map,
+      // place,
+      autocomplete: autocomplete_,
+    };
+  }
+
+  async function placeSearch(
+    input: string,
+    place: google.maps.places.PlacesService,
+    map: google.maps.Map,
+  ) {
+    return new Promise<any | null>((r, rj) => {
+      const request = {
+        location: map.getCenter(), // Use the map's center as the search location
+        radius: 1000, // Search radius in meters
+        query: input, // Your search query
+      };
+
+      place.textSearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          if (results && results[0]) {
+            console.log(`🚀 ~ place.textSearch ~ results:`, results);
+
+            return r(results);
+          } else {
+            return r(null);
+          }
+          // Process and display the results here
+          // for (const place of results) {
+          //   // Example: Add a marker for each result
+          //   new google.maps.Marker({
+          //     map,
+          //     position: place.geometry.location,
+          //     title: place.name,
+          //   });
+          // }
+        } else {
+          console.error("Place search request failed:", status);
+          return rj(status);
+        }
+      });
+    });
   }
 
   async function addMarker(
@@ -210,7 +318,7 @@ export default function GoogleMapProvider({ children }: Props) {
       import.meta.env.VITE_GOOGLE_MAP_API_KEY ?? ""
     }&callback=${functionName}&v=weekly${lang && `&language=` + lang}${
       region && `&region=` + region
-    }`;
+    }&libraries=places`;
     // script.innerHTML =
     //   '(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key: "' +
     //   import.meta.env.VITE_GOOGLE_MAP_API_KEY +
@@ -235,6 +343,7 @@ export default function GoogleMapProvider({ children }: Props) {
     calculateDistance,
     clearMarker,
     getCoordsCloseTo,
+    placeSearch,
   }))();
 
   return (

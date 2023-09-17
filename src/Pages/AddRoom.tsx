@@ -2,17 +2,18 @@ import FilesUpload from "@/Components/FilesUpload";
 import LocationFormInputs from "@/Components/LocationFormInputs";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
-import RoomTypeSelect from "@/Components/RoomTypeSelect";
-import ServiceSelect from "@/Components/ServiceSelect";
+import SelectCurrency from "@/Components/SelectCurrency";
+import SelectRoomType from "@/Components/SelectRoomType";
+import SelectService from "@/Components/SelectService";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { currencyCodes } from "@/constants/currencyCodes";
 import { measureUnitCodes } from "@/constants/measureUnitCodes";
 import { isRoleAdmin } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
+import { numberFormat } from "@/utils/numberFormat";
 import { pageTitle } from "@/utils/pageTitle";
 import {
   Alert,
@@ -113,19 +114,6 @@ function AddRoom() {
     })();
   };
 
-  const currencySelectJsx = useMemo(
-    () => (
-      <Select className="min-w-[8rem]">
-        {currencyCodes.map(({ code, label }) => (
-          <Select.Option key={code} value={code}>
-            {code}({label})
-          </Select.Option>
-        ))}
-      </Select>
-    ),
-    [],
-  );
-
   const measureSelectJsx = useMemo(
     () => (
       <Select className="min-w-[4rem]">
@@ -217,14 +205,14 @@ function AddRoom() {
           label="Kiểu phòng"
           name="room_type"
         >
-          {!roomTypes ? <Skeleton.Input active block /> : <RoomTypeSelect />}
+          {!roomTypes ? <Skeleton.Input active block /> : <SelectRoomType />}
         </Form.Item>
 
         <Form.Item<RoomPayload> label="Các dịch vụ" name="services">
           {!roomServicesConverted ? (
             <Skeleton.Input active block />
           ) : (
-            <ServiceSelect />
+            <SelectService />
           )}
         </Form.Item>
 
@@ -248,12 +236,10 @@ function AddRoom() {
           <InputNumber
             addonAfter={
               <Form.Item<RoomPayload> name="price_currency_code" noStyle>
-                {currencySelectJsx}
+                <SelectCurrency />
               </Form.Item>
             }
-            formatter={(value) =>
-              `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }
+            formatter={numberFormat}
             parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
             className="w-full"
           />

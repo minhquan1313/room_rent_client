@@ -7,10 +7,12 @@ import { RoomLocationPayload } from "@/types/IRoom";
 import { Location3rd, LocationResolve } from "@/types/Location3rd";
 import { isProduction } from "@/utils/isProduction";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
+import { locationToString } from "@/utils/toString";
 import {
   Card,
   Form,
   Input,
+  InputRef,
   Select,
   Skeleton,
   Space,
@@ -31,10 +33,6 @@ import {
 } from "react";
 import useSWR from "swr";
 
-// interface PriceInputProps {
-//   value?: RoomLocationPayload;
-//   onChange?: (value: RoomLocationPayload) => void;
-// }
 const LocationFormInputs_: ForwardRefRenderFunction<
   RoomLocationPayload | undefined
 > = (_p, ref) => {
@@ -44,18 +42,20 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     clearMarker,
     getAddressFromMarker,
     // getCoordsFromAddress,
+    placeSearch,
     getUserCoords,
   } = useContext(GoogleMapContext);
   const [messageApi, contextHolder] = message.useMessage();
 
   const mapRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<InputRef>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [mk, setMk] = useState<google.maps.Marker>();
 
   const [coord, setCoords] = useState<Coords>();
   const [detailLocation, setDetailLocation] = useState<string>();
 
-  const [country, setCountry] = useState<string | undefined>();
+  const [country, setCountry] = useState<string | undefined>("Việt Nam");
   const [province, setProvince] = useState<string>();
   const [district, setDistrict] = useState<string>();
   const [ward, setWard] = useState<string>();
@@ -76,12 +76,12 @@ const LocationFormInputs_: ForwardRefRenderFunction<
 
   const { data: allCountryVn, isLoading: loadingCountryVn } = useSWR<
     Location3rd[]
-  >(`/location/countries?all`, fetcher);
+  >(`/location/countries-all`, fetcher);
   const { data: allProvincesVn, isLoading: loadingProvincesVn } = useSWR<
     Location3rd[]
   >(
     thirdCountryCode
-      ? `/location/provinces?all&country=${thirdCountryCode}`
+      ? `/location/provinces-all?country=${thirdCountryCode}`
       : undefined,
     fetcher,
   );
@@ -89,13 +89,13 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     Location3rd[]
   >(
     thirdProvinceCode
-      ? `/location/districts?all&province=${thirdProvinceCode}`
+      ? `/location/districts-all?province=${thirdProvinceCode}`
       : undefined,
     fetcher,
   );
   const { data: allWardsVn, isLoading: loadingWardsVn } = useSWR<Location3rd[]>(
     thirdDistrictCode
-      ? `/location/wards?all&district=${thirdDistrictCode}`
+      ? `/location/wards-all?district=${thirdDistrictCode}`
       : undefined,
     fetcher,
   );
@@ -278,7 +278,17 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       if (!mapRef.current || loaded.current) return;
 
       // const coords = await getUserCoords();
-      const map = await loadMapTo({ ref: mapRef.current });
+      const { map } = await loadMapTo({
+        ref: mapRef.current,
+        // extra: {
+        //   autocomplete: {
+        //     ref: detailRef.current!.input!,
+        //     onChange(places) {
+        //       console.log(`🚀 ~ onChange ~ places:`, places);
+        //     },
+        //   },
+        // },
+      });
       setMap(() => map);
     })();
     loaded.current = true;
@@ -391,14 +401,34 @@ const LocationFormInputs_: ForwardRefRenderFunction<
 
       {!isProduction && (
         <Form.Item>
-          <MyButton
-            to={`https://www.google.com/maps/place/${encodeURIComponent(
-              coord?.lat + "," + coord?.lng,
-            )}`}
-            disabled={!coord?.lat || !coord?.lng}
-          >
-            [DEV] Click mở google map
-          </MyButton>
+          <Space.Compact block>
+            <MyButton
+              disabled={!country || !province || !district || !ward}
+              block
+              onClick={() => {
+                const addr = locationToString({
+                  district,
+                  province,
+                  ward,
+                  detail_location: detailLocation,
+                });
+
+                // placeSearch()
+              }}
+            >
+              [DEV] Resolve coords
+            </MyButton>
+
+            <MyButton
+              to={`https://www.google.com/maps/place/${encodeURIComponent(
+                coord?.lat + "," + coord?.lng,
+              )}`}
+              disabled={!coord?.lat || !coord?.lng}
+              block
+            >
+              [DEV] Click mở google map
+            </MyButton>
+          </Space.Compact>
         </Form.Item>
       )}
 
@@ -498,6 +528,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
           disabled={resolving}
           maxLength={100}
           showCount
+          ref={detailRef}
           // disabled={!!detailLocation}
         />
       </Form.Item>

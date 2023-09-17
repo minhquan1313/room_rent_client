@@ -1,11 +1,13 @@
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
 import AddRoom from "@/Pages/AddRoom";
+import AllRoom from "@/Pages/AllRoom";
 import Home from "@/Pages/Home";
 import Login from "@/Pages/Login";
 import MyLayout from "@/Pages/MyLayout";
 import NotFound from "@/Pages/NotFound";
 import Register from "@/Pages/Register";
+import RoomDetail from "@/Pages/RoomDetail";
 import { isRoleOwner } from "@/constants/roleType";
 import { pageTitle } from "@/utils/pageTitle";
 import { useContext } from "react";
@@ -36,6 +38,9 @@ function App() {
   return (
     <MyContainer.Raw>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
         <Route path="/" element={<MyLayout />}>
           <Route index element={<Home />} />
 
@@ -45,10 +50,10 @@ function App() {
               isRoleOwner(user?.role.title) ? <AddRoom /> : <Navigate to="/" />
             }
           />
-        </Route>
+          <Route path="/rooms" element={<AllRoom />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route path="/room/:id" element={<RoomDetail />} />
+        </Route>
 
         <Route path="*" element={<NotFound />} />
       </Routes>

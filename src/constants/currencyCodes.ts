@@ -8,6 +8,9 @@ export const currencyCodes: CodeMap[] = Object.keys(currencyToSymbolMap)
       label: currencyToSymbolMap[code],
     };
   })
+  .filter((a) => {
+    return a.code === "VND";
+  })
   .sort((a, b) => {
     return a.code.localeCompare(b.code);
   });

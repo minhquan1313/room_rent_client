@@ -9,7 +9,7 @@ interface Props extends SelectProps {
   onChange?: (value: string[]) => void;
 }
 
-const ServiceSelect = memo(({ value, onChange, ...rest }: Props) => {
+const SelectService = memo(({ value, onChange, ...rest }: Props) => {
   const { roomServicesConverted } = useContext(GlobalDataContext);
 
   return (
@@ -52,4 +52,4 @@ const ServiceSelect = memo(({ value, onChange, ...rest }: Props) => {
   );
 });
 
-export default ServiceSelect;
+export default SelectService;

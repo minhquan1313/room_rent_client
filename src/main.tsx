@@ -1,6 +1,7 @@
 import App from "@/App";
 import GlobalDataProvider from "@/Contexts/GlobalDataProvider";
 import GoogleMapProvider from "@/Contexts/GoogleMapProvider";
+import RoomProvider from "@/Contexts/RoomProvider";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserProvider from "@/Contexts/UserProvider";
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
@@ -17,11 +18,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <ThemeProvider>
         <GlobalDataProvider>
-          <UserProvider>
-            <GoogleMapProvider>
-              <App />
-            </GoogleMapProvider>
-          </UserProvider>
+          <RoomProvider>
+            <UserProvider>
+              <GoogleMapProvider>
+                <App />
+              </GoogleMapProvider>
+            </UserProvider>
+          </RoomProvider>
         </GlobalDataProvider>
       </ThemeProvider>
     </BrowserRouter>

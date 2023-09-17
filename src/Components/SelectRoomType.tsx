@@ -8,7 +8,7 @@ interface Props extends SelectProps {
   onChange?: (value: string[]) => void;
 }
 
-const RoomTypeSelect = memo(({ value, onChange, ...rest }: Props) => {
+const SelectRoomType = memo(({ value, onChange, ...rest }: Props) => {
   const { roomTypes } = useContext(GlobalDataContext);
 
   return (
@@ -29,4 +29,4 @@ const RoomTypeSelect = memo(({ value, onChange, ...rest }: Props) => {
   );
 });
 
-export default RoomTypeSelect;
+export default SelectRoomType;

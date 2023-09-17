@@ -35,9 +35,11 @@ export const fetcher = (() => {
       return response.data;
     },
     function (error) {
-      console.log(`🚀 ~ fetcher ~ error:`, error);
+      // console.log(`🚀 ~ fetcher ~ error:`, error);
 
       // throw error;
+
+      // if (error?.response?.status !== 304)
       return Promise.reject(error);
     },
   );

@@ -12,14 +12,14 @@ export const measureUnitCodes: IMeasureUnitCode[] = [
     label: "m",
     sup: "2",
   },
-  {
-    code: "ft2",
-    label: "ft",
-    sup: "2",
-  },
-  {
-    code: "mi2",
-    label: "mi",
-    sup: "2",
-  },
+  // {
+  //   code: "ft2",
+  //   label: "ft",
+  //   sup: "2",
+  // },
+  // {
+  //   code: "mi2",
+  //   label: "mi",
+  //   sup: "2",
+  // },
 ];

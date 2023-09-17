@@ -33,7 +33,7 @@ export default function MyHeader() {
   return (
     <Header
       className={classNames(
-        "left-0 top-0 z-10 w-full bg-transparent p-0 transition-all duration-500",
+        "left-0 top-0 z-50 w-full bg-transparent p-0 transition-all duration-500",
         {
           fixed: location.pathname === "/",
           sticky: location.pathname !== "/",
