@@ -1,14 +1,21 @@
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
-import AddRoom from "@/Pages/AddRoom";
-import AllRoom from "@/Pages/AllRoom";
 import Home from "@/Pages/Home";
 import Login from "@/Pages/Login";
 import MyLayout from "@/Pages/MyLayout";
 import NotFound from "@/Pages/NotFound";
 import Register from "@/Pages/Register";
+import AddRoom from "@/Pages/RoomAdd";
 import RoomDetail from "@/Pages/RoomDetail";
+import RoomEdit from "@/Pages/RoomEdit";
+import RoomSearch from "@/Pages/RoomSearch";
 import { isRoleOwner } from "@/constants/roleType";
+import {
+  routeRoomAdd,
+  routeRoomDetail,
+  routeRoomEdit,
+  routeRoomSearch,
+} from "@/constants/route";
 import { pageTitle } from "@/utils/pageTitle";
 import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
@@ -44,15 +51,25 @@ function App() {
         <Route path="/" element={<MyLayout />}>
           <Route index element={<Home />} />
 
+          <Route path={routeRoomSearch} element={<RoomSearch />} />
           <Route
-            path="/rooms/add"
+            path={routeRoomAdd}
             element={
-              isRoleOwner(user?.role.title) ? <AddRoom /> : <Navigate to="/" />
+              isRoleOwner(user?.role?.title) ? <AddRoom /> : <Navigate to="/" />
             }
           />
-          <Route path="/rooms" element={<AllRoom />} />
+          <Route
+            path={`${routeRoomEdit}/:id`}
+            element={
+              isRoleOwner(user?.role?.title) ? (
+                <RoomEdit />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
 
-          <Route path="/room/:id" element={<RoomDetail />} />
+          <Route path={`${routeRoomDetail}/:id`} element={<RoomDetail />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

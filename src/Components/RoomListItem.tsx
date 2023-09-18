@@ -3,7 +3,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { IRoom } from "@/types/IRoom";
 import { dateFormat } from "@/utils/dateFormat";
 import { numberFormat } from "@/utils/numberFormat";
-import { locationToString } from "@/utils/toString";
+import { toStringLocation } from "@/utils/toString";
 import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { Badge, Card, Tooltip, Typography } from "antd";
 import { ReactNode, useContext } from "react";
@@ -84,7 +84,7 @@ export const RoomListItem = ({
           ellipsis={{ rows: 2 }}
           className="!mb-0 !mt-auto h-12 leading-6"
         >
-          {location ? locationToString(location, false) : "..."}
+          {location ? toStringLocation(location, false) : "..."}
         </Typography.Paragraph>
       </Card>
     </Badge.Ribbon>

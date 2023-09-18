@@ -1,7 +1,8 @@
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
-import { userNameDisplay } from "@/utils/dataDisplay";
+import { routeRoomAdd } from "@/constants/route";
 import { preloadImage } from "@/utils/preloadImage";
+import { toStringUserName } from "@/utils/toString";
 import { LogoutOutlined } from "@ant-design/icons";
 import { Avatar, Badge, Dropdown, Space, Spin } from "antd";
 import classNames from "classnames";
@@ -57,7 +58,7 @@ const UserHeader = () => {
               label: (
                 <Link to="/info">
                   <Space>
-                    {userNameDisplay(user)}
+                    {toStringUserName(user)}
 
                     {isRoleOwner(user.role.title) && (
                       <Badge
@@ -73,8 +74,8 @@ const UserHeader = () => {
             },
             isRoleOwner(user.role.title)
               ? {
-                  key: "/rooms/add",
-                  label: <Link to="/rooms/add">Thêm phòng</Link>,
+                  key: routeRoomAdd,
+                  label: <Link to={routeRoomAdd}>Thêm phòng</Link>,
                   disabled: !isRoleOwner(user.role.title),
                 }
               : null,

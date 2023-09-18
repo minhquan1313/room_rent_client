@@ -4,8 +4,12 @@ export interface IRoomLocation {
   _id: string;
 
   room: IRoom;
-  lat: number;
-  long: number;
+
+  lat_long: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+
   country: string;
   province: string;
   district: string;

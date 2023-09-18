@@ -57,7 +57,11 @@ export default function MyHeader() {
               <ThemeSwitcher />
 
               {user ? (
-                <UserHeader />
+                <>
+                  <UserHeader />
+
+                  <div className="">Chat</div>
+                </>
               ) : (
                 <>
                   <MyButton loading={isLogging} to="/login">

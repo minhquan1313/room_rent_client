@@ -68,13 +68,61 @@ export type RoomPayload = {
   available?: boolean;
 };
 
-export type RoomLocationPayload = Omit<
-  IRoomLocation,
-  "_id" | "room" | "updatedAt" | "createdAt"
->;
+export interface RoomLocationPayload
+  extends Omit<
+    IRoomLocation,
+    "_id" | "room" | "updatedAt" | "createdAt" | "lat_long"
+  > {
+  lat: number;
+  long: number;
+}
 
 export type CountRoom = {
   province: string;
   count: number;
   image: string;
 };
+
+export interface RoomSearchQuery {
+  kw?: string;
+
+  services?: string[];
+  room_type?: string;
+  province?: string;
+  district?: string;
+  ward?: string;
+
+  limit?: number;
+  page?: number;
+
+  usable_area?: number;
+  usable_area_from?: number;
+  usable_area_to?: number;
+
+  price_per_month_from?: number;
+  price_per_month_to?: number;
+
+  number_of_living_room_from?: number;
+  number_of_living_room_to?: number;
+
+  number_of_bedroom_from?: number;
+  number_of_bedroom_to?: number;
+
+  number_of_bathroom_from?: number;
+  number_of_bathroom_to?: number;
+
+  number_of_floor_from?: number;
+  number_of_floor_to?: number;
+
+  sort_field?: string;
+  sort?: 1 | -1;
+
+  // owner?: string;
+  // ...
+  // ?services=wifi,mt
+  // ?room_type=cc,nr
+  // ?kw=adwdawd
+  // ?province=ben tre
+  // ?district=adad
+  // ?ward=adwwd
+}

@@ -110,19 +110,22 @@ export default function UserProvider({ children }: IProps) {
     setUser(null);
   };
 
-  // refresh token on app start and get user change
+  // refresh token on app start
+  useEffect(() => {
+    user && user.token && loginTokenBackground(user.token, isRemember);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // refresh token background
   useEffect(() => {
     function autoLogin() {
       user && user.token && loginTokenBackground(user.token, isRemember);
     }
 
-    autoLogin();
-
     const itv = setInterval(autoLogin, 60000);
 
     return () => clearInterval(itv);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loginTokenBackground, user]);
 
   useEffect(() => {
     const myInterceptor = fetcher.interceptors.response.use(

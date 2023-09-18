@@ -6,6 +6,7 @@ import { PopularProvinces } from "@/Components/PopularProvinces";
 import { RecentRooms } from "@/Components/RecentRooms";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
 import banner from "@/assets/images/pexels-pixabay-277787.jpg";
+import { routeRoomAdd } from "@/constants/route";
 import { isProduction } from "@/utils/isProduction";
 import { pageTitle } from "@/utils/pageTitle";
 import { Divider, Space, Typography } from "antd";
@@ -18,7 +19,7 @@ function Home() {
   const { myTheme } = useContext(ThemeContext);
 
   return (
-    <>
+    <div>
       <div className="relative">
         <div className="relative">
           <MyImage
@@ -62,7 +63,7 @@ function Home() {
         <MyContainer className="mt-10">
           <Space>
             [DEV]
-            <MyButton to="/rooms/add">Thêm phòng</MyButton>
+            <MyButton to={routeRoomAdd}>Thêm phòng</MyButton>
           </Space>
         </MyContainer>
       )}
@@ -76,11 +77,11 @@ function Home() {
 
       <MyContainer className="my-10">
         <Divider orientation="left">
-          <Typography.Title level={3}>TỈNH/THÀNH PHỐ NỔI BẬT</Typography.Title>
+          <Typography.Title level={3}>Tỉnh/Thành phố nổi bật</Typography.Title>
         </Divider>
         <PopularProvinces />
       </MyContainer>
-    </>
+    </div>
   );
 }
 

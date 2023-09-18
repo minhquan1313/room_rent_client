@@ -1,12 +1,17 @@
 import MyImage from "@/Components/MyImage";
+import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
+import { routeRoomEdit } from "@/constants/route";
 import { IRoom } from "@/types/IRoom";
+import { calculateDistance } from "@/utils/calculateDistance";
 import { dateFormat } from "@/utils/dateFormat";
 import { numberFormat } from "@/utils/numberFormat";
-import { locationToString } from "@/utils/toString";
+import { toStringLocation } from "@/utils/toString";
 import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { Badge, Card, Tooltip, Typography } from "antd";
+import convert from "convert";
 import { ReactNode, useContext } from "react";
+import { Link } from "react-router-dom";
 
 interface RoomCardProps {
   room: IRoom;
@@ -15,22 +20,35 @@ interface RoomCardProps {
   onSave?(saved: boolean): void;
 }
 export const RoomCard = ({
-  room: { images, name, location, createdAt, owner, price_per_month },
+  room: { _id, images, name, location, createdAt, owner, price_per_month },
   saved,
   onSave,
 }: RoomCardProps) => {
   const { user } = useContext(UserContext);
+  const { coords } = useContext(UserLocationContext);
+
   const SavedComponent = saved ? HeartFilled : HeartOutlined;
 
   const actions: ReactNode[] = [
-    <SavedComponent key="save" onClick={() => onSave && onSave(!!saved)} />,
+    <div className="pointer-events-none">
+      <SavedComponent
+        key="save"
+        onClick={(e) => {
+          e.preventDefault();
+
+          onSave && onSave(!!saved);
+        }}
+      />
+    </div>,
   ];
   user?._id === owner._id &&
     actions.push(
       ...[
         //
         <Tooltip title="Sửa thông tin">
-          <EditOutlined key="edit" />
+          <Link to={routeRoomEdit + "/" + _id}>
+            <EditOutlined key="edit" />
+          </Link>
         </Tooltip>,
       ],
     );
@@ -84,8 +102,32 @@ export const RoomCard = ({
           ellipsis={{ rows: 2 }}
           className="!mb-0 !mt-auto h-12 leading-6"
         >
-          {location ? locationToString(location, false) : "..."}
+          {location ? toStringLocation(location, false) : "..."}
         </Typography.Paragraph>
+
+        {coords && location && (
+          <Typography.Paragraph
+            ellipsis={{ rows: 1 }}
+            className="!mb-0 text-right"
+          >
+            {
+              // numberFormat(
+              (() => {
+                const v = convert(
+                  calculateDistance(coords, {
+                    lat: location.lat_long.coordinates[1],
+                    lng: location.lat_long.coordinates[0],
+                  }),
+                  "m",
+                ).to("best");
+
+                return `${v.quantity.toFixed(0)} ${v.unit}`;
+              })()
+
+              // )
+            }
+          </Typography.Paragraph>
+        )}
       </Card>
     </Badge.Ribbon>
   );

@@ -1,18 +1,21 @@
 import MyButton from "@/Components/MyButton";
 import NotFoundContent from "@/Components/NotFoundContent";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
+import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { fetcher } from "@/services/fetcher";
+import { locationResolve } from "@/services/locationResolve";
 import { GoogleClickEvent } from "@/types/GoogleClickEvent";
 import { RoomLocationPayload } from "@/types/IRoom";
-import { Location3rd, LocationResolve } from "@/types/Location3rd";
+import { IRoomLocation } from "@/types/IRoomLocation";
+import { Location3rd } from "@/types/Location3rd";
 import { isProduction } from "@/utils/isProduction";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
-import { locationToString } from "@/utils/toString";
+import { toStringLocation } from "@/utils/toString";
+import { StopOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
   Input,
-  InputRef,
   Select,
   Skeleton,
   Space,
@@ -34,34 +37,48 @@ import {
 import useSWR from "swr";
 
 const LocationFormInputs_: ForwardRefRenderFunction<
-  RoomLocationPayload | undefined
-> = (_p, ref) => {
+  RoomLocationPayload | undefined,
+  { location?: IRoomLocation | null }
+> = ({ location }, ref) => {
   const {
     loadMapTo,
     addMarker,
     clearMarker,
     getAddressFromMarker,
     // getCoordsFromAddress,
-    placeSearch,
-    getUserCoords,
+    // placeSearch,
   } = useContext(GoogleMapContext);
+  const { locationDenied, refreshCoords } = useContext(UserLocationContext);
   const [messageApi, contextHolder] = message.useMessage();
 
   const mapRef = useRef<HTMLDivElement>(null);
-  const detailRef = useRef<InputRef>(null);
+  // const detailRef = useRef<InputRef>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [mk, setMk] = useState<google.maps.Marker>();
 
-  const [coord, setCoords] = useState<Coords>();
-  const [detailLocation, setDetailLocation] = useState<string>();
+  const [coord, setCoords] = useState<Coords | undefined>(
+    location
+      ? {
+          lat: location.lat_long.coordinates[1],
+          lng: location.lat_long.coordinates[0],
+        }
+      : undefined,
+  );
+  const [detailLocation, setDetailLocation] = useState<string | undefined>(
+    location?.detail_location,
+  );
 
   const [country, setCountry] = useState<string | undefined>("Việt Nam");
-  const [province, setProvince] = useState<string>();
-  const [district, setDistrict] = useState<string>();
-  const [ward, setWard] = useState<string>();
+  const [province, setProvince] = useState<string | undefined>(
+    location?.province,
+  );
+  const [district, setDistrict] = useState<string | undefined>(
+    location?.district,
+  );
+  const [ward, setWard] = useState<string | undefined>(location?.ward);
 
   const [gettingLocation, setGettingLocation] = useState(false);
-  const [locationDenied, setLocationDenied] = useState<boolean>();
+  // const [locationDenied, setLocationDenied] = useState<boolean>();
   const [allowSpecialFeature, setAllowSpecialFeature] = useState(false);
   const [resolving, setResolving] = useState(false);
 
@@ -70,8 +87,12 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   const [thirdCountryCode, setThirdCountryCode] = useState<string | undefined>(
     "1",
   );
-  const [thirdProvinceCode, setThirdProvinceCode] = useState<string>();
-  const [thirdDistrictCode, setThirdDistrictCode] = useState<string>();
+  const [thirdProvinceCode, setThirdProvinceCode] = useState<
+    string | undefined
+  >();
+  const [thirdDistrictCode, setThirdDistrictCode] = useState<
+    string | undefined
+  >();
   // const [thirdWardCode, setThirdWardCode] = useState<string>();
 
   const { data: allCountryVn, isLoading: loadingCountryVn } = useSWR<
@@ -148,20 +169,51 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     [],
   );
 
+  const resolveLocationFromGG = async (
+    country: string,
+    province: string | undefined,
+    district: string | undefined,
+    ward: string | undefined,
+  ) => {
+    setResolving(true);
+    const data = await locationResolve("Viet nam", province, district, ward);
+    console.log(`🚀 ~ onCoordChange ~ data:`, data);
+
+    if (!Object.keys(data).length) {
+      //
+      messageApi.open({
+        type: "error",
+        content: "Vùng không hỗ trợ",
+      });
+    } else {
+      setThirdCountryCode(data.country ? data.country.code : undefined);
+      setCountry(() => (data.country ? data.country.name : undefined));
+
+      setThirdProvinceCode(data.province ? data.province.code : undefined);
+      setProvince(() => (data.province ? data.province.name : undefined));
+
+      setThirdDistrictCode(data.district ? data.district.code : undefined);
+      setDistrict(() => (data.district ? data.district.name : undefined));
+
+      // setThirdWardCode(data.ward ? data.ward.code : undefined);
+      setWard(() => (data.ward ? data.ward.name : undefined));
+    }
+    setResolving(false);
+  };
+
   async function onCoordChange() {
     if (!coord || !map) return;
 
     mk && clearMarker(mk);
 
-    addMarker(map, coord).then((mk) => {
-      if (!mk) return;
-      setMk(mk);
+    const mk_ = addMarker(map, coord);
+    if (!mk_) return;
+    setMk(mk_);
 
-      map.setCenter(coord);
+    map.setCenter(coord);
 
-      const z = map.getZoom();
-      z && z < 18 && map.setZoom(18);
-    });
+    const z = map.getZoom();
+    z && z < 18 && map.setZoom(18);
 
     // resolveLocationFromGG(
     //   "Việt Nam",
@@ -170,7 +222,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     //   "Phường 11",
     // );
     if (!allowSpecialFeature) return;
-    // setAllowSpecialFeature(false);
+    setAllowSpecialFeature(false);
 
     let geoLocation;
     setResolving(true);
@@ -185,99 +237,83 @@ const LocationFormInputs_: ForwardRefRenderFunction<
           error === "OVER_QUERY_LIMIT"
             ? "API hết lượt dùng rồi :>"
             : "Có lỗi khi lấy địa chỉ, mở console",
+        duration: 10,
+        icon: <StopOutlined />,
       });
     }
     setResolving(false);
 
     if (geoLocation) {
-      const str = geoLocation.formatted_address.split(", ");
+      const [district, province, country] = geoLocation.address_components
+        .slice(-3)
+        .map((e) => e.long_name);
+      // const [dis, pro, cou] = geoLocation.address_components.slice(-3);
+      const str = geoLocation.formatted_address.split(", ").slice(0, -3);
+      // const str = geoLocation.formatted_address.split(", ");
 
-      const country = str.pop();
-      // setCountry(country);
+      // const country = cou.long_name;
+      // const country = str.pop();
 
-      const province = str.pop();
-      // setProvince(province);
+      // const province = pro.long_name;
+      // const province = str.pop();
 
-      const district = str.pop();
-      // setDistrict(district);
+      // const district = dis.long_name;
+      // const district = str.pop();
 
       const ward = str.pop();
-      // setWard(ward);
 
-      let detailLocation = str.pop();
-      if (geoLocation.address_components.length >= 5) {
-        const s = [];
-        for (const r of geoLocation.address_components) {
-          if (r.types.includes("political")) break;
-          s.push(r.long_name);
-        }
-        detailLocation = s.join(", ");
-      }
+      const detailLocation = str.join(", ");
+
+      // if (geoLocation.address_components.length >= 5) {
+      //   const s = [];
+      //   for (const r of geoLocation.address_components) {
+      //     if (r.types.includes("political")) break;
+      //     s.push(r.long_name);
+      //   }
+      //   detailLocation = s.join(", ");
+      // }
 
       setDetailLocation(detailLocation);
 
-      resolveLocationFromGG(country, province, district, ward);
-      console.log(`🚀 ~ onCoordChange ~ country, province, district, ward:`, {
-        country,
-        province,
-        district,
-        ward,
-      });
-    }
-  }
+      await resolveLocationFromGG("Viet nam", province, district, ward);
+      // const data = await locationResolve("Viet nam", province, district, ward);
+      // console.log(`🚀 ~ onCoordChange ~ data:`, data);
 
-  async function resolveLocationFromGG(
-    country?: string,
-    province?: string,
-    district?: string,
-    ward?: string,
-  ) {
-    try {
-      setResolving(true);
+      // if (!Object.keys(data).length) {
+      //   //
+      //   messageApi.open({
+      //     type: "error",
+      //     content: "Vùng không hỗ trợ",
+      //   });
+      // } else {
+      //   setThirdCountryCode(data.country ? data.country.code : undefined);
+      //   setCountry(() => (data.country ? data.country.name : undefined));
 
-      const params = new URLSearchParams();
-      country && params.append("country", country);
-      province && params.append("province", province);
-      district && params.append("district", district);
-      ward && params.append("ward", ward);
+      //   setThirdProvinceCode(data.province ? data.province.code : undefined);
+      //   setProvince(() => (data.province ? data.province.name : undefined));
 
-      const url = `/location/resolve?${params.toString()}`;
-      const data = await fetcher.get<never, LocationResolve>(url);
-      console.log(`🚀 ~ data:`, data);
-      setResolving(false);
+      //   setThirdDistrictCode(data.district ? data.district.code : undefined);
+      //   setDistrict(() => (data.district ? data.district.name : undefined));
 
-      if (!Object.keys(data).length) {
-        //
-        messageApi.open({
-          type: "error",
-          content: "Vùng không hỗ trợ",
-        });
+      //   // setThirdWardCode(data.ward ? data.ward.code : undefined);
+      //   setWard(() => (data.ward ? data.ward.name : undefined));
+      // }
 
-        return;
-      }
-
-      setThirdCountryCode(data.country ? data.country.code : undefined);
-      setCountry(() => (data.country ? data.country.name : undefined));
-
-      setThirdProvinceCode(data.province ? data.province.code : undefined);
-      setProvince(() => (data.province ? data.province.name : undefined));
-
-      setThirdDistrictCode(data.district ? data.district.code : undefined);
-      setDistrict(() => (data.district ? data.district.name : undefined));
-
-      // setThirdWardCode(data.ward ? data.ward.code : undefined);
-      setWard(() => (data.ward ? data.ward.name : undefined));
-    } catch (error) {
-      setResolving(false);
+      // resolveLocationFromGG(country, province, district, ward);
+      // console.log(`🚀 ~ onCoordChange ~ country, province, district, ward:`, {
+      //   country,
+      //   province,
+      //   district,
+      //   ward,
+      // });
     }
   }
 
   useEffect(() => {
     if (!mapRef.current || loaded.current) return;
     (async () => {
-      if (!mapRef.current || loaded.current) return;
+      if (!mapRef.current) return;
 
-      // const coords = await getUserCoords();
       const { map } = await loadMapTo({
         ref: mapRef.current,
         // extra: {
@@ -297,6 +333,8 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   useEffect(() => {
     if (!map) return;
 
+    if (coord) onCoordChange();
+    if (location) resolveLocationFromGG("Viet nam", province, district, ward);
     // getCoordsFromAddress("Phạm Văn Chiêu").catch((error) => {
     //   messageApi.open({
     //     type: "error",
@@ -357,7 +395,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
           <div className="relative">
             <div
               ref={mapRef}
-              className="aspect-square w-full rounded-t-lg lg:aspect-video"
+              className="aspect-square w-full rounded-t-lg lg:aspect-[21/9]"
             />
             <Card
               onClick={() => {
@@ -371,16 +409,18 @@ const LocationFormInputs_: ForwardRefRenderFunction<
                   checked={allowSpecialFeature}
                   disabled={locationDenied}
                 />
-                {allowSpecialFeature ? "Lấy địa chỉ" : "Lấy địa chỉ"}
+                {/* {allowSpecialFeature ?  */}
+                Lấy địa chỉ
+                {/*   : "Lấy địa chỉ"} */}
               </Space>
             </Card>
           </div>
           <MyButton
             onClick={async () => {
               setGettingLocation(true);
-              const coord = await getUserCoords();
+              const coord = await refreshCoords();
               if (!coord) {
-                setLocationDenied(true);
+                // setLocationDenied(true);
               } else {
                 setCoords(coord);
               }
@@ -406,7 +446,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
               disabled={!country || !province || !district || !ward}
               block
               onClick={() => {
-                const addr = locationToString({
+                const addr = toStringLocation({
                   district,
                   province,
                   ward,
@@ -432,15 +472,22 @@ const LocationFormInputs_: ForwardRefRenderFunction<
         </Form.Item>
       )}
 
-      <Form.Item<RoomLocationPayload> label="Vĩ độ" required>
-        <Input value={coord?.lat + ", " + coord?.lng} disabled />
+      <Form.Item<RoomLocationPayload> label="[DEV] Vĩ độ" hidden={isProduction}>
+        <Input value={coord?.lat} />
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Kinh độ" required>
-        <Input value={coord?.lng} disabled />
+      <Form.Item<RoomLocationPayload>
+        label="[DEV] Kinh độ"
+        hidden={isProduction}
+      >
+        <Input value={coord?.lng} />
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Quốc gia" required>
+      <Form.Item<RoomLocationPayload>
+        label="[DEV] Quốc gia"
+        required
+        hidden={isProduction}
+      >
         {loadingCountryVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
@@ -528,7 +575,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
           disabled={resolving}
           maxLength={100}
           showCount
-          ref={detailRef}
+          // ref={detailRef}
           // disabled={!!detailLocation}
         />
       </Form.Item>

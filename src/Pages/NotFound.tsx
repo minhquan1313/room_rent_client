@@ -1,7 +1,10 @@
 import MyButton from "@/Components/MyButton";
+import { pageTitle } from "@/utils/pageTitle";
 import { Result } from "antd";
 
 function NotFound() {
+  pageTitle("404");
+
   return (
     <div className="mx-auto my-auto h-full">
       <div>

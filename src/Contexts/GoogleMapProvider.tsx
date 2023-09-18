@@ -1,3 +1,5 @@
+import { proximityThreshold } from "@/constants";
+import { calculateDistance } from "@/utils/calculateDistance";
 import { Coords } from "google-map-react";
 import { ReactNode, createContext, useEffect, useRef, useState } from "react";
 
@@ -24,16 +26,14 @@ interface IContext {
     // place,
     autocomplete: google.maps.places.Autocomplete | undefined;
   }>;
-  getUserCoords: () => Promise<Coords | null>;
   addMarker: (
     map: google.maps.Map,
     position: Coords | google.maps.LatLng,
-  ) => Promise<google.maps.Marker | undefined>;
+  ) => google.maps.Marker | undefined;
   getAddressFromMarker: (
     latLng: Coords,
   ) => Promise<google.maps.GeocoderResult | null>;
   getCoordsFromAddress: (address: string) => Promise<google.maps.LatLng | null>;
-  calculateDistance: (user: Coords, target: Coords) => number;
   clearMarker: (marker: google.maps.Marker) => Promise<void>;
   getCoordsCloseTo: (d: { target: Coords; items: Coords[] }) => Coords[];
   placeSearch: (
@@ -48,7 +48,6 @@ export default function GoogleMapProvider({ children }: Props) {
   const appended = useRef(false);
   const [isReady, setIsReady] = useState(false);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder>();
-  const proximityThreshold = 1000; // mét
   // const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
 
   function getAddressFromMarker(latLng: Coords) {
@@ -108,25 +107,6 @@ export default function GoogleMapProvider({ children }: Props) {
 
         return rj(status);
       });
-    });
-  }
-
-  function getUserCoords() {
-    return new Promise<Coords | null>((r) => {
-      navigator.geolocation.getCurrentPosition(
-        function (success) {
-          const { latitude, longitude } = success.coords;
-          const obj = { lat: latitude, lng: longitude };
-
-          r(obj);
-          console.log(`🚀 ~ getUserCoords ~ obj:`, obj);
-        },
-        (error) => {
-          console.log(`🚀 ~ getUserCoords ~ errorObj:`, error);
-
-          r(null);
-        },
-      );
     });
   }
 
@@ -250,7 +230,7 @@ export default function GoogleMapProvider({ children }: Props) {
     });
   }
 
-  async function addMarker(
+  function addMarker(
     map: google.maps.Map,
     position: Coords | google.maps.LatLng,
   ) {
@@ -261,29 +241,19 @@ export default function GoogleMapProvider({ children }: Props) {
       map,
     });
 
+    // let c: Coords = position as Coords;
+
+    // if (typeof position.lat !== "number") {
+    //   const p = position as google.maps.LatLng;
+    //   const [lat, lng] = [p.lat(), p.lng()];
+
+    // c = {
+    //   lat,
+    //   lng,
+    // };
+    // }
+
     return marker;
-  }
-
-  function calculateDistance(user: Coords, target: Coords) {
-    const earthRadius = 6371000; // Bán kính Trái Đất (đơn vị: mét)
-
-    const radLat1 = (Math.PI * user.lat) / 180;
-    const radLat2 = (Math.PI * target.lat) / 180;
-
-    const deltaLat = (Math.PI * (target.lat - user.lat)) / 180;
-    const deltaLng = (Math.PI * (target.lng - user.lng)) / 180;
-
-    const a =
-      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-      Math.cos(radLat1) *
-        Math.cos(radLat2) *
-        Math.sin(deltaLng / 2) *
-        Math.sin(deltaLng / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = earthRadius * c;
-
-    return distance;
   }
 
   function getCoordsCloseTo(d: { target: Coords; items: Coords[] }) {
@@ -312,7 +282,7 @@ export default function GoogleMapProvider({ children }: Props) {
 
     // const [lang, region] = navigator.languages[0].split("-");
     const [lang, region] = ["vi", "VN"];
-    console.log(`🚀 ~ useEffect ~ [lang, region]:`, [lang, region]);
+    // console.log(`🚀 ~ useEffect ~ [lang, region]:`, [lang, region]);
 
     script.src = `https://maps.googleapis.com/maps/api/js?key=${
       import.meta.env.VITE_GOOGLE_MAP_API_KEY ?? ""
@@ -336,11 +306,9 @@ export default function GoogleMapProvider({ children }: Props) {
 
   const value = (() => ({
     loadMapTo,
-    getUserCoords,
     addMarker,
     getAddressFromMarker,
     getCoordsFromAddress,
-    calculateDistance,
     clearMarker,
     getCoordsCloseTo,
     placeSearch,

@@ -4,12 +4,9 @@ import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import { Select, SelectProps } from "antd";
 import { memo, useContext } from "react";
 
-interface Props extends SelectProps {
-  value?: string[];
-  onChange?: (value: string[]) => void;
-}
+interface Props extends SelectProps {}
 
-const SelectService = memo(({ value, onChange, ...rest }: Props) => {
+const SelectService = memo(({ ...rest }: Props) => {
   const { roomServicesConverted } = useContext(GlobalDataContext);
 
   return (
@@ -17,10 +14,7 @@ const SelectService = memo(({ value, onChange, ...rest }: Props) => {
       filterOption={searchFilterTextHasLabel}
       notFoundContent={<NotFoundContent />}
       mode="multiple"
-      onChange={onChange}
-      value={value}
-      // showSearch={false}
-      // virtual={false}
+      showSearch={true}
       placeholder="Dịch vụ phòng"
       {...rest}
     >

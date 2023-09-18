@@ -7,3 +7,7 @@ export function numberFormat<T = unknown>(value?: string | number, K?: T) {
 
   return s;
 }
+
+export function numberParser(value?: string) {
+  return value!.replace(/\$\s?|(,*)/g, "");
+}

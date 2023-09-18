@@ -1,6 +1,7 @@
 import MyButton from "@/Components/MyButton";
 import MyImage from "@/Components/MyImage";
 import fileImg from "@/assets/file.svg";
+import { IRoomImage } from "@/types/IRoomImage";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   DndContext,
@@ -55,26 +56,42 @@ type FileAcceptType =
   | "*/*"; // Wildcard for all file types
 
 interface Props extends UploadProps {
-  //
   beforeUpload?: never;
   fileList?: never;
   multiple?: never;
+
   accept?: FileAcceptType;
+  initImages?: IRoomImage[];
 }
 export interface MyFile {
   src: string;
   id: string;
-  file: File;
+  file?: File;
+  deleted?: boolean;
 }
+export type FilesUploadRef = {
+  files: File[];
+  keeps: string[];
+  order: number[];
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
-const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
-  p,
+const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
+  { accept, initImages, ...p },
   ref,
 ) => {
   const [messageApi, contextHolder] = message.useMessage();
 
-  const [files, setFiles] = useState<MyFile[]>();
+  const [files, setFiles] = useState<MyFile[]>(
+    initImages
+      ? initImages.map((e) => ({
+          src: e.image,
+          id: e._id,
+          deleted: false,
+        }))
+      : [],
+  );
+
   const [activeFile, setActiveFile] = useState<MyFile>();
 
   const sensors = useSensors(
@@ -94,13 +111,13 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
   );
 
   const beforeUpload = (file: RcFile) => {
-    const accept = !p.accept
+    const accept_ = !accept
       ? ""
-      : p.accept.includes("*")
-      ? p.accept.slice(0, -1)
-      : p.accept;
+      : accept.includes("*")
+      ? accept.slice(0, -1)
+      : accept;
 
-    if (!file.type.includes(accept)) {
+    if (!file.type.includes(accept_)) {
       console.log(`yes`);
 
       messageApi.open({
@@ -112,7 +129,7 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
 
     setFiles((files) => {
       const duplicate = files?.find(
-        ({ file: { name, size } }) => file.name === name && file.size === size,
+        ({ file: x }) => x && file.name === x.name && file.size === x.size,
       );
       if (duplicate) return files;
 
@@ -132,11 +149,83 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
     return false;
   };
 
-  const removeImage = useCallback<SortableItemProps["onRemove"]>((id) => {
-    setFiles((files) => files?.filter((r) => r.id !== id));
-  }, []);
+  const removeImage = useCallback<SortableItemProps["onRemove"]>(
+    (id, isExternal) => {
+      setFiles((files) => {
+        if (isExternal) {
+          const f = files.find((r) => r.id === id)!;
+          f.deleted = !f.deleted;
 
-  useImperativeHandle(ref, () => files?.map((r) => r.file), [files]);
+          return [...files];
+        }
+
+        return files?.filter((r) => r.id !== id);
+      });
+    },
+    [],
+  );
+
+  useImperativeHandle(
+    ref,
+    () => {
+      const result: FilesUploadRef = {
+        files: [],
+        order: [],
+        keeps: [],
+      };
+
+      const orderF: number[] = [];
+      const orderK: number[] = [];
+      files
+        .filter((f) => !f.deleted)
+        .forEach((f, i) => {
+          if (!f.file) {
+            if (!f.deleted) {
+              result.keeps.push(f.id);
+
+              orderK.push(i + 1);
+              return;
+            }
+          } else {
+            result.files.push(f.file);
+
+            orderF.push(i + 1);
+            return;
+          }
+        });
+      result.order = [...orderK, ...orderF];
+
+      // const rest = files.filter((f) => !f.deleted);
+
+      // result.keeps = rest.filter((e) => !e.file).map((e) => e.id);
+
+      // // result.order = Array(result.keeps.length).map((r, i) => i);
+
+      // result.files = rest
+      //   .map((r) => r.file)
+      //   .filter((e) => e !== undefined) as File[];
+
+      // result.order = rest.map((_e, i) => i + 1);
+
+      return result;
+    },
+    [files],
+  );
+
+  // useEffect(() => {
+  //   if (!initSrc) return;
+  //   initSrc.forEach((url) => {
+  //     setFiles((files) => {
+  //       const f: MyFile = {
+  //         src: url,
+  //         id: url,
+  //         file,
+  //       };
+
+  //       return files ? [...files, f] : [f];
+  //     });
+  //   });
+  // }, []);
 
   return (
     <Space direction="vertical" style={{ display: "flex" }}>
@@ -176,11 +265,13 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
                 items={files}
                 strategy={horizontalListSortingStrategy}
               >
-                {files.map(({ src, id }) => (
+                {files.map(({ src, id, file, deleted }) => (
                   <SortableItem
                     key={src}
                     src={src}
                     id={id}
+                    deleted={deleted}
+                    isExternal={!file}
                     onRemove={removeImage}
                   />
                 ))}
@@ -212,10 +303,17 @@ const FilesUpload: ForwardRefRenderFunction<File[] | undefined, Props> = (
 type SortableItemProps = {
   src: string;
   id: string;
-  // active?: boolean;
-  onRemove(id: string): void;
+  isExternal: boolean;
+  deleted?: boolean;
+  onRemove(id: string, isExternal: boolean): void;
 };
-const SortableItem = ({ src, id, onRemove }: SortableItemProps) => {
+const SortableItem = ({
+  src,
+  id,
+  isExternal,
+  deleted,
+  onRemove,
+}: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -238,6 +336,7 @@ const SortableItem = ({ src, id, onRemove }: SortableItemProps) => {
         "transition-all duration-300": isSorting || isDragging,
         // "opacity-75 grayscale": isSorting && !isDragging,
         "z-10 opacity-50 grayscale": isDragging,
+        "opacity-50": deleted,
         // "z-10 scale-125 blur-xl": isDragging || active,
       })}
       style={style}
@@ -249,20 +348,25 @@ const SortableItem = ({ src, id, onRemove }: SortableItemProps) => {
         <MyImage
           className={classNames(
             "aspect-square select-none rounded-lg object-cover",
+            {
+              "border-2 border-solid border-pink-400": isExternal,
+            },
           )}
           width={`100%`}
           src={src}
           preview={!isDragging && !isSorting}
-          // rootClassName={}
+          addServer
         />
         <div className="absolute right-0 top-0">
           <MyButton
-            onClick={() => onRemove && onRemove(id)}
-            className="rounded-br-none rounded-tl-none"
+            onClick={() => onRemove && onRemove(id, isExternal)}
+            className={classNames("rounded-br-none rounded-tl-none", {
+              "bg-pink-400": isExternal,
+            })}
             icon={<DeleteOutlined />}
             type="primary"
             shape="default"
-            danger
+            // danger
           />
         </div>
       </div>
@@ -271,14 +375,15 @@ const SortableItem = ({ src, id, onRemove }: SortableItemProps) => {
 };
 function SortableItemOverlay({
   src,
-}: Omit<SortableItemProps, "id" | "onRemove">) {
+}: Omit<SortableItemProps, "id" | "onRemove" | "isExternal">) {
   return (
     <Col span={24} className="cursor-grabbing">
-      <Image
+      <MyImage
         className="aspect-square rounded-lg object-cover shadow-2xl"
         width={`100%`}
         src={src}
         preview={false}
+        addServer
       />
     </Col>
   );

@@ -4,7 +4,7 @@ export type Location3rd = {
 };
 
 export type LocationResolve = {
-  [k in keyof LocationSearchQuery]: Location3rd;
+  [k in keyof Omit<LocationSearchQuery, "all">]: Location3rd;
 };
 
 export type LocationSearchQuery = {

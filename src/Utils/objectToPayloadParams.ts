@@ -4,16 +4,23 @@ export function objectToPayloadParams(
   const searchParams = new URLSearchParams();
 
   for (const key in obj) {
-    if (Array.isArray(obj[key])) {
-      (obj[key] as string[]).forEach((v) => {
+    const v = obj[key];
+    if (Array.isArray(v)) {
+      (v as string[]).forEach((v) => {
         searchParams.append(`${key}[]`, v);
       });
 
       continue;
     }
-    if (typeof obj[key] !== "string" && typeof obj[key] !== "number") continue;
 
-    searchParams.append(key, String(obj[key]));
+    const t = typeof v;
+    if (t !== "string" && t !== "number" && t !== "boolean") {
+      continue;
+    }
+
+    if (t === "boolean" && !v) continue;
+
+    searchParams.append(key, String(v));
   }
 
   return searchParams;
@@ -22,15 +29,18 @@ export function objectToPayloadParams(
 export function formatObject(obj: Record<string, any>) {
   const z: Record<string, string | number> = {};
   for (const key in obj) {
-    if (obj[key] === undefined || obj[key] === null) {
-      continue;
-    }
-
-    if (typeof obj[key] === "string" && !obj[key].trim()) {
-      continue;
-    }
-
     const value = obj[key];
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    if (typeof value === "string" && !value.trim()) {
+      continue;
+    }
+
+    if (Array.isArray(value) && value.length === 0) {
+      continue;
+    }
 
     // if (Array.isArray(value)) {
     //   value = value.join(",");

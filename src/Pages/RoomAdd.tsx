@@ -1,8 +1,9 @@
-import FilesUpload from "@/Components/FilesUpload";
+import FilesUpload, { FilesUploadRef } from "@/Components/FilesUpload";
 import LocationFormInputs from "@/Components/LocationFormInputs";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import SelectCurrency from "@/Components/SelectCurrency";
+import SelectMeasure from "@/Components/SelectMeasure";
 import SelectRoomType from "@/Components/SelectRoomType";
 import SelectService from "@/Components/SelectService";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
@@ -31,15 +32,15 @@ import { useContext, useMemo, useRef, useState } from "react";
 function AddRoom() {
   pageTitle("Thêm phòng");
 
-  const [messageApi, contextHolder] = message.useMessage();
-  const [form] = Form.useForm();
-
   const { isLogging, user } = useContext(UserContext);
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
+  const [messageApi, contextHolder] = message.useMessage();
+  // const [form] = Form.useForm();
+
   const [submitting, setSubmitting] = useState(false);
   // const [editorState, setEditorState] = useState(EditorState.createEmpty);
   const [error, setError] = useState<ErrorJsonResponse>();
-  const files = useRef<File[]>();
+  const files = useRef<FilesUploadRef>(null);
   const location = useRef<RoomLocationPayload>(null);
   // const [files, setFiles] = useState<MyFile[]>();
 
@@ -95,10 +96,16 @@ function AddRoom() {
 
         const json = JSON.stringify(values);
 
-        const r = await fetcher.postForm("/rooms", {
-          files: files.current,
-          json,
-        });
+        const payload: {
+          json: string;
+          files?: File[];
+        } = { json };
+
+        if (files.current?.files) {
+          payload.files = files.current.files;
+        }
+
+        const r = await fetcher.postForm("/rooms", payload);
         setSubmitting(false);
         console.log(`🚀 ~ r:`, r);
 
@@ -106,7 +113,7 @@ function AddRoom() {
           type: "success",
           content: "Thêm thành công",
         });
-        form.resetFields();
+        // form.resetFields();
       } catch (error: any) {
         setSubmitting(false);
         setError(error.response.data as ErrorJsonResponse);
@@ -164,7 +171,7 @@ function AddRoom() {
         size={isMobile() ? "large" : undefined}
         onFinish={onFinish}
         autoComplete="on"
-        form={form}
+        // form={form}
       >
         <Form.Item<RoomPayload>
           label="ID chủ phòng"
@@ -258,7 +265,7 @@ function AddRoom() {
           <InputNumber
             addonAfter={
               <Form.Item<RoomPayload> name="usable_area_unit" noStyle>
-                {measureSelectJsx}
+                {<SelectMeasure />}
               </Form.Item>
             }
             formatter={(value) =>

@@ -4,18 +4,16 @@ import { Select, SelectProps } from "antd";
 import { memo, useContext } from "react";
 
 interface Props extends SelectProps {
-  value?: string[];
-  onChange?: (value: string[]) => void;
+  // value?: string[];
+  // onChange?: (value: string[]) => void;
 }
 
-const SelectRoomType = memo(({ value, onChange, ...rest }: Props) => {
+const SelectRoomType = memo(({ ...rest }: Props) => {
   const { roomTypes } = useContext(GlobalDataContext);
 
   return (
     <Select
       notFoundContent={<NotFoundContent />}
-      onChange={onChange}
-      value={value}
       placeholder="Kiểu phòng"
       {...rest}
     >

@@ -18,13 +18,13 @@ function MyImage({ src, addServer, ...rest }: Props) {
   const { myTheme } = useContext(ThemeContext);
   const { token } = theme.useToken();
   // console.log(`🚀 ~ MyImage ~ token:`, token);
-  // console.log(addServer ? VITE_SERVER + src : src);
+  // console.log(addServer && src ? VITE_SERVER + src : src);
 
   return (
     // <img {...rest} src={addServer ? VITE_SERVER + src : src} />
     <Image
       {...rest}
-      src={addServer ? VITE_SERVER + src : src}
+      src={addServer && src && src.startsWith("/") ? VITE_SERVER + src : src}
       placeholder={
         <Skeleton.Image
           active={true}

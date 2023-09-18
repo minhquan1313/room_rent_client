@@ -14,7 +14,10 @@ function MyLayout() {
   return (
     <div className="flex min-h-full min-w-full flex-col">
       <MyHeader />
-      <Content className="flex-1" style={{ background: colorBgContainer }}>
+      <Content
+        className="flex-1 overflow-hidden"
+        style={{ background: colorBgContainer }}
+      >
         <Outlet />
       </Content>
 

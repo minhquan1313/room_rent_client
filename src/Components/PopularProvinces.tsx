@@ -1,9 +1,11 @@
+import { MyFlickity } from "@/Components/MyFlickity";
 import MyImage from "@/Components/MyImage";
+import { routeRoomSearch } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { CountRoom } from "@/types/IRoom";
 import { Typography } from "antd";
-import Flickity from "flickity";
 import { useEffect, useRef } from "react";
+import Flickity from "react-flickity-component";
 import { Link } from "react-router-dom";
 import useSWR from "swr";
 
@@ -17,6 +19,7 @@ export const PopularProvinces = () => {
 
   useEffect(() => {
     if (!ref.current || !roomCounts) return;
+    console.log(`🚀 ~ useEffect ~ roomCounts:`, roomCounts);
 
     const f = new Flickity(ref.current, {
       imagesLoaded: true,
@@ -31,15 +34,15 @@ export const PopularProvinces = () => {
   }, [roomCounts]);
 
   return (
-    <div ref={ref} className="-mx-2">
-      {roomCounts &&
+    <MyFlickity>
+      {roomCounts?.length ? (
         roomCounts.map(({ count, province, image }) => (
           <div
-            className="carousel-cell aspect-[3/4] w-full sm:w-1/2 lg:w-1/3 2xl:w-1/4"
+            className="aspect-[4/5] w-full sm:w-1/2 lg:w-1/3 2xl:w-1/4"
             key={province}
           >
             <Link
-              to={`/rooms?province=${province}`}
+              to={`${routeRoomSearch}?province=${province}`}
               className="block h-full px-2"
             >
               <div className="relative h-full overflow-hidden rounded-lg">
@@ -66,7 +69,11 @@ export const PopularProvinces = () => {
               </div>
             </Link>
           </div>
-        ))}
-    </div>
+        ))
+      ) : (
+        <div>no data</div>
+      )}
+      {/* </div> */}
+    </MyFlickity>
   );
 };

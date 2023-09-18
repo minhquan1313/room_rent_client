@@ -6,6 +6,7 @@ interface IMeasureUnitCode extends CodeMap {
   sup: string;
 }
 
+// m²
 export const measureUnitCodes: IMeasureUnitCode[] = [
   {
     code: "m2",

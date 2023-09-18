@@ -616,3 +616,38 @@ const t = (): {
   },
   types: ["street_address"],
 });
+
+let z = [
+  {
+    long_name: "64/5",
+    short_name: "64/5",
+    types: ["street_number"],
+  },
+  {
+    long_name: "Tổ 18 KP1",
+    short_name: "Tổ 18 KP1",
+    types: ["route"],
+  },
+  {
+    long_name: "Quận 12",
+    short_name: "Quận 12",
+    types: ["administrative_area_level_2", "political"],
+  },
+  {
+    long_name: "Thành phố Hồ Chí Minh",
+    short_name: "Thành phố Hồ Chí Minh",
+    types: ["administrative_area_level_1", "political"],
+  },
+  {
+    long_name: "Việt Nam",
+    short_name: "VN",
+    types: ["country", "political"],
+  },
+].slice(-3);
+
+let x =
+  "64/5 Tổ 18 KP1, Tân Thới Hiệp, Quận 12, Thành phố Hồ Chí Minh, Việt Nam"
+    .split(", ")
+    .slice(0, -3);
+
+console.log({ z, x });
