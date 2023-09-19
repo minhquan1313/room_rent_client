@@ -1,5 +1,10 @@
 import MyButton from "@/Components/MyButton";
 import NotFoundContent from "@/Components/NotFoundContent";
+import {
+  SelectDistrict,
+  SelectProvince,
+  SelectWard,
+} from "@/Components/SelectProvince";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { fetcher } from "@/services/fetcher";
@@ -10,7 +15,6 @@ import { IRoomLocation } from "@/types/IRoomLocation";
 import { Location3rd } from "@/types/Location3rd";
 import { isProduction } from "@/utils/isProduction";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
-import { toStringLocation } from "@/utils/toString";
 import { StopOutlined } from "@ant-design/icons";
 import {
   Card,
@@ -72,6 +76,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   const [province, setProvince] = useState<string | undefined>(
     location?.province,
   );
+
   const [district, setDistrict] = useState<string | undefined>(
     location?.district,
   );
@@ -175,9 +180,13 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     district: string | undefined,
     ward: string | undefined,
   ) => {
+    console.log(`resolveLocationFromGG`);
+
     setResolving(true);
     const data = await locationResolve("Viet nam", province, district, ward);
     console.log(`🚀 ~ onCoordChange ~ data:`, data);
+    Object.keys(data).length;
+    console.log(`🚀 ~ Object.keys(data).length:`, Object.keys(data).length);
 
     if (!Object.keys(data).length) {
       //
@@ -203,24 +212,16 @@ const LocationFormInputs_: ForwardRefRenderFunction<
 
   async function onCoordChange() {
     if (!coord || !map) return;
-
     mk && clearMarker(mk);
 
     const mk_ = addMarker(map, coord);
     if (!mk_) return;
     setMk(mk_);
-
     map.setCenter(coord);
 
     const z = map.getZoom();
     z && z < 18 && map.setZoom(18);
 
-    // resolveLocationFromGG(
-    //   "Việt Nam",
-    //   `Thành phố Hồ Chí Minh`,
-    //   "Gò Vấp",
-    //   "Phường 11",
-    // );
     if (!allowSpecialFeature) return;
     setAllowSpecialFeature(false);
 
@@ -332,21 +333,27 @@ const LocationFormInputs_: ForwardRefRenderFunction<
 
   useEffect(() => {
     if (!map) return;
-
-    if (coord) onCoordChange();
-    if (location) resolveLocationFromGG("Viet nam", province, district, ward);
-    // getCoordsFromAddress("Phạm Văn Chiêu").catch((error) => {
-    //   messageApi.open({
-    //     type: "error",
-    //     content: error,
-    //   });
-    // });
-
     map.addListener("click", (env: GoogleClickEvent) => {
       setCoords({
         lat: env.latLng.lat(),
         lng: env.latLng.lng(),
       });
+
+      // if (coord) onCoordChange();
+      if (location) {
+        console.log(`🚀 ~ useEffect ~ ward:`, ward);
+
+        console.log(`🚀 ~ useEffect ~ district:`, district);
+
+        console.log(`🚀 ~ useEffect ~ province:`, province);
+        resolveLocationFromGG("Viet nam", province, district, ward);
+      }
+      // getCoordsFromAddress("Phạm Văn Chiêu").catch((error) => {
+      //   messageApi.open({
+      //     type: "error",
+      //     content: error,
+      //   });
+      // });
 
       // setCountry(undefined);
       // setThirdCountryCode(undefined);
@@ -442,7 +449,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       {!isProduction && (
         <Form.Item>
           <Space.Compact block>
-            <MyButton
+            {/* <MyButton
               disabled={!country || !province || !district || !ward}
               block
               onClick={() => {
@@ -457,7 +464,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
               }}
             >
               [DEV] Resolve coords
-            </MyButton>
+            </MyButton> */}
 
             <MyButton
               to={`https://www.google.com/maps/place/${encodeURIComponent(
@@ -512,11 +519,12 @@ const LocationFormInputs_: ForwardRefRenderFunction<
         {loadingProvincesVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
-          <SelectOptions
-            onSelect={thirdProvinceSelect}
-            data={allProvincesVn}
-            value={province}
-          />
+          // <SelectOptions
+          //   onSelect={thirdProvinceSelect}
+          //   data={allProvincesVn}
+          //   value={province}
+          // />
+          <SelectProvince onSelect={thirdProvinceSelect} value={district} />
         )}
 
         {/* <Input
@@ -532,11 +540,12 @@ const LocationFormInputs_: ForwardRefRenderFunction<
         {loadingDistrictsVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
-          <SelectOptions
-            onSelect={thirdDistrictSelect}
-            data={allDistrictsVn}
-            value={district}
-          />
+          // <SelectOptions
+          //   onSelect={thirdDistrictSelect}
+          //   data={allDistrictsVn}
+          //   value={district}
+          // />
+          <SelectDistrict onSelect={thirdDistrictSelect} value={district} />
         )}
         {/* <Input
           onChange={(e) => {
@@ -551,11 +560,12 @@ const LocationFormInputs_: ForwardRefRenderFunction<
         {loadingWardsVn || resolving ? (
           <Skeleton.Input active block />
         ) : (
-          <SelectOptions
-            onSelect={thirdWardSelect}
-            data={allWardsVn}
-            value={ward}
-          />
+          // <SelectOptions
+          //   onSelect={thirdWardSelect}
+          //   data={allWardsVn}
+          //   value={ward}
+          // />
+          <SelectWard onSelect={thirdWardSelect} value={ward} />
         )}
         {/* <Input
           onChange={(e) => {

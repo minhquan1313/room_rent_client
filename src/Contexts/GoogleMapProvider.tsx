@@ -41,6 +41,10 @@ interface IContext {
     place: google.maps.places.PlacesService,
     map: google.maps.Map,
   ) => Promise<any>;
+  addUserMarker: (
+    map: google.maps.Map,
+    position: Coords | google.maps.LatLng,
+  ) => google.maps.Marker | undefined;
 }
 
 export const GoogleMapContext = createContext<IContext>(null as never);
@@ -255,6 +259,65 @@ export default function GoogleMapProvider({ children }: Props) {
 
     return marker;
   }
+  function addUserMarker(
+    map: google.maps.Map,
+    position: Coords | google.maps.LatLng,
+  ) {
+    if (!isReady) return undefined;
+
+    const userMarker = new google.maps.Marker({
+      position,
+      map,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8, // Adjust the size of the marker
+        fillColor: "blue", // Marker color
+        fillOpacity: 1, // Marker opacity
+        strokeColor: "white", // Marker border color
+        strokeWeight: 2, // Marker border thickness
+      },
+      title: "Vị trí của bạn",
+      zIndex: 1,
+    });
+
+    // let animationInterval;
+    // let isSignalOn = false;
+
+    // startSignalAnimation();
+
+    // function startSignalAnimation() {
+    //   animationInterval = setInterval(function () {
+    //     console.log(`animation`);
+
+    //     if (isSignalOn) {
+    //       // Turn off the signal (change the marker's color to blue)
+    //       userMarker.setIcon({
+    //         path: google.maps.SymbolPath.CIRCLE,
+    //         scale: 10,
+    //         fillColor: "blue",
+    //         fillOpacity: 1,
+    //         strokeColor: "white",
+    //         strokeWeight: 2,
+    //       });
+    //     } else {
+    //       // Turn on the signal (change the marker's color to red)
+    //       userMarker.setIcon({
+    //         path: google.maps.SymbolPath.CIRCLE,
+    //         scale: 10,
+    //         fillColor: "red",
+    //         fillOpacity: 0.7,
+    //         strokeColor: "white",
+    //         strokeWeight: 2,
+    //       });
+    //     }
+
+    //     // Toggle the signal state
+    //     isSignalOn = !isSignalOn;
+    //   }, 1000); // Change signal every 1 second (adjust as needed)
+    // }
+
+    return userMarker;
+  }
 
   function getCoordsCloseTo(d: { target: Coords; items: Coords[] }) {
     const { items, target } = d;
@@ -312,6 +375,7 @@ export default function GoogleMapProvider({ children }: Props) {
     clearMarker,
     getCoordsCloseTo,
     placeSearch,
+    addUserMarker,
   }))();
 
   return (

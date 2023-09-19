@@ -8,6 +8,7 @@ import {
 } from "@/Components/SelectProvince";
 import SelectRoomType from "@/Components/SelectRoomType";
 import SelectService from "@/Components/SelectService";
+import SelectSortField from "@/Components/SelectSortField";
 import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { proximityThreshold } from "@/constants";
@@ -101,12 +102,11 @@ const RoomSearch = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    // set setSearchPayload when route first load
-
-    form.submit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // useEffect(() => {
+  // set setSearchPayload when route first load
+  // form.submit();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
 
   useEffect(() => {
     rooms;
@@ -212,6 +212,15 @@ const RoomSearch = () => {
           fields = rest;
         }
 
+        if (fields.sort_field) {
+          const [sort_field, sort] = fields.sort_field.split("#");
+          fields = {
+            ...fields,
+            sort_field,
+            sort,
+          };
+        }
+
         const objFormatted = formatObject(fields);
         const query = new URLSearchParams(objFormatted as any).toString();
         const payload = objectToPayloadParams(objFormatted);
@@ -280,6 +289,16 @@ const RoomSearch = () => {
             <Col xs={6}>
               <Form.Item<Fields> name="limit">
                 <Segmented options={LIMIT} block />
+              </Form.Item>
+
+              <Form.Item>
+                <Space.Compact block>
+                  <Form.Item<Fields> name="sort_field" noStyle>
+                    <SelectSortField />
+                  </Form.Item>
+
+                  <Form.Item<Fields> name="sort" noStyle></Form.Item>
+                </Space.Compact>
               </Form.Item>
 
               <Form.Item>

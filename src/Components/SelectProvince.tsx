@@ -12,6 +12,8 @@ interface Props extends SelectProps {
 }
 
 export const SelectProvince = memo(({ code, onSelect, ...rest }: Props) => {
+  console.log(`🚀 ~ SelectProvince ~ code:`, code);
+
   const { data, isLoading } = useSWR<Location3rd[]>(
     `/location/provinces-all${code ? `?country=${code}` : ""}`,
     fetcher,

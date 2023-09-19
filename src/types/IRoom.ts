@@ -115,7 +115,7 @@ export interface RoomSearchQuery {
   number_of_floor_to?: number;
 
   sort_field?: string;
-  sort?: 1 | -1;
+  sort?: 1 | -1 | string;
 
   // owner?: string;
   // ...

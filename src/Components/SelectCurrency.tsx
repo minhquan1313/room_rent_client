@@ -4,16 +4,16 @@ import { Select, SelectProps } from "antd";
 import { memo } from "react";
 
 interface Props extends SelectProps {
-  value?: string[];
+  room2?: string[];
   onChange?: (value: string[]) => void;
 }
 
-const SelectCurrency = memo(({ value, onChange, ...rest }: Props) => {
+const SelectCurrency = memo(({ room2: value, onChange, ...rest }: Props) => {
   return (
     <Select
       notFoundContent={<NotFoundContent />}
       onChange={onChange}
-      value={value}
+      room2={value}
       placeholder="Đơn vị tiền tệ"
       {...rest}
     >

@@ -3,11 +3,13 @@ import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { RoomContext } from "@/Contexts/RoomProvider";
+import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleAdmin } from "@/constants/roleType";
 import { routeRoomEdit } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
+import { dateFormat } from "@/utils/dateFormat";
 import { getDescriptionsRoom } from "@/utils/getDescriptionsRoom";
 import { pageTitle } from "@/utils/pageTitle";
 import { roomServiceIcon } from "@/utils/roomServiceIcon";
@@ -34,8 +36,10 @@ const imageGutter: [number, number] = [8, 8];
 
 const RoomDetail = () => {
   const { currentRoom, setCurrentRoom } = useContext(RoomContext);
-  const { loadMapTo, addMarker } = useContext(GoogleMapContext);
+  const { loadMapTo, addMarker, addUserMarker } = useContext(GoogleMapContext);
   const { user } = useContext(UserContext);
+  const { locationDenied, coords, refreshCoords } =
+    useContext(UserLocationContext);
 
   const { id } = useParams();
   const { data: room_ } = useSWR<IRoom>(
@@ -116,6 +120,13 @@ const RoomDetail = () => {
 
       centerMarker(map, mk);
 
+      if (locationDenied) return;
+      (async () => {
+        const c = coords || (await refreshCoords());
+
+        c && addUserMarker(map, c);
+      })();
+
       // map.addListener("click", (env: GoogleClickEvent) => {
       //   setCoords({
       //     lat: env.latLng.lat(),
@@ -144,13 +155,22 @@ const RoomDetail = () => {
       <MyContainer className="my-10">
         {room && (
           <div className="space-y-10">
-            <Typography.Title>
-              {room.name}
-              {user?._id === room.owner._id && (
-                <MyButton to={routeRoomEdit + "/" + room._id}>Sửa</MyButton>
-              )}
-            </Typography.Title>
+            <Space.Compact block direction="vertical">
+              <Typography.Title>
+                {room.name}
 
+                {user?._id === room.owner._id && (
+                  <MyButton to={routeRoomEdit + "/" + room._id}>Sửa</MyButton>
+                )}
+              </Typography.Title>
+
+              <Typography.Paragraph className="text-right">
+                Ngày đăng: {dateFormat(room.createdAt).format("LLL")}
+              </Typography.Paragraph>
+              <Typography.Paragraph className="text-right">
+                Sửa đổi: {dateFormat(room.updatedAt).format("LLL")}
+              </Typography.Paragraph>
+            </Space.Compact>
             <Image.PreviewGroup>
               <Row gutter={imageGutter}>
                 {room.images.length ? (
@@ -190,13 +210,23 @@ const RoomDetail = () => {
               </Row>
             </Image.PreviewGroup>
 
+            <Space size={"large"}>
+              {room.services.map((e, i) => (
+                <Typography.Text key={i}>
+                  <Space size={"small"}>
+                    {roomServiceIcon(e.title)} {e.display_name}
+                  </Space>
+                </Typography.Text>
+              ))}
+            </Space>
+
             <Descriptions
               bordered
               title="Thông tin cơ bản"
               items={getDescriptionsRoom(room)}
             />
 
-            <Card title="Dịch vụ">
+            {/* <Card title="Dịch vụ">
               <Space size={"large"}>
                 {room.services.map((e, i) => (
                   <Typography.Paragraph key={i}>
@@ -206,7 +236,7 @@ const RoomDetail = () => {
                   </Typography.Paragraph>
                 ))}
               </Space>
-            </Card>
+            </Card> */}
 
             <Card title="Thông tin chi tiết">
               {room.description

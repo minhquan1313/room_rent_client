@@ -1,13 +1,8 @@
-import FilesUpload, { FilesUploadRef } from "@/Components/FilesUpload";
-import LocationFormInputs from "@/Components/LocationFormInputs";
+import { FilesUploadRef } from "@/Components/FilesUpload";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
-import SelectCurrency from "@/Components/SelectCurrency";
-import SelectMeasure from "@/Components/SelectMeasure";
-import SelectRoomType from "@/Components/SelectRoomType";
-import SelectService from "@/Components/SelectService";
+import RoomFormAddEdit from "@/Components/RoomFormAddEdit";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
-import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeRoomDetail } from "@/constants/route";
@@ -15,19 +10,9 @@ import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
-import { numberFormat } from "@/utils/numberFormat";
 import { formatObject } from "@/utils/objectToPayloadParams";
 import { pageTitle } from "@/utils/pageTitle";
-import {
-  Alert,
-  Form,
-  Input,
-  InputNumber,
-  Skeleton,
-  Space,
-  Typography,
-  message,
-} from "antd";
+import { Alert, Form, Space, Typography, message } from "antd";
 import { useContext, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
@@ -38,8 +23,8 @@ const RoomEdit = () => {
   const navigate = useNavigate();
 
   const { currentRoom, setCurrentRoom } = useContext(RoomContext);
-  const { loadMapTo, addMarker } = useContext(GoogleMapContext);
-  const { user, isLogging } = useContext(UserContext);
+  // const { loadMapTo, addMarker } = useContext(GoogleMapContext);
+  const { isLogging } = useContext(UserContext);
   const [messageApi, contextHolder] = message.useMessage();
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
 
@@ -56,7 +41,7 @@ const RoomEdit = () => {
   );
   const room = room_ || currentRoom;
 
-  pageTitle(room?.name ? `${room.name} - Sửa` : "Đang tải");
+  pageTitle(room?.name ? `Sửa - ${room.name}` : "Đang tải");
 
   return (
     <div>
@@ -78,9 +63,11 @@ const RoomEdit = () => {
             disabled={submitting || isLogging}
             size={isMobile() ? "large" : undefined}
             onFinish={async (values: RoomPayload) => {
+              console.log(`🚀 ~ onFinish={ ~ values:`, values);
+
               console.log(`🚀 ~ RoomEdit ~ files.current:`, files.current);
               console.log(`🚀 ~ onFinish ~ location:`, location.current);
-
+              return;
               if (!location.current) {
                 messageApi.open({
                   type: "error",
@@ -159,10 +146,11 @@ const RoomEdit = () => {
               setSubmitting(false);
             }}
           >
-            <Form.Item<RoomPayload>
+            <RoomFormAddEdit files={files} location={location} room2={room} />
+            {/* <Form.Item<RoomPayload>
               label="ID chủ phòng"
               name="owner"
-              //   hidden={!isRoleAdmin(user?.role.title)}
+              hidden={!isRoleAdmin(user?.role.title)}
             >
               <Input />
             </Form.Item>
@@ -321,7 +309,7 @@ const RoomEdit = () => {
 
             <Form.Item noStyle>
               <LocationFormInputs ref={location} location={room.location} />
-            </Form.Item>
+            </Form.Item> */}
             {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
             <Form.Item noStyle={!error}>
               <Space.Compact block>
