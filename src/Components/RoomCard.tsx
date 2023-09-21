@@ -1,7 +1,7 @@
 import MyImage from "@/Components/MyImage";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { routeRoomEdit } from "@/constants/route";
+import { isRoleAdmin } from "@/constants/roleType";
 import { IRoom } from "@/types/IRoom";
 import { calculateDistance } from "@/utils/calculateDistance";
 import { dateFormat } from "@/utils/dateFormat";
@@ -11,7 +11,6 @@ import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { Badge, Card, Tooltip, Typography } from "antd";
 import convert from "convert";
 import { ReactNode, useContext } from "react";
-import { Link } from "react-router-dom";
 
 interface RoomCardProps {
   room: IRoom;
@@ -41,17 +40,18 @@ export const RoomCard = ({
       />
     </div>,
   ];
-  user?._id === owner._id &&
-    actions.push(
-      ...[
-        //
-        <Tooltip title="Sửa thông tin">
-          <Link to={routeRoomEdit + "/" + _id}>
+  user?._id === owner._id ||
+    (isRoleAdmin(user?.role.title) &&
+      actions.push(
+        ...[
+          //
+          <Tooltip title="Sửa thông tin">
+            {/* <Link to={routeRoomEdit + "/" + _id}> */}
             <EditOutlined key="edit" />
-          </Link>
-        </Tooltip>,
-      ],
-    );
+            {/* </Link> */}
+          </Tooltip>,
+        ],
+      ));
 
   return (
     <Badge.Ribbon

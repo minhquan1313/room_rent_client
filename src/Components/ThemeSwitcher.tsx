@@ -6,7 +6,8 @@ import { Popover, Space, Tooltip } from "antd";
 import { useContext } from "react";
 
 export default function ThemeSwitcher() {
-  const { myTheme, systemTheme, themeChangedManually, switchTheme } = useContext(ThemeContext);
+  const { myTheme, systemTheme, themeChangedManually, switchTheme } =
+    useContext(ThemeContext);
 
   return (
     <Popover
@@ -20,7 +21,11 @@ export default function ThemeSwitcher() {
             placement="left"
             title="Sáng"> */}
           <MyButton
-            type={myTheme === "light" && themeChangedManually ? "primary" : "default"}
+            type={
+              myTheme === "light" && themeChangedManually
+                ? "primary"
+                : "default"
+            }
             shape="circle"
             onClick={() => {
               switchTheme("light");
@@ -33,7 +38,9 @@ export default function ThemeSwitcher() {
             placement="left"
             title="Tối"> */}
           <MyButton
-            type={myTheme === "dark" && themeChangedManually ? "primary" : "default"}
+            type={
+              myTheme === "dark" && themeChangedManually ? "primary" : "default"
+            }
             shape="circle"
             onClick={() => {
               switchTheme("dark");
@@ -45,7 +52,8 @@ export default function ThemeSwitcher() {
           <Tooltip
             placement="left"
             autoAdjustOverflow={true}
-            title="Theo hệ thống">
+            title="Theo hệ thống"
+          >
             <MyButton
               type={!themeChangedManually ? "primary" : "dashed"}
               shape="circle"
@@ -56,7 +64,8 @@ export default function ThemeSwitcher() {
             />
           </Tooltip>
         </Space>
-      }>
+      }
+    >
       <MyButton
         type={themeChangedManually ? "primary" : "dashed"}
         shape="circle"

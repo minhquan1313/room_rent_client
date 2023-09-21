@@ -13,14 +13,14 @@ import { Form, Input, InputNumber, SelectProps, Skeleton } from "antd";
 import { useContext } from "react";
 
 interface Props extends SelectProps {
-  room2?: IRoom;
+  room?: IRoom;
   files: React.RefObject<FilesUploadRef>;
   location: React.RefObject<RoomLocationPayload>;
 
   //   onChange?: (value: string[]) => void;
 }
 
-const RoomFormAddEdit = ({ room2: room, files, location }: Props) => {
+const RoomFormAddEdit = ({ room, files, location }: Props) => {
   const { user } = useContext(UserContext);
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
 
@@ -172,8 +172,8 @@ const RoomFormAddEdit = ({ room2: room, files, location }: Props) => {
         />
       </Form.Item>
 
-      <Form.Item noStyle>
-        <LocationFormInputs ref={location} location={room?.location} />
+      <Form.Item<RoomPayload> noStyle name={"location"}>
+        <LocationFormInputs location={room?.location} ref={location} />
       </Form.Item>
       {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       <Form.Item noStyle={!error}>

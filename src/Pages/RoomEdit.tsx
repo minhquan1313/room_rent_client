@@ -17,8 +17,6 @@ import { useContext, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 
-const imageGutter: [number, number] = [8, 8];
-
 const RoomEdit = () => {
   const navigate = useNavigate();
 
@@ -52,6 +50,12 @@ const RoomEdit = () => {
             initialValues={{
               ...room,
 
+              location: {
+                ...room.location,
+                lat: room.location?.lat_long.coordinates[1],
+                long: room.location?.lat_long.coordinates[0],
+              },
+
               owner: room.owner._id,
               room_type: room.room_type.title,
               services: room.services.map((e) => e.title),
@@ -67,14 +71,11 @@ const RoomEdit = () => {
 
               console.log(`🚀 ~ RoomEdit ~ files.current:`, files.current);
               console.log(`🚀 ~ onFinish ~ location:`, location.current);
-              return;
               if (!location.current) {
                 messageApi.open({
                   type: "error",
                   content: "Điền thông tin về vị trí",
                 });
-
-                return;
               } else if (
                 location.current.lat === 0 ||
                 location.current.long === 0
@@ -146,170 +147,7 @@ const RoomEdit = () => {
               setSubmitting(false);
             }}
           >
-            <RoomFormAddEdit files={files} location={location} room2={room} />
-            {/* <Form.Item<RoomPayload>
-              label="ID chủ phòng"
-              name="owner"
-              hidden={!isRoleAdmin(user?.role.title)}
-            >
-              <Input />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              rules={[
-                {
-                  required: true,
-                  message: "Tên phòng không bỏ trống",
-                },
-              ]}
-              label="Tên phòng"
-              name="name"
-            >
-              <Input maxLength={50} showCount />
-            </Form.Item>
-
-            <Form.Item<RoomPayload> label="Giới thiệu ngắn" name="sub_name">
-              <Input maxLength={50} showCount />
-            </Form.Item>
-
-            <Form.Item<RoomPayload> label="Mô tả chi tiết" name="description">
-              <Input.TextArea maxLength={1000} showCount autoSize />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              rules={[
-                {
-                  required: true,
-                  message: " không bỏ trống",
-                },
-              ]}
-              label="Kiểu phòng"
-              name="room_type"
-            >
-              {!roomTypes ? (
-                <Skeleton.Input active block />
-              ) : (
-                <SelectRoomType />
-              )}
-            </Form.Item>
-
-            <Form.Item<RoomPayload> label="Các dịch vụ" name="services">
-              {!roomServicesConverted ? (
-                <Skeleton.Input active block />
-              ) : (
-                <SelectService />
-              )}
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              label="Chọn ảnh cho phòng"
-              tooltip="Sau khi chọn ảnh, bấm giữ ảnh và kéo để thay đổi thứ tự"
-            >
-              <FilesUpload
-                ref={files}
-                accept="image/*"
-                initImages={room.images}
-              />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              rules={[
-                {
-                  required: true,
-                  message: " không bỏ trống",
-                },
-              ]}
-              label="Giá tiền thuê mỗi tháng"
-              name="price_per_month"
-            >
-              <InputNumber
-                addonAfter={
-                  <Form.Item<RoomPayload> name="price_currency_code" noStyle>
-                    <SelectCurrency />
-                  </Form.Item>
-                }
-                formatter={numberFormat}
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-                className="w-full"
-              />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              rules={[
-                {
-                  required: true,
-                  message: " không bỏ trống",
-                },
-              ]}
-              label="Diện tích sử dụng"
-              name="usable_area"
-            >
-              <InputNumber
-                addonAfter={
-                  <Form.Item<RoomPayload> name="usable_area_unit" noStyle>
-                    {<SelectMeasure />}
-                  </Form.Item>
-                }
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-                className="w-full"
-              />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              label="Số phòng khách"
-              name="number_of_living_room"
-            >
-              <InputNumber
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-                className="w-full"
-              />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              label="Số phòng ngủ"
-              name="number_of_bedroom"
-            >
-              <InputNumber
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-                className="w-full"
-              />
-            </Form.Item>
-
-            <Form.Item<RoomPayload>
-              label="Số nhà vệ sinh"
-              name="number_of_bathroom"
-            >
-              <InputNumber
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-                className="w-full"
-              />
-            </Form.Item>
-
-            <Form.Item<RoomPayload> label="Số tầng" name="number_of_floor">
-              <InputNumber
-                formatter={(value) =>
-                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
-                className="w-full"
-              />
-            </Form.Item>
-
-            <Form.Item noStyle>
-              <LocationFormInputs ref={location} location={room.location} />
-            </Form.Item> */}
+            <RoomFormAddEdit files={files} location={location} room={room} />
             {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
             <Form.Item noStyle={!error}>
               <Space.Compact block>

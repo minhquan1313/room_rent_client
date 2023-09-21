@@ -120,12 +120,15 @@ const RoomDetail = () => {
 
       centerMarker(map, mk);
 
-      if (locationDenied) return;
-      (async () => {
-        const c = coords || (await refreshCoords());
+      if (locationDenied || !coords) return;
 
-        c && addUserMarker(map, c);
-      })();
+      addUserMarker(map, coords);
+
+      // (async () => {
+      //   const c = coords || (await refreshCoords());
+
+      //   c && addUserMarker(map, c);
+      // })();
 
       // map.addListener("click", (env: GoogleClickEvent) => {
       //   setCoords({
@@ -167,9 +170,12 @@ const RoomDetail = () => {
               <Typography.Paragraph className="text-right">
                 Ngày đăng: {dateFormat(room.createdAt).format("LLL")}
               </Typography.Paragraph>
-              <Typography.Paragraph className="text-right">
-                Sửa đổi: {dateFormat(room.updatedAt).format("LLL")}
-              </Typography.Paragraph>
+
+              {!!dateFormat(room.createdAt).diff(room.updatedAt, "s") && (
+                <Typography.Paragraph className="text-right">
+                  Sửa đổi: {dateFormat(room.updatedAt).format("LLL")}
+                </Typography.Paragraph>
+              )}
             </Space.Compact>
             <Image.PreviewGroup>
               <Row gutter={imageGutter}>

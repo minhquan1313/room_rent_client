@@ -35,7 +35,7 @@ export const PopularProvinces = () => {
 
   return (
     <MyFlickity>
-      {roomCounts?.length ? (
+      {roomCounts?.length &&
         roomCounts.map(({ count, province, image }) => (
           <div
             className="aspect-[4/5] w-full sm:w-1/2 lg:w-1/3 2xl:w-1/4"
@@ -69,10 +69,7 @@ export const PopularProvinces = () => {
               </div>
             </Link>
           </div>
-        ))
-      ) : (
-        <div>no data</div>
-      )}
+        ))}
       {/* </div> */}
     </MyFlickity>
   );

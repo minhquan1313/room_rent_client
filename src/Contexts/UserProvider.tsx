@@ -1,5 +1,6 @@
 import { fetcher } from "@/services/fetcher";
 import { IUser, UserLoginPayload, UserRegisterPayload } from "@/types/IUser";
+import { getUserLocalStorage } from "@/utils/getUserLocalStorage";
 import {
   ReactNode,
   createContext,
@@ -24,12 +25,12 @@ interface IProps {
   children: ReactNode;
 }
 
-let isRemember = false;
+const isRemember = false;
 
 export const UserContext = createContext<IUserContext>(null as never);
 
 export default function UserProvider({ children }: IProps) {
-  const [user, setUser] = useState<IUserContext["user"]>(getData());
+  const [user, setUser] = useState<IUserContext["user"]>(getUserLocalStorage());
   const [isLogging, setIsLogging] = useState(false);
 
   const login = useCallback(async (u: UserLoginPayload, remember: boolean) => {
@@ -122,9 +123,9 @@ export default function UserProvider({ children }: IProps) {
       user && user.token && loginTokenBackground(user.token, isRemember);
     }
 
-    const itv = setInterval(autoLogin, 60000);
+    // const itv = setInterval(autoLogin, 60000);
 
-    return () => clearInterval(itv);
+    // return () => clearInterval(itv);
   }, [loginTokenBackground, user]);
 
   useEffect(() => {
@@ -174,21 +175,21 @@ function saveData(u: IUser, remember: boolean) {
   }
 }
 
-function getData() {
-  try {
-    let userJson = localStorage.getItem("user");
-    if (userJson) {
-      isRemember = true;
-    } else {
-      isRemember = false;
-      userJson = sessionStorage.getItem("user");
-    }
+// function getUserLocalStorage() {
+//   try {
+//     let userJson = localStorage.getItem("user");
+//     if (userJson) {
+//       isRemember = true;
+//     } else {
+//       isRemember = false;
+//       userJson = sessionStorage.getItem("user");
+//     }
 
-    if (!userJson) throw new Error();
+//     if (!userJson) throw new Error();
 
-    const json: IUser = JSON.parse(userJson);
-    return json;
-  } catch (error) {
-    return null;
-  }
-}
+//     const json: IUser = JSON.parse(userJson);
+//     return json;
+//   } catch (error) {
+//     return null;
+//   }
+// }

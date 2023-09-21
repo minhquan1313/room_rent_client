@@ -1,51 +1,34 @@
 import MyButton from "@/Components/MyButton";
-import NotFoundContent from "@/Components/NotFoundContent";
 import {
+  SelectCountry,
   SelectDistrict,
+  SelectLocation,
   SelectProvince,
   SelectWard,
 } from "@/Components/SelectProvince";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
-import { fetcher } from "@/services/fetcher";
 import { locationResolve } from "@/services/locationResolve";
 import { GoogleClickEvent } from "@/types/GoogleClickEvent";
 import { RoomLocationPayload } from "@/types/IRoom";
-import { IRoomLocation } from "@/types/IRoomLocation";
-import { Location3rd } from "@/types/Location3rd";
 import { isProduction } from "@/utils/isProduction";
-import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import { StopOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Select,
-  Skeleton,
-  Space,
-  Switch,
-  message,
-} from "antd";
+import { Card, Form, Input, Skeleton, Space, Switch, message } from "antd";
 import { Coords } from "google-map-react";
 import {
-  ForwardRefRenderFunction,
-  forwardRef,
-  memo,
+  FC,
   useCallback,
   useContext,
   useEffect,
-  useImperativeHandle,
   useRef,
   useState,
 } from "react";
-import useSWR from "swr";
 
-const LocationFormInputs_: ForwardRefRenderFunction<
-  RoomLocationPayload | undefined,
-  {
-    location?: IRoomLocation | null;
-  }
-> = ({ location }, ref) => {
+type Fields = Partial<RoomLocationPayload>;
+export const LocationFormInputsControlled: FC<{
+  value?: Fields | null;
+  onChange?(value: Fields): void;
+}> = ({ value, onChange }) => {
   const {
     loadMapTo,
     addMarker,
@@ -63,30 +46,14 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   const [mk, setMk] = useState<google.maps.Marker>();
 
   const [coord, setCoords] = useState<Coords | undefined>(
-    location
+    value?.lat && value?.long
       ? {
-          lat: location.lat_long.coordinates[1],
-          lng: location.lat_long.coordinates[0],
+          lat: value.lat,
+          lng: value.long,
         }
       : undefined,
   );
-
-  const [detailLocation, setDetailLocation] = useState<string | undefined>(
-    location?.detail_location,
-  );
-
-  const [country, setCountry] = useState<string | undefined>("Việt Nam");
-  const [province, setProvince] = useState<string | undefined>(
-    location?.province,
-  );
-
-  const [district, setDistrict] = useState<string | undefined>(
-    location?.district,
-  );
-  const [ward, setWard] = useState<string | undefined>(location?.ward);
-
   const [gettingLocation, setGettingLocation] = useState(false);
-  // const [locationDenied, setLocationDenied] = useState<boolean>();
   const [allowSpecialFeature, setAllowSpecialFeature] = useState(false);
   const [resolving, setResolving] = useState(false);
 
@@ -101,11 +68,22 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   const [thirdDistrictCode, setThirdDistrictCode] = useState<
     string | undefined
   >();
+
+  const onChangeHandle = useCallback(
+    (o: Fields) => {
+      onChange &&
+        onChange({
+          ...value,
+          ...o,
+        });
+    },
+    [onChange, value],
+  );
   // const [thirdWardCode, setThirdWardCode] = useState<string>();
 
-  const { data: allCountryVn, isLoading: loadingCountryVn } = useSWR<
-    Location3rd[]
-  >(`/location/countries-all`, fetcher);
+  // const { data: allCountryVn, isLoading: loadingCountryVn } = useSWR<
+  //   Location3rd[]
+  // >(`/location/countries-all`, fetcher);
   // const { data: allProvincesVn, isLoading: loadingProvincesVn } = useSWR<
   //   Location3rd[]
   // >(
@@ -129,52 +107,65 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   //   fetcher,
   // );
 
-  const thirdCountrySelect = useCallback<SelectOptionProps["onSelect"]>(
+  const thirdCountrySelect = useCallback<
+    NonNullable<SelectLocation["onSelect"]>
+  >(
     ({ code, name }) => {
-      setCountry(name);
+      // setCountry(name);
       setThirdCountryCode(code);
 
-      setProvince(undefined);
+      // setProvince(undefined);
       setThirdProvinceCode(undefined);
 
-      setDistrict(undefined);
+      // setDistrict(undefined);
       setThirdDistrictCode(undefined);
 
-      setWard(undefined);
+      // setWard(undefined);
       // setThirdWardCode(undefined);
 
-      setDetailLocation(undefined);
+      onChangeHandle({
+        province: undefined,
+        district: undefined,
+        ward: undefined,
+        detail_location: undefined,
+      });
+
+      // setDetailLocation(undefined);
     },
-    [],
+    [onChangeHandle],
   );
-  const thirdProvinceSelect = useCallback<SelectOptionProps["onSelect"]>(
+  const thirdProvinceSelect = useCallback<
+    NonNullable<SelectLocation["onSelect"]>
+  >(
     ({ code, name }) => {
-      setProvince(name);
+      // setProvince(name);
       setThirdProvinceCode(code);
 
-      setDistrict(undefined);
+      // setDistrict(undefined);
       setThirdDistrictCode(undefined);
-      setWard(undefined);
+      // setWard(undefined);
       // setThirdWardCode(undefined);
+      onChangeHandle({
+        district: undefined,
+        ward: undefined,
+      });
     },
-    [],
+    [onChangeHandle],
   );
-  const thirdDistrictSelect = useCallback<SelectOptionProps["onSelect"]>(
+  const thirdDistrictSelect = useCallback<
+    NonNullable<SelectLocation["onSelect"]>
+  >(
     ({ code, name }) => {
-      setDistrict(name);
+      // setDistrict(name);
       setThirdDistrictCode(code);
 
-      setWard(undefined);
+      onChangeHandle({
+        ward: undefined,
+      });
+      // setWard(undefined);
       // setThirdWardCode(undefined);
     },
-    [],
-  );
-  const thirdWardSelect = useCallback<SelectOptionProps["onSelect"]>(
-    ({ name }) => {
-      setWard(name);
-      // setThirdWardCode(code);
-    },
-    [],
+    [onChangeHandle],
   );
 
   const resolveLocationFromGG = async (
@@ -199,16 +190,22 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       });
     } else {
       setThirdCountryCode(data.country ? data.country.code : undefined);
-      setCountry(() => (data.country ? data.country.name : undefined));
+      // setCountry(() => (data.country ? data.country.name : undefined));
 
       setThirdProvinceCode(data.province ? data.province.code : undefined);
-      setProvince(() => (data.province ? data.province.name : undefined));
+      // setProvince(() => (data.province ? data.province.name : undefined));
 
       setThirdDistrictCode(data.district ? data.district.code : undefined);
-      setDistrict(() => (data.district ? data.district.name : undefined));
+      // setDistrict(() => (data.district ? data.district.name : undefined));
 
+      onChangeHandle({
+        country: data.country?.name,
+        province: data.province?.name,
+        district: data.district?.name,
+        ward: data.ward?.name,
+      });
       // setThirdWardCode(data.ward ? data.ward.code : undefined);
-      setWard(() => (data.ward ? data.ward.name : undefined));
+      // setWard(() => (data.ward ? data.ward.name : undefined));
     }
     setResolving(false);
   };
@@ -277,7 +274,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       //   detailLocation = s.join(", ");
       // }
 
-      setDetailLocation(detailLocation);
+      // setDetailLocation(detailLocation);
 
       await resolveLocationFromGG("Viet nam", province, district, ward);
       // const data = await locationResolve("Viet nam", province, district, ward);
@@ -345,9 +342,14 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       });
     });
 
-    if (coord) onCoordChange();
-    if (location) {
-      resolveLocationFromGG("Viet nam", province, district, ward);
+    console.log(`🚀 ~ useEffect ~ value:`, value);
+    if (value) {
+      resolveLocationFromGG(
+        "Viet nam",
+        value.province,
+        value.district,
+        value.ward,
+      );
     }
   }, [map]);
 
@@ -355,24 +357,6 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     onCoordChange();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coord]);
-
-  useImperativeHandle(ref, () => {
-    if (!coord?.lat && !coord?.lng && !country && !province && !district) {
-      return undefined;
-    }
-
-    const obj: RoomLocationPayload = {
-      lat: coord?.lat ?? 0,
-      long: coord?.lng ?? 0,
-      country: country ?? "",
-      province: province ?? "",
-      district: district ?? "",
-      ward,
-      detail_location: detailLocation,
-    };
-
-    return obj;
-  });
 
   return (
     <>
@@ -429,23 +413,6 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       {!isProduction && (
         <Form.Item>
           <Space.Compact block>
-            {/* <MyButton
-              disabled={!country || !province || !district || !ward}
-              block
-              onClick={() => {
-                const addr = toStringLocation({
-                  district,
-                  province,
-                  ward,
-                  detail_location: detailLocation,
-                });
-
-                // placeSearch()
-              }}
-            >
-              [DEV] Resolve coords
-            </MyButton> */}
-
             <MyButton
               to={`https://www.google.com/maps/place/${encodeURIComponent(
                 coord?.lat + "," + coord?.lng,
@@ -459,173 +426,71 @@ const LocationFormInputs_: ForwardRefRenderFunction<
         </Form.Item>
       )}
 
-      {!isProduction && (
-        <>
-          <Form.Item<RoomLocationPayload> label="[DEV] Vĩ độ">
-            <Input value={coord?.lat} />
-          </Form.Item>
+      <Form.Item
+        label="[DEV] Vĩ độ"
+        hidden={isProduction}
+        name={["location", "lat"]}
+      >
+        <Input />
+      </Form.Item>
 
-          <Form.Item<RoomLocationPayload> label="[DEV] Kinh độ">
-            <Input value={coord?.lng} />
-          </Form.Item>
-        </>
-      )}
+      <Form.Item
+        label="[DEV] Kinh độ"
+        hidden={isProduction}
+        name={["location", "long"]}
+      >
+        <Input />
+      </Form.Item>
 
-      <Form.Item<RoomLocationPayload>
+      <Form.Item
         label="[DEV] Quốc gia"
         required
         hidden={isProduction}
+        name={["location", "country"]}
       >
-        {loadingCountryVn || resolving ? (
-          <Skeleton.Input active block />
-        ) : (
-          <SelectOptions
-            onSelect={thirdCountrySelect}
-            data={allCountryVn}
-            value={country}
-          />
-        )}
-
-        {/* <Input
-          onChange={(e) => {
-            setCountry(e.target.value);
-          }}
-          value={country}
-          // disabled={!!country}
-          // disabled
-        /> */}
-      </Form.Item>
-
-      <Form.Item<RoomLocationPayload> label="Tỉnh" required>
         {resolving ? (
           <Skeleton.Input active block />
         ) : (
-          // <SelectOptions
-          //   onSelect={thirdProvinceSelect}
-          //   data={allProvincesVn}
-          //   value={province}
-          // />
+          <SelectCountry onSelect={thirdCountrySelect} />
+        )}
+      </Form.Item>
+
+      <Form.Item label="Tỉnh" required name={["location", "province"]}>
+        {resolving ? (
+          <Skeleton.Input active block />
+        ) : (
           <SelectProvince
             onSelect={thirdProvinceSelect}
-            value={province}
             code={thirdCountryCode}
           />
         )}
-
-        {/* <Input
-          onChange={(e) => {
-            setProvince(e.target.value);
-          }}
-          value={province}
-          // disabled={!!province}
-        /> */}
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Quận / Huyện" required>
+      <Form.Item label="Quận / Huyện" required name={["location", "district"]}>
         {resolving ? (
           <Skeleton.Input active block />
         ) : (
-          // <SelectOptions
-          //   onSelect={thirdDistrictSelect}
-          //   data={allDistrictsVn}
-          //   value={district}
-          // />
           <SelectDistrict
             onSelect={thirdDistrictSelect}
-            value={district}
             code={thirdProvinceCode}
           />
         )}
-        {/* <Input
-          onChange={(e) => {
-            setDistrict(e.target.value);
-          }}
-          value={district}
-          // disabled={!!district}
-        /> */}
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Xã / Phường">
+      <Form.Item label="Xã / Phường" name={["location", "ward"]}>
         {resolving ? (
           <Skeleton.Input active block />
         ) : (
-          // <SelectOptions
-          //   onSelect={thirdWardSelect}
-          //   data={allWardsVn}
-          //   value={ward}
-          // />
-          <SelectWard
-            onSelect={thirdWardSelect}
-            value={ward}
-            code={thirdDistrictCode}
-          />
+          <SelectWard code={thirdDistrictCode} />
         )}
-        {/* <Input
-          onChange={(e) => {
-            setWard(e.target.value);
-          }}
-          value={ward}
-          // disabled={!!ward}
-        /> */}
       </Form.Item>
 
-      <Form.Item<RoomLocationPayload> label="Địa chỉ chi tiết">
-        <Input
-          onChange={(e) => {
-            setDetailLocation(e.target.value);
-          }}
-          value={detailLocation}
-          disabled={resolving}
-          maxLength={100}
-          showCount
-          // ref={detailRef}
-          // disabled={!!detailLocation}
-        />
+      <Form.Item
+        label="Địa chỉ chi tiết"
+        name={["location", "detail_location"]}
+      >
+        <Input disabled={resolving} maxLength={100} showCount />
       </Form.Item>
     </>
   );
 };
-
-interface SelectOptionProps {
-  data?: Location3rd[];
-  value?: string;
-  onSelect: (value: Location3rd) => void;
-}
-
-const SelectOptions = memo(function SelectOptions({
-  data,
-  value,
-  onSelect,
-}: SelectOptionProps) {
-  return (
-    <Select
-      notFoundContent={<NotFoundContent />}
-      onSelect={(_e, o) => {
-        if (!o.value || !o.key) return;
-
-        const obj: Location3rd = {
-          name: String(o.value),
-          // name: o.children,
-          code: o.key,
-        };
-        if (obj.name === value) return;
-
-        onSelect(obj);
-      }}
-      filterOption={searchFilterTextHasLabel}
-      showSearch
-      value={value}
-    >
-      {data &&
-        data.map(({ code, name }) => (
-          <Select.Option key={code} value={name} label={name}>
-            {/* <Select.Option key={code} value={removeAccents(name)}> */}
-            {name}
-          </Select.Option>
-        ))}
-    </Select>
-  );
-});
-
-const LocationFormInputs = forwardRef(LocationFormInputs_);
-export default LocationFormInputs;

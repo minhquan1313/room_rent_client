@@ -1,4 +1,5 @@
 // import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
+import ChatHeader from "@/Components/ChatHeader";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import ThemeSwitcher from "@/Components/ThemeSwitcher";
@@ -58,9 +59,9 @@ export default function MyHeader() {
 
               {user ? (
                 <>
-                  <UserHeader />
+                  <ChatHeader />
 
-                  <div className="">Chat</div>
+                  <UserHeader />
                 </>
               ) : (
                 <>

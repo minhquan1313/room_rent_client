@@ -1,5 +1,6 @@
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
+import Chat from "@/Pages/Chat";
 import Home from "@/Pages/Home";
 import Login from "@/Pages/Login";
 import MyLayout from "@/Pages/MyLayout";
@@ -11,6 +12,7 @@ import RoomEdit from "@/Pages/RoomEdit";
 import RoomSearch from "@/Pages/RoomSearch";
 import { isRoleOwner } from "@/constants/roleType";
 import {
+  routeChat,
   routeRoomAdd,
   routeRoomDetail,
   routeRoomEdit,
@@ -40,8 +42,6 @@ function App() {
   const { user } = useContext(UserContext);
   pageTitle("");
 
-  // console.clear();
-
   return (
     <MyContainer.Raw>
       <Routes>
@@ -70,6 +70,11 @@ function App() {
           />
 
           <Route path={`${routeRoomDetail}/:id`} element={<RoomDetail />} />
+
+          <Route
+            path={routeChat}
+            element={user ? <Chat /> : <Navigate to="/" />}
+          />
         </Route>
 
         <Route path="*" element={<NotFound />} />
