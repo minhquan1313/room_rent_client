@@ -1,4 +1,6 @@
-const a = import.meta.env.VITE_APP_NAME ?? "";
+import { VITE_APP_NAME } from "@/constants/env";
+
+const a = VITE_APP_NAME ?? "";
 
 // let currentTitle: string | undefined = a;
 export function pageTitle(title: string) {

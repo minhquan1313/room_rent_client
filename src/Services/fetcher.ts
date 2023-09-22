@@ -1,8 +1,7 @@
+import { VITE_API } from "@/constants/env";
 import axios, { AxiosInstance } from "axios";
 
-// const VITE_SERVER = import.meta.env.VITE_SERVER;
-const API = import.meta.env.VITE_API;
-if (!API) throw new Error(`Missing API`);
+if (!VITE_API) throw new Error(`Missing API`);
 
 interface MyAxiosInstance extends AxiosInstance {
   update: (data: { token?: string | null }) => void;
@@ -10,7 +9,7 @@ interface MyAxiosInstance extends AxiosInstance {
 
 export const fetcher = (() => {
   const i: MyAxiosInstance = axios.create({
-    baseURL: API,
+    baseURL: VITE_API,
     headers: {
       // "Content-Type": "application/json",
     },

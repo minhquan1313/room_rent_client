@@ -1,5 +1,6 @@
 import { IChatMember } from "@/types/IChatMember";
 import { IChatMessage } from "@/types/IChatMessage";
+import { IChatSeen } from "@/types/IChatSeen";
 
 export interface IChatRoom {
   _id: string;
@@ -8,12 +9,13 @@ export interface IChatRoom {
   createdAt: Date;
 }
 
-// export interface IChatResponse extends IChatRoom {
-//   members: IChatMember[];
-//   lastMessage: IChatMessage;
-// }
+export interface IChatMessageWithSeen extends IChatMessage {
+  seen: IChatSeen[];
+}
 export type TChatList = {
   room: string;
   members: IChatMember[];
-  messages: IChatMessage[];
+  messages: IChatMessageWithSeen[];
+
+  canFetchMoreMessage: boolean; //FE only
 };

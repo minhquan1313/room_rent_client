@@ -1,11 +1,10 @@
 import { ThemeContext } from "@/Contexts/ThemeProvider";
 import img_fail from "@/assets/imgError.svg";
 import img_fail_light from "@/assets/imgErrorLight.svg";
+import { VITE_SERVER } from "@/constants/env";
 import { preloadImage } from "@/utils/preloadImage";
 import { Image, ImageProps, Skeleton, theme } from "antd";
 import { useContext } from "react";
-
-const VITE_SERVER = import.meta.env.VITE_SERVER;
 
 interface Props extends Omit<ImageProps, "placeholder"> {
   addServer?: boolean;

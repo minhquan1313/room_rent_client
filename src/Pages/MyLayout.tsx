@@ -4,8 +4,6 @@ import { theme } from "antd";
 import { Content, Footer } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";
 
-// const API = import.meta.env.VITE_API;
-
 function MyLayout() {
   const {
     token: { colorBgContainer },

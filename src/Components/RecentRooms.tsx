@@ -17,7 +17,7 @@ export const RecentRooms = () => {
     "/rooms?sort_field=createdAt&sort=-1&limit=4&disabled=false",
     fetcher,
   );
-  console.log(`🚀 ~ RecentRooms ~ roomsRecent:`, roomsRecent);
+  // console.log(`🚀 ~ RecentRooms ~ roomsRecent:`, roomsRecent);
 
   useEffect(() => {
     roomsRecent?.forEach((r) => addUser(r.owner));

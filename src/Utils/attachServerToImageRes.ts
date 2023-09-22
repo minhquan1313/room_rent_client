@@ -1,7 +1,9 @@
+import { VITE_SERVER } from "@/constants/env";
+
 export function attachServerToImageRes(image: string) {
   if (!import.meta.env.VITE_SERVER) throw new Error(`VITE_SERVER missing`);
 
-  return import.meta.env.VITE_SERVER + image;
+  return VITE_SERVER + image;
 }
 
 export function mutateImageFromResponse(obj: unknown) {

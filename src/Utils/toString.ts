@@ -14,6 +14,8 @@ export const toStringLocation = (
     .join(", ");
 };
 
-export const toStringUserName = (u: IUser) => {
+export const toStringUserName = (u?: IUser | null) => {
+  if (!u) return "";
+
   return `${u.last_name ?? ""} ${u.first_name}`;
 };

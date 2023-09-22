@@ -9,4 +9,7 @@ export const chatSocketAction = {
 
   C_SEEN_MSG: "clientSeen",
   S_SEEN_MSG: "serverSeen",
+
+  C_DELETE_ROOM: "clientDeleteRoom",
+  S_DELETE_ROOM: "serverDeleteRoom",
 };

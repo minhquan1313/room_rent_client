@@ -1,130 +1,393 @@
+import { ChatMessage } from "@/Components/Chat/ChatMessage";
+import { SideChatItem } from "@/Components/Chat/SideChatItem";
 import MyButton from "@/Components/MyButton";
-import MyContainer from "@/Components/MyContainer";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
+import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { dateFormat } from "@/utils/dateFormat";
-import { Form, Input, InputRef, Typography } from "antd";
-import classNames from "classnames";
-import { useContext, useRef, useState } from "react";
+import { routeChat } from "@/constants/route";
+import { fetcher } from "@/services/fetcher";
+import { IUser } from "@/types/IUser";
+import { isProduction } from "@/utils/isProduction";
+import { toStringUserName } from "@/utils/toString";
+import { SendOutlined } from "@ant-design/icons";
+import {
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputRef,
+  Row,
+  Select,
+  Typography,
+} from "antd";
+import { useCallback, useContext, useEffect, useRef } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import useSWR from "swr";
 
 function Chat() {
   const {
     chatList,
-    canFetchMoreMessage,
     room,
+    isFetchingMessage,
     switchRoom,
-    sendMessageInRoom,
-    sendMessageToNewUser,
+    sendMessage,
     loadMoreHistoryChat,
+    removeChatRoom,
   } = useContext(ChatSocketContext);
 
   const { user } = useContext(UserContext);
+  const { getUser, preloadUser, hasUsers } = useContext(
+    InteractedUserProviderContext,
+  );
 
-  const [receiverInp, setReceiverInp] = useState<string>("");
-  const [message, setMessage] = useState<string>("");
-  const [roomInp, setRoomInp] = useState<string>("");
+  const [query, setQuery] = useSearchParams();
+
+  const { data: allUserDb } = useSWR<IUser[]>(
+    isProduction ? null : `/users`,
+    fetcher,
+  );
+
+  const { roomId } = useParams();
+  const navigate = useNavigate();
+
+  // const [receiverInp, setReceiverInp] = useState<string>("");
+  // const [message, setMessage] = useState<string>("");
+  // const [roomInp, setRoomInp] = useState<string>("");
   const ref = useRef<InputRef>(null);
 
+  const chatLoaded = useRef(true);
+  const chatLoadedByScroll = useRef(false);
+
+  const messageBoxRef = useRef<HTMLDivElement>(null);
+  const firstMsgBeforeLoaded = useRef<Element | null | undefined>(null);
+
+  const [form] = Form.useForm();
+  // const [userFetchedAll, setUserFetchedAll] = useState(false);
+
+  // const membersIds = useMemo(() => {
+  //   const peopleId: Set<string> = new Set<string>();
+
+  //   chatList.forEach((e) => {
+  //     e.members.forEach((r) => {
+  //       peopleId.add(r.user);
+  //     });
+  //   });
+
+  //   const arr = Array.from(peopleId);
+  //   return arr;
+  // }, [chatList]);
+
+  const onChangeRoom = useCallback(
+    function (room_: string): void {
+      if (room?.room === room_) {
+        // navigate(`${routeChat}`);
+      } else {
+        navigate(`${routeChat}/${room_}`);
+      }
+      // if (room?.room === room_) {
+      //   switchRoom(undefined);
+      // } else switchRoom(room_);
+    },
+    [navigate, room?.room],
+  );
+
+  useEffect(() => {
+    document.querySelector("#root")?.classList.add("max-h-full");
+    return () => {
+      document.querySelector("#root")?.classList.remove("max-h-full");
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   /**
+  //    * preload tất cả user
+  //    */
+  //   if (isFetchingMessage) return;
+  //   console.log(`🚀 ~ useEffect ~ isFetchingMessage:`, isFetchingMessage);
+
+  //   setUserFetchedAll(false);
+
+  //   const peopleId: Set<string> = new Set<string>();
+
+  //   chatList.forEach((e) => {
+  //     e.members.forEach((r) => {
+  //       peopleId.add(r.user);
+  //     });
+  //   });
+
+  //   const arr = Array.from(peopleId);
+
+  //   preloadUser(arr).then(() => {
+  //     setUserFetchedAll(true);
+
+  //     // arr.forEach((e) => console.log(getUser(e)));
+  //   });
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [chatList.length]);
+
+  useEffect(() => {
+    if (!messageBoxRef.current) return;
+    const { clientHeight, scrollHeight } = messageBoxRef.current;
+
+    if (
+      clientHeight === scrollHeight &&
+      room?.canFetchMoreMessage &&
+      chatLoaded.current
+    ) {
+      chatLoaded.current = false;
+      // messageBoxRef.current.scrollTop = 1;
+      loadMoreHistoryChat().then(() => {
+        chatLoaded.current = true;
+        chatLoadedByScroll.current = false;
+      });
+    }
+  });
+
+  useEffect(() => {
+    if (chatLoaded.current) {
+      if (!chatLoadedByScroll.current) {
+        // console.log(`messageBoxRef.current?.lastElementChild?.scrollIntoView`);
+
+        messageBoxRef.current?.lastElementChild?.scrollIntoView();
+      } else {
+        if (messageBoxRef.current?.scrollTop === 0) {
+          firstMsgBeforeLoaded.current?.scrollIntoView();
+        }
+
+        chatLoadedByScroll.current = false;
+      }
+    }
+  }, [room?.messages.length]);
+
+  useEffect(() => {
+    if (roomId === room?.room) return;
+    console.log(`calling switchRoom effect`);
+    console.log(`🚀 ~ useEffect ~ oom?.ro:`, room?.room, roomId);
+
+    if (!roomId) {
+      console.log(`calling !roomId`);
+      console.log(`🚀 ~ useEffect ~ room?.room:`, room?.room);
+
+      if (room?.room) {
+        if (query.get(`to`)) {
+          navigate(`${routeChat}/${room?.room}`);
+        } else {
+          switchRoom(room?.room);
+        }
+      }
+      return;
+    }
+
+    console.log(`roomId !== room?.room`);
+    if (roomId !== room?.room) {
+      switchRoom(roomId) || navigate(`${routeChat}`);
+    }
+  }, [room?.room, roomId, switchRoom]);
+
+  // useEffect(() => {
+  //   if (!chatList.length) return;
+
+  //   setUserFetchedAll(false);
+  // }, [chatList.length]);
+
+  useEffect(() => {
+    ref.current?.focus();
+  }, [room?.messages.length]);
+
   return (
-    <MyContainer>
-      <Form
-        onFinish={(e) => {
-          ref.current?.focus();
+    <div className="h-full">
+      {!isFetchingMessage ? (
+        <Row className="h-full">
+          <Col className="h-full w-72 overflow-y-auto overflow-x-hidden">
+            {/* ChatHeads */}
+            {!isProduction && (
+              <div>
+                <MyButton
+                  onClick={() => {
+                    if (
+                      messageBoxRef.current &&
+                      messageBoxRef.current.scrollTop === 0
+                    ) {
+                      messageBoxRef.current.scrollTop = 1;
+                    }
+                    loadMoreHistoryChat();
+                  }}
+                  disabled={!room?.canFetchMoreMessage}
+                >
+                  Tải thêm
+                </MyButton>
+                <Select
+                  placeholder="Tìm user"
+                  options={allUserDb?.map((d) => ({
+                    value: d._id,
+                    label: d.username,
+                    title: d._id,
+                  }))}
+                  mode="multiple"
+                  className="w-full"
+                  onChange={(e) => {
+                    if (!e.length) return;
+                    switchRoom(undefined);
 
-          setMessage("");
-          setRoomInp("");
+                    navigate(
+                      `${routeChat}?${new URLSearchParams({
+                        to: e,
+                      })}`,
+                    );
+                  }}
+                />
+              </div>
+            )}
 
-          if (room) {
-            sendMessageInRoom({
-              message,
-            });
-          } else if (roomInp) {
-            sendMessageInRoom({
-              message,
-              room: roomInp,
-            });
-          } else if (receiverInp) {
-            console.log(`🚀 ~ Chat ~ receiver:`, receiverInp);
+            {chatList.map((c) => (
+              <SideChatItem
+                user={(() => {
+                  const u = c.members.find((e) => e.user !== user?._id)?.user;
 
-            sendMessageToNewUser({
-              message: message,
-              receiver: [receiverInp],
-            });
-          }
-        }}
-      >
-        <div>
-          ID của bạn:
-          <Typography.Text copyable>{user?._id}</Typography.Text> |{" "}
-          <Typography.Text copyable>{user?.username}</Typography.Text>
-        </div>
+                  const x = getUser(u);
 
-        <div>
-          <MyButton
-            onClick={() => loadMoreHistoryChat()}
-            disabled={!canFetchMoreMessage}
-          >
-            Tải thêm
-          </MyButton>
-        </div>
+                  return x;
+                })()}
+                onDelete={async (r) => {
+                  await fetcher.delete(`/chat/room/${r}`);
+                  removeChatRoom(r);
+                  if (r === c.room) navigate(routeChat);
+                }}
+                onChangeRoom={onChangeRoom}
+                key={c.room}
+                room={c.room}
+                type={room?.room === c.room ? "primary" : "default"}
+                lastMsg={c.messages.slice(-1)[0].message}
+                members={c.members}
+              />
+            ))}
+          </Col>
 
-        <div>
-          Chat rooms:
-          {chatList.map((c) => (
-            <MyButton
-              type={room?.room === c.room ? "primary" : "default"}
-              key={c.room}
-              onClick={() => {
-                if (room?.room === c.room) {
-                  switchRoom(undefined);
-                } else switchRoom(c.room);
+          <Divider type="vertical" className="m-0 h-full" />
+
+          <Col flex={"1"} className="h-full max-h-full overflow-hidden">
+            {/* {chatList.length === 0 ? (
+              <Typography.Title className="flex h-full w-full items-center justify-center">
+                Hãy tìm ai đó để bắt chuyện
+              </Typography.Title>
+            ) : 
+            ( */}
+            <Form
+              onFinish={(e) => {
+                form.resetFields();
+                ref.current?.focus();
+
+                const to = query.get("to");
+                if (to) {
+                  // send to new user
+
+                  const receiver = to.split(",");
+                  // setUserFetchedAll(false);
+                  sendMessage({ message: e.message, receiver });
+                } else {
+                  sendMessage({ message: e.message });
+                }
               }}
+              disabled={!room?.room && !query.get("to")}
+              className="flex h-full flex-col"
+              form={form}
             >
-              {c.room}
-            </MyButton>
-          ))}
-        </div>
+              {/* Chat messages */}
+              <div
+                onScroll={(e) => {
+                  if (
+                    messageBoxRef.current &&
+                    messageBoxRef.current.scrollTop <= 500 &&
+                    room?.canFetchMoreMessage &&
+                    chatLoaded.current
+                  ) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-        <div>
-          {room?.messages.map((message) => (
-            <div
-              key={message._id}
-              className={classNames({
-                "text-right": message.sender === user?._id,
-              })}
-            >
-              {message.sender === user?._id ? (
-                <>{message.message}</>
-              ) : (
-                <>
-                  {message.sender} : {message.message}
-                </>
-              )}
-              {/* [{String(message.createdAt)}] */}[
-              {dateFormat(message.createdAt).format("LTS")}]
-            </div>
-          ))}
-        </div>
-        <Input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Tin nhan"
-          ref={ref}
-        />
-        <Input
-          value={receiverInp}
-          onChange={(e) => setReceiverInp(e.target.value)}
-          placeholder="Id người nhận"
-        />
-        <Input
-          value={roomInp}
-          onChange={(e) => setRoomInp(e.target.value)}
-          placeholder="Room"
-        />
-        {/* <Input value={sendTo} onChange={(e) => setMessage(e.target.value)} /> */}
-        <MyButton htmlType="submit">Gửi</MyButton>
-      </Form>
-    </MyContainer>
+                    chatLoaded.current = false;
+
+                    loadMoreHistoryChat().then(() => {
+                      chatLoaded.current = true;
+                      chatLoadedByScroll.current = true;
+
+                      if (messageBoxRef.current) {
+                        firstMsgBeforeLoaded.current =
+                          messageBoxRef.current.firstElementChild;
+                      }
+                    });
+                  }
+                }}
+                className="flex-1 space-y-5 overflow-y-scroll p-5"
+                ref={messageBoxRef}
+              >
+                {query.get("to") && (
+                  <Typography.Title
+                    className="flex h-full items-center justify-center text-center"
+                    level={3}
+                  >
+                    Bắt đầu cuộc trò chuyện mới với{" "}
+                    {toStringUserName(getUser(query.get("to")))}
+                  </Typography.Title>
+                )}
+                {room?.messages.map(({ sender, message, createdAt, _id }) => (
+                  <ChatMessage
+                    showDetailUser={room.members.length >= 3}
+                    user={getUser(sender)}
+                    message={message}
+                    date={String(createdAt)}
+                    key={_id}
+                  />
+                ))}
+              </div>
+
+              <Divider type="horizontal" className="m-0 w-full" />
+
+              <Row gutter={[8, 8]} align={"bottom"} className="p-5">
+                <Col flex={"auto"}>
+                  <Form.Item
+                    noStyle
+                    name={"message"}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input.TextArea
+                      onPressEnter={(e) => {
+                        if (!e.shiftKey) {
+                          e.preventDefault();
+                          form.submit();
+                        }
+                      }}
+                      placeholder="Tin nhan"
+                      ref={ref}
+                      // bordered={false}
+                      translate="yes"
+                      autoSize
+                      className="bg-slate-800"
+                      size="large"
+                    />
+                  </Form.Item>
+                </Col>
+
+                <Col className="w-20">
+                  <MyButton
+                    icon={<SendOutlined />}
+                    htmlType="submit"
+                    block
+                    size="large"
+                    type="primary"
+                  ></MyButton>
+                </Col>
+              </Row>
+            </Form>
+          </Col>
+        </Row>
+      ) : (
+        <div>Loading</div>
+      )}
+    </div>
   );
 }
 

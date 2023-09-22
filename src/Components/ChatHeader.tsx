@@ -13,6 +13,8 @@ const ChatHeader = () => {
 
   const count = 1;
 
+  // if (!chatList.length) return null;
+
   return (
     <Link to={routeChat}>
       <Badge count={count}>

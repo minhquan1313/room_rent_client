@@ -75,6 +75,10 @@ function App() {
             path={routeChat}
             element={user ? <Chat /> : <Navigate to="/" />}
           />
+          <Route
+            path={`${routeChat}/:roomId`}
+            element={user ? <Chat /> : <Navigate to="/" />}
+          />
         </Route>
 
         <Route path="*" element={<NotFound />} />

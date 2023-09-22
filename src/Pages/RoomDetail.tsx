@@ -1,7 +1,9 @@
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
+import { QuickChatBtn } from "@/Components/QuickChatBtn";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
+import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
@@ -35,11 +37,11 @@ import useSWR from "swr";
 const imageGutter: [number, number] = [8, 8];
 
 const RoomDetail = () => {
+  const { addUser } = useContext(InteractedUserProviderContext);
   const { currentRoom, setCurrentRoom } = useContext(RoomContext);
   const { loadMapTo, addMarker, addUserMarker } = useContext(GoogleMapContext);
   const { user } = useContext(UserContext);
-  const { locationDenied, coords, refreshCoords } =
-    useContext(UserLocationContext);
+  const { locationDenied, coords } = useContext(UserLocationContext);
 
   const { id } = useParams();
   const { data: room_ } = useSWR<IRoom>(
@@ -55,13 +57,23 @@ const RoomDetail = () => {
   const [map, setMap] = useState<google.maps.Map>();
   const marker = useRef<google.maps.Marker>();
 
-  useEffect(() => {
-    console.log(`🚀 ~ useEffect ~ currentRoom:`, currentRoom);
-    console.log(`🚀 ~ useEffect ~ room_:`, room_);
-    console.log(`🚀 ~ useEffect ~ room:`, room);
-    console.log(`🚀 ~ useEffect ~ id:`, id);
-    console.log(`🚀 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`);
-  });
+  function centerMarker(map?: google.maps.Map, marker?: google.maps.Marker) {
+    if (!marker || !map) return;
+
+    const p = marker.getPosition();
+    if (!p) return;
+
+    map.setCenter(p);
+    map.setZoom(15);
+  }
+
+  // useEffect(() => {
+  // console.log(`🚀 ~ useEffect ~ currentRoom:`, currentRoom);
+  // console.log(`🚀 ~ useEffect ~ room_:`, room_);
+  // console.log(`🚀 ~ useEffect ~ room:`, room);
+  // console.log(`🚀 ~ useEffect ~ id:`, id);
+  // console.log(`🚀 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`);
+  // });
 
   useEffect(() => {
     if (!mapRef.current || loaded.current) return;
@@ -77,16 +89,6 @@ const RoomDetail = () => {
     })();
     loaded.current = true;
   }, [loadMapTo, room]);
-
-  function centerMarker(map?: google.maps.Map, marker?: google.maps.Marker) {
-    if (!marker || !map) return;
-
-    const p = marker.getPosition();
-    if (!p) return;
-
-    map.setCenter(p);
-    map.setZoom(15);
-  }
 
   useEffect(() => {
     (async () => {
@@ -149,6 +151,7 @@ const RoomDetail = () => {
     if (!room_) return;
 
     setCurrentRoom(room_);
+    addUser(room_.owner);
   }, [room_, setCurrentRoom]);
 
   // const items: DescriptionsProps["items"] = getDescriptionsRoom(room);
@@ -257,7 +260,7 @@ const RoomDetail = () => {
               extra={
                 <Space>
                   {room.owner._id !== user?._id && (
-                    <MyButton>Chat ngay</MyButton>
+                    <QuickChatBtn to={room.owner._id} />
                   )}
                   <MyButton
                     type="primary"

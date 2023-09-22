@@ -118,7 +118,8 @@ const UserHeader = () => {
           //   })();
           // }}
         >
-          {user.first_name[0]}
+          {user.username}
+          {/* {user.first_name[0]} */}
         </Avatar>
         {/* </Link> */}
       </Dropdown>

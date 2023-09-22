@@ -1,4 +1,5 @@
 import { proximityThreshold } from "@/constants";
+import { VITE_GOOGLE_MAP_API_KEY } from "@/constants/env";
 import { calculateDistance } from "@/utils/calculateDistance";
 import { Coords } from "google-map-react";
 import { ReactNode, createContext, useEffect, useRef, useState } from "react";
@@ -348,7 +349,7 @@ export default function GoogleMapProvider({ children }: Props) {
     // console.log(`🚀 ~ useEffect ~ [lang, region]:`, [lang, region]);
 
     script.src = `https://maps.googleapis.com/maps/api/js?key=${
-      import.meta.env.VITE_GOOGLE_MAP_API_KEY ?? ""
+      VITE_GOOGLE_MAP_API_KEY ?? ""
     }&callback=${functionName}&v=weekly${lang && `&language=` + lang}${
       region && `&region=` + region
     }&libraries=places`;

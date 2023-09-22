@@ -4,6 +4,7 @@ import { VITE_CHAT_SERVER } from "@/constants/env";
 import { fetcher } from "@/services/fetcher";
 import { IChatMessage, IChatMessagePayload } from "@/types/IChatMessage";
 import { TChatList } from "@/types/IChatRoom";
+import { objectToPayloadParams } from "@/utils/objectToPayloadParams";
 import { arrayMoveImmutable } from "array-move";
 import {
   ReactNode,
@@ -17,17 +18,16 @@ import useSWR from "swr";
 
 interface IChatSocketContext {
   room: TChatList | undefined;
-  // messages,
   isFetchingMessage: boolean;
-  canFetchMoreMessage: boolean;
   chatList: TChatList[];
-  switchRoom: (room?: string | undefined) => void;
-  sendMessageInRoom: (msg: {
+  switchRoom: (room_?: string | undefined) => TChatList | undefined;
+  sendMessage: (msg: {
     message: string;
-    room?: string | undefined;
+    receiver?: string[] | undefined;
   }) => void;
-  sendMessageToNewUser: (msg: { message: string; receiver: string[] }) => void;
-  loadMoreHistoryChat: () => void;
+  loadMoreHistoryChat: () => Promise<void>;
+  removeChatRoom: (room?: string | undefined) => void;
+  searchForChatRoom: (receivers: string[]) => Promise<TChatList[]>;
 }
 
 interface IProps {
@@ -38,7 +38,7 @@ export const ChatSocketContext = createContext<IChatSocketContext>(
   null as never,
 );
 
-const LIMIT = 10;
+const LIMIT = 5;
 export default function ChatSocketProvider({ children }: IProps) {
   const { user } = useContext(UserContext);
   const [socket, setSocket] = useState<Socket>();
@@ -55,10 +55,15 @@ export default function ChatSocketProvider({ children }: IProps) {
    */
   const [receiver, setReceiver] = useState<string[]>([]);
   const [room, setRoom] = useState<TChatList>();
-  const [canFetchMoreMessage, setCanFetchMoreMessage] = useState(true);
+  // const [canFetchMoreMessage, setCanFetchMoreMessage] = useState(true);
   // const [messages, setMessages] = useState<IChatMessage[]>([]);
 
   const [shouldFetch, setShouldFetch] = useState(true);
+
+  /**
+   * Load tất cả các cuộc trò chuyện hiện có của user này :>
+   * Là load tất cả 1 lần luôn
+   */
   const { data: chatListInit, isLoading } = useSWR<TChatList[]>(
     () => (shouldFetch ? `/chat/list/${user!._id}` : null),
     fetcher,
@@ -70,6 +75,17 @@ export default function ChatSocketProvider({ children }: IProps) {
   //   setMessages([]);
   //   setChatList([]);
   // }
+
+  const sendMessage = (msg: { message: string; receiver?: string[] }) => {
+    if (!room) {
+      // Không trong 1 room nào, gửi tin nhắn cho người mới
+      if (msg.receiver?.length) {
+        sendMessageToNewUser(msg as any);
+      }
+    } else {
+      sendMessageInRoom(msg);
+    }
+  };
 
   const sendMessageToNewUser = (msg: {
     message: string;
@@ -104,13 +120,18 @@ export default function ChatSocketProvider({ children }: IProps) {
     socket?.emit(chatSocketAction.C_SEND_MSG, msg_);
   };
 
-  const switchRoom = (room?: string) => {
-    console.log(`switch`);
+  const switchRoom = (room_?: string) => {
+    console.log(`🚀 ~ switchRoom ~ room_:`, room_);
 
-    const chat = findChatInRoom(room);
+    if (room_ === room?.room) return;
+
+    const chat = findChatInRoom(room_);
+    console.log(`🚀 ~ switchRoom ~ chat:`, chat);
 
     updateReceiver(chat);
     setRoom(chat);
+
+    return chat;
   };
 
   const receiveNewMessage = (msg: TChatList) => {
@@ -173,47 +194,100 @@ export default function ChatSocketProvider({ children }: IProps) {
   const findChatInRoom = (room?: string) => {
     return chatList.find((c) => c.room === room);
   };
+  const findChatByReceivers = (receivers: string[]) => {
+    const chat = chatList.filter((c) => {
+      if (c.members.length !== receivers.length) return false;
 
-  function loadMoreHistoryChat() {
-    // tải lịch sử tin nhắn
-    if (!room) return;
-
-    console.log(`tải lịch sử tin nhắn`);
-    console.log(
-      `🚀 ~ loadMoreHistoryChat ~ room:`,
-      room.messages.slice(-1),
-      room.messages.length,
-    );
-
-    const param = new URLSearchParams({
-      limit: String(LIMIT),
-      from_date_to_previous: room.messages[0].createdAt.toString(),
+      return c.members.every((member) => receivers.includes(member.user));
     });
-    console.log(
-      `🚀 ~ switchRoom ~ param:`,
-      decodeURIComponent(param as unknown as string),
+
+    return chat;
+  };
+  const searchForChatRoom = async (receivers: string[]) => {
+    if (!user?._id) return [];
+
+    const receivers_ = [...receivers, user._id];
+
+    const chatLocal = findChatByReceivers(receivers_);
+    console.log(`🚀 ~ searchForChatRoom ~ chatLocal:`, chatLocal);
+
+    if (chatLocal.length) return chatLocal;
+
+    // fetch from server
+    const o = objectToPayloadParams({ receivers: receivers_ });
+
+    const chatRoom = await fetcher.get<any, TChatList[]>(
+      `/chat/room/search-by-receiver?${o.toString()}`,
     );
+    console.log(`🚀 ~ searchForChatRoom ~ chatRoom:`, chatRoom);
 
-    fetcher
-      .get<any, IChatMessage[]>(`/chat/room/${room.room}?${param}`)
-      .then((d) => {
-        console.log(`🚀 ~ d ~ d:`, d);
+    return chatRoom;
+  };
+  function loadMoreHistoryChat() {
+    return new Promise<void>((rs) => {
+      // tải lịch sử tin nhắn
+      if (!room || !room.canFetchMoreMessage) return;
 
-        if (!d.length || d.length < LIMIT) setCanFetchMoreMessage(false);
+      console.log(`tải lịch sử tin nhắn`);
 
-        room.messages.unshift(...d);
-
-        setRoom({ ...room });
-        // setMessages([...room.messages]);
+      const param = new URLSearchParams({
+        limit: String(LIMIT),
+        from_date_to_previous: room.messages[0].createdAt.toString(),
       });
+      console.log(
+        `🚀 ~ switchRoom ~ param:`,
+        decodeURIComponent(param as unknown as string),
+      );
+
+      fetcher
+        .get<any, IChatMessage[]>(`/chat/room/${room.room}?${param}`)
+        .then((d) => {
+          console.log(`🚀 ~ d ~ d:`, d);
+
+          if (!d.length || d.length < LIMIT) {
+            room.canFetchMoreMessage = false;
+          }
+
+          room.messages.unshift(...d);
+
+          setRoom({ ...room });
+          // setMessages([...room.messages]);
+
+          rs();
+        });
+    });
   }
+
+  function removeChatRoom(room?: string) {
+    const chat = findChatInRoom(room);
+    if (!chat) return;
+
+    // const newC = arrayMoveImmutable(chatList, chatList.indexOf(chat), 0).slice(
+    //   1,
+    // );
+
+    chat.messages = [];
+    chat.members = chat.members.filter((m) => m.user !== user?._id);
+
+    socket?.emit(chatSocketAction.C_DELETE_ROOM, chat);
+    console.log(`🚀 ~ removeChatRoom ~ chat:`, chat);
+
+    setChatList((list) => {
+      list.splice(chatList.indexOf(chat), 1);
+
+      return [...list];
+    });
+
+    switchRoom(undefined);
+  }
+
   useEffect(() => {
     const chat = findChatInRoom(room?.room);
 
     if (chat) {
       // setMessages(chat.messages);
-      setCanFetchMoreMessage(true);
-      loadMoreHistoryChat();
+      chat.canFetchMoreMessage ?? (chat.canFetchMoreMessage = true);
+      // loadMoreHistoryChat();
     } else {
       // setMessages([]);
     }
@@ -244,6 +318,8 @@ export default function ChatSocketProvider({ children }: IProps) {
   useEffect(() => {
     if (!chatListInit) return;
     setShouldFetch(false);
+
+    chatListInit.forEach((r) => (r.canFetchMoreMessage = true));
     setChatList(chatListInit);
     console.log(`🚀 ~ useEffect ~ chatListInit:`, chatListInit);
   }, [chatListInit]);
@@ -253,6 +329,14 @@ export default function ChatSocketProvider({ children }: IProps) {
     if (!socket) return;
 
     socket.on(chatSocketAction.S_SEND_MSG, receiveNewMessage);
+    socket.on(chatSocketAction.S_DELETE_ROOM, (msg: TChatList) => {
+      console.log(`🚀 ~ socket.on ~ msg:`, msg);
+
+      setChatList((list) => list.filter((r) => r.room !== msg.room));
+      if (msg.room === room?.room) {
+        switchRoom(undefined);
+      }
+    });
 
     // socket.on(
     //   chatSocketAction.S_USER_ONLINE_STATUS,
@@ -263,20 +347,20 @@ export default function ChatSocketProvider({ children }: IProps) {
 
     return () => {
       socket.off(chatSocketAction.S_SEND_MSG);
+      socket.off(chatSocketAction.S_DELETE_ROOM);
       // socket.off(chatSocketAction.S_SEND_MSG_TO_ROOM);
     };
   });
 
   const value = (() => ({
     room,
-    // messages,
     isFetchingMessage: isLoading,
-    canFetchMoreMessage,
     chatList,
     switchRoom,
-    sendMessageInRoom,
-    sendMessageToNewUser,
+    sendMessage,
     loadMoreHistoryChat,
+    removeChatRoom,
+    searchForChatRoom,
     // sendMessage,
   }))();
   return (
