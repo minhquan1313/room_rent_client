@@ -5,7 +5,7 @@ import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Badge, DescriptionsProps, Tooltip } from "antd";
+import { DescriptionsProps, Tooltip } from "antd";
 import { DescriptionsItemType } from "antd/es/descriptions";
 
 export function getDescriptionsRoom(room: IRoom): DescriptionsItemType[] {
@@ -14,18 +14,17 @@ export function getDescriptionsRoom(room: IRoom): DescriptionsItemType[] {
       key: "Địa chỉ",
       label: "Địa chỉ",
       children: room.location ? toStringLocation(room.location) : "",
-      span: 4,
-    },
-    {
-      key: "Kiểu phòng",
-      label: "Kiểu phòng",
-      children: room.room_type.display_name,
-      span: 2,
+      span: 3,
     },
     {
       key: "Diện tích sử dụng",
       label: "Diện tích sử dụng",
       children: room.usable_area + " m²",
+    },
+    {
+      key: "Kiểu phòng",
+      label: "Kiểu phòng",
+      children: room.room_type.display_name,
       span: 2,
     },
     {
@@ -61,23 +60,24 @@ export function getDescriptionsRoom(room: IRoom): DescriptionsItemType[] {
           <ExclamationCircleOutlined />
         </Tooltip>
       ),
-    },
-    {
-      key: "Trạng thái",
-      label: "Trạng thái",
-      children: room.available ? (
-        <Badge status="processing" text="Còn phòng" />
-      ) : (
-        <Badge status="warning" text="Hết phòng" />
-      ),
       span: 2,
     },
+    // {
+    //   key: "Trạng thái",
+    //   label: "Trạng thái",
+    //   children: room.available ? (
+    //     <Badge status="processing" text="Còn phòng" />
+    //   ) : (
+    //     <Badge status="warning" text="Hết phòng" />
+    //   ),
+    //   span: 2,
+    // },
     {
       key: "Tiền thuê mỗi tháng",
       label: "Tiền thuê mỗi tháng",
       children:
         numberFormat(room.price_per_month) + " " + room.price_currency_code,
-      span: 4,
+      span: 3,
     },
   ];
 

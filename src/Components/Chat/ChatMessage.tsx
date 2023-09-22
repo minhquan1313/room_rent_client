@@ -1,5 +1,7 @@
 import MyImage from "@/Components/MyImage";
+import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserContext } from "@/Contexts/UserProvider";
+import { IChatSeen } from "@/types/IChatSeen";
 import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
 import { toStringUserName } from "@/utils/toString";
@@ -12,11 +14,14 @@ interface Props {
   message: string;
   showDetailUser?: boolean;
   date: string;
+  seen: IChatSeen[];
 }
-const ChatMessage_ = ({ user, message, date, showDetailUser }: Props) => {
+const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
   const { token } = theme.useToken();
 
+  const { getUser } = useContext(InteractedUserProviderContext);
   const { user: me } = useContext(UserContext);
+
   return (
     <Card
       className={classNames("w-full max-w-md", {
@@ -67,6 +72,24 @@ const ChatMessage_ = ({ user, message, date, showDetailUser }: Props) => {
         <Tooltip title={dateFormat(date).format("LLL:ss")}>
           <div className="ml-auto">{dateFormat(date).fromNow()}</div>
         </Tooltip>
+
+        <Space>
+          {seen
+            // .filter((s) => s.seen_by !== me?._id)
+            .map((r) => (
+              <Tooltip title={getUser(r.seen_by)?.username} key={r.seen_by}>
+                <Avatar
+                  src={(() => {
+                    const u = getUser(r.seen_by);
+                    return u ? u.image : undefined;
+                  })()}
+                  size={"small"}
+                >
+                  {getUser(r.seen_by)?.first_name[0]}
+                </Avatar>
+              </Tooltip>
+            ))}
+        </Space>
       </div>
       {/* <div className="">[{date.format("LTS")}]</div> */}
     </Card>

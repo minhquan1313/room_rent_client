@@ -259,8 +259,8 @@ const RoomDetail = () => {
               title="Liên hệ"
               extra={
                 <Space>
-                  {room.owner._id !== user?._id && (
-                    <QuickChatBtn to={room.owner._id} />
+                  {user && room.owner._id !== user._id && (
+                    <QuickChatBtn to={room.owner._id} userId={user._id} />
                   )}
                   <MyButton
                     type="primary"

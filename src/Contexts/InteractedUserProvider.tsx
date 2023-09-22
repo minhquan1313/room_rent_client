@@ -42,6 +42,8 @@ export default function InteractedUserProviderProvider({ children }: IProps) {
     if (users.current[user._id]) return;
 
     users.current[user._id] = user;
+    console.log(`🚀 ~ addUser ~ user:`, user);
+
     setShouldUpdate({});
     // setUsers((users) => ({
     //   ...users,

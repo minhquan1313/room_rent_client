@@ -2,8 +2,9 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { chatSocketAction } from "@/constants/chatSocketAction";
 import { VITE_CHAT_SERVER } from "@/constants/env";
 import { fetcher } from "@/services/fetcher";
-import { IChatMessage, IChatMessagePayload } from "@/types/IChatMessage";
-import { TChatList } from "@/types/IChatRoom";
+import { IChatMessagePayload } from "@/types/IChatMessage";
+import { IChatMessageWithSeen, TChatList } from "@/types/IChatRoom";
+import { IChatSeen } from "@/types/IChatSeen";
 import { objectToPayloadParams } from "@/utils/objectToPayloadParams";
 import { arrayMoveImmutable } from "array-move";
 import {
@@ -55,8 +56,6 @@ export default function ChatSocketProvider({ children }: IProps) {
    */
   const [receiver, setReceiver] = useState<string[]>([]);
   const [room, setRoom] = useState<TChatList>();
-  // const [canFetchMoreMessage, setCanFetchMoreMessage] = useState(true);
-  // const [messages, setMessages] = useState<IChatMessage[]>([]);
 
   const [shouldFetch, setShouldFetch] = useState(true);
 
@@ -68,13 +67,6 @@ export default function ChatSocketProvider({ children }: IProps) {
     () => (shouldFetch ? `/chat/list/${user!._id}` : null),
     fetcher,
   );
-
-  // function reset() {
-  //   setSocket(undefined);
-  //   setRoom(undefined);
-  //   setMessages([]);
-  //   setChatList([]);
-  // }
 
   const sendMessage = (msg: { message: string; receiver?: string[] }) => {
     if (!room) {
@@ -111,7 +103,6 @@ export default function ChatSocketProvider({ children }: IProps) {
     const msg_: IChatMessagePayload = {
       ...msg,
       receiver,
-      // message: msg,
       room: msg.room || room.room,
       sender: user._id,
       members: room.members,
@@ -140,11 +131,36 @@ export default function ChatSocketProvider({ children }: IProps) {
 
     newMessageToRoom(msg.room, msg);
 
-    // if (room?.room !== msg.room) {
-    //   console.log(room, msg.room);
+    if (msg.room === room?.room && msg.messages[0].sender !== user._id)
+      triggerSeen(
+        msg.messages.slice(-1)[0],
+        room.members.map((e) => e.user),
+      );
+  };
 
-    //   socket?.emit(chatSocketAction.C_JOIN_ROOM, msg.room);
-    // }
+  const triggerSeen = (msg: IChatMessageWithSeen, receiver: string[]) => {
+    socket?.emit(chatSocketAction.C_SEEN_MSG, msg, receiver);
+  };
+
+  const chatDeletedByOther = (msg: TChatList) => {
+    setChatList((list) => list.filter((r) => r.room !== msg.room));
+    if (msg.room === room?.room) {
+      switchRoom(undefined);
+    }
+  };
+  const onMessageSeen = (seen: IChatSeen) => {
+    console.log(`🚀 ~ onMessageSeen ~ seen:`, seen);
+
+    const chat = findChatInRoom(seen.room);
+    if (!chat) return;
+
+    const msg = chat.messages.find((m) => m._id === seen.message_id);
+    if (!msg) return;
+
+    msg.seen = [...msg.seen, seen];
+    // msg.seen.push(seen);
+
+    setChatList([...chatList]);
   };
 
   function newMessageToRoom(room_: string, msg: TChatList) {
@@ -206,7 +222,7 @@ export default function ChatSocketProvider({ children }: IProps) {
   const searchForChatRoom = async (receivers: string[]) => {
     if (!user?._id) return [];
 
-    const receivers_ = [...receivers, user._id];
+    const receivers_ = receivers;
 
     const chatLocal = findChatByReceivers(receivers_);
     console.log(`🚀 ~ searchForChatRoom ~ chatLocal:`, chatLocal);
@@ -240,7 +256,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       );
 
       fetcher
-        .get<any, IChatMessage[]>(`/chat/room/${room.room}?${param}`)
+        .get<any, IChatMessageWithSeen[]>(`/chat/room/${room.room}?${param}`)
         .then((d) => {
           console.log(`🚀 ~ d ~ d:`, d);
 
@@ -329,28 +345,34 @@ export default function ChatSocketProvider({ children }: IProps) {
     if (!socket) return;
 
     socket.on(chatSocketAction.S_SEND_MSG, receiveNewMessage);
-    socket.on(chatSocketAction.S_DELETE_ROOM, (msg: TChatList) => {
-      console.log(`🚀 ~ socket.on ~ msg:`, msg);
 
-      setChatList((list) => list.filter((r) => r.room !== msg.room));
-      if (msg.room === room?.room) {
-        switchRoom(undefined);
-      }
-    });
+    socket.on(chatSocketAction.S_DELETE_ROOM, chatDeletedByOther);
 
-    // socket.on(
-    //   chatSocketAction.S_USER_ONLINE_STATUS,
-    //   (userId: string, online: boolean) => {
-    //     // setMessages([...messages, msg]);
-    //   },
-    // );
+    socket.on(chatSocketAction.S_SEEN_MSG, onMessageSeen);
 
     return () => {
       socket.off(chatSocketAction.S_SEND_MSG);
       socket.off(chatSocketAction.S_DELETE_ROOM);
-      // socket.off(chatSocketAction.S_SEND_MSG_TO_ROOM);
+      socket.off(chatSocketAction.S_SEEN_MSG);
     };
   });
+
+  useEffect(() => {
+    if (!room?.room) return;
+    const lastMessage = room.messages.slice(-1)[0];
+
+    const isUserSeen = lastMessage.seen.find((u) => u.seen_by === user?._id);
+    if (isUserSeen) {
+      return;
+    } else {
+      // #BUG: Nếu có nhiều máy đăng nhập, thì sẽ gửi nhiều lần cái này làm tạo nhiều lần trên db
+      triggerSeen(
+        lastMessage,
+        room.members.map((e) => e.user),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [room?.room]);
 
   const value = (() => ({
     room,

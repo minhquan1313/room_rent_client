@@ -16,11 +16,8 @@ preloadImage(img_fail_light);
 function MyImage({ src, addServer, ...rest }: Props) {
   const { myTheme } = useContext(ThemeContext);
   const { token } = theme.useToken();
-  // console.log(`🚀 ~ MyImage ~ token:`, token);
-  // console.log(addServer && src ? VITE_SERVER + src : src);
 
   return (
-    // <img {...rest} src={addServer ? VITE_SERVER + src : src} />
     <Image
       {...rest}
       src={addServer && src && src.startsWith("/") ? VITE_SERVER + src : src}

@@ -33,14 +33,13 @@ function Chat() {
     sendMessage,
     loadMoreHistoryChat,
     removeChatRoom,
+    searchForChatRoom,
   } = useContext(ChatSocketContext);
 
   const { user } = useContext(UserContext);
-  const { getUser, preloadUser, hasUsers } = useContext(
-    InteractedUserProviderContext,
-  );
+  const { getUser } = useContext(InteractedUserProviderContext);
 
-  const [query, setQuery] = useSearchParams();
+  const [query] = useSearchParams();
 
   const { data: allUserDb } = useSWR<IUser[]>(
     isProduction ? null : `/users`,
@@ -50,10 +49,7 @@ function Chat() {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
-  // const [receiverInp, setReceiverInp] = useState<string>("");
-  // const [message, setMessage] = useState<string>("");
-  // const [roomInp, setRoomInp] = useState<string>("");
-  const ref = useRef<InputRef>(null);
+  const inputRef = useRef<InputRef>(null);
 
   const chatLoaded = useRef(true);
   const chatLoadedByScroll = useRef(false);
@@ -62,20 +58,6 @@ function Chat() {
   const firstMsgBeforeLoaded = useRef<Element | null | undefined>(null);
 
   const [form] = Form.useForm();
-  // const [userFetchedAll, setUserFetchedAll] = useState(false);
-
-  // const membersIds = useMemo(() => {
-  //   const peopleId: Set<string> = new Set<string>();
-
-  //   chatList.forEach((e) => {
-  //     e.members.forEach((r) => {
-  //       peopleId.add(r.user);
-  //     });
-  //   });
-
-  //   const arr = Array.from(peopleId);
-  //   return arr;
-  // }, [chatList]);
 
   const onChangeRoom = useCallback(
     function (room_: string): void {
@@ -84,9 +66,6 @@ function Chat() {
       } else {
         navigate(`${routeChat}/${room_}`);
       }
-      // if (room?.room === room_) {
-      //   switchRoom(undefined);
-      // } else switchRoom(room_);
     },
     [navigate, room?.room],
   );
@@ -97,33 +76,6 @@ function Chat() {
       document.querySelector("#root")?.classList.remove("max-h-full");
     };
   }, []);
-
-  // useEffect(() => {
-  //   /**
-  //    * preload tất cả user
-  //    */
-  //   if (isFetchingMessage) return;
-  //   console.log(`🚀 ~ useEffect ~ isFetchingMessage:`, isFetchingMessage);
-
-  //   setUserFetchedAll(false);
-
-  //   const peopleId: Set<string> = new Set<string>();
-
-  //   chatList.forEach((e) => {
-  //     e.members.forEach((r) => {
-  //       peopleId.add(r.user);
-  //     });
-  //   });
-
-  //   const arr = Array.from(peopleId);
-
-  //   preloadUser(arr).then(() => {
-  //     setUserFetchedAll(true);
-
-  //     // arr.forEach((e) => console.log(getUser(e)));
-  //   });
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [chatList.length]);
 
   useEffect(() => {
     if (!messageBoxRef.current) return;
@@ -182,23 +134,36 @@ function Chat() {
     if (roomId !== room?.room) {
       switchRoom(roomId) || navigate(`${routeChat}`);
     }
-  }, [room?.room, roomId, switchRoom]);
-
-  // useEffect(() => {
-  //   if (!chatList.length) return;
-
-  //   setUserFetchedAll(false);
-  // }, [chatList.length]);
+  }, [navigate, query, room?.room, roomId, switchRoom]);
 
   useEffect(() => {
-    ref.current?.focus();
+    (async () => {
+      const to = query
+        .get("to")
+        ?.split(",")
+        .filter((id) => id !== user?._id);
+
+      if (!to || !to.length || !user) return;
+      console.log(`🚀 ~ to:`, to);
+
+      const chatRoom = await searchForChatRoom([...to, user._id]);
+      console.log(`🚀 ~ chatRoom:`, chatRoom);
+
+      if (chatRoom.length) {
+        switchRoom(chatRoom[0].room);
+      }
+    })();
+  }, [query, searchForChatRoom, switchRoom, user]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
   }, [room?.messages.length]);
 
   return (
     <div className="h-full">
       {!isFetchingMessage ? (
         <Row className="h-full">
-          <Col className="h-full w-72 overflow-y-auto overflow-x-hidden">
+          <Col className="h-full w-full max-w-[12rem] overflow-y-auto overflow-x-hidden md:max-w-xs ">
             {/* ChatHeads */}
             {!isProduction && (
               <div>
@@ -213,11 +178,12 @@ function Chat() {
                     loadMoreHistoryChat();
                   }}
                   disabled={!room?.canFetchMoreMessage}
+                  block
                 >
-                  Tải thêm
+                  [DEV] Tải thêm
                 </MyButton>
                 <Select
-                  placeholder="Tìm user"
+                  placeholder="[DEV] Tìm user"
                   options={allUserDb?.map((d) => ({
                     value: d._id,
                     label: d.username,
@@ -226,7 +192,12 @@ function Chat() {
                   mode="multiple"
                   className="w-full"
                   onChange={(e) => {
-                    if (!e.length) return;
+                    if (!e.length) {
+                      if (query.get("to")) {
+                        navigate(`${routeChat}`);
+                      }
+                      return;
+                    }
                     switchRoom(undefined);
 
                     navigate(
@@ -257,7 +228,7 @@ function Chat() {
                 key={c.room}
                 room={c.room}
                 type={room?.room === c.room ? "primary" : "default"}
-                lastMsg={c.messages.slice(-1)[0].message}
+                lastMsg={c.messages.slice(-1)[0]}
                 members={c.members}
               />
             ))}
@@ -275,7 +246,7 @@ function Chat() {
             <Form
               onFinish={(e) => {
                 form.resetFields();
-                ref.current?.focus();
+                inputRef.current?.focus();
 
                 const to = query.get("to");
                 if (to) {
@@ -292,6 +263,7 @@ function Chat() {
               className="flex h-full flex-col"
               form={form}
             >
+              <div className="">header</div>
               {/* Chat messages */}
               <div
                 onScroll={(e) => {
@@ -322,22 +294,25 @@ function Chat() {
               >
                 {query.get("to") && (
                   <Typography.Title
-                    className="flex h-full items-center justify-center text-center"
+                    className="!m-0 flex h-full items-center justify-center text-center"
                     level={3}
                   >
                     Bắt đầu cuộc trò chuyện mới với{" "}
                     {toStringUserName(getUser(query.get("to")))}
                   </Typography.Title>
                 )}
-                {room?.messages.map(({ sender, message, createdAt, _id }) => (
-                  <ChatMessage
-                    showDetailUser={room.members.length >= 3}
-                    user={getUser(sender)}
-                    message={message}
-                    date={String(createdAt)}
-                    key={_id}
-                  />
-                ))}
+                {room?.messages.map(
+                  ({ sender, message, createdAt, _id, seen }) => (
+                    <ChatMessage
+                      showDetailUser={room.members.length >= 3}
+                      user={getUser(sender)}
+                      message={message}
+                      date={String(createdAt)}
+                      seen={seen}
+                      key={_id}
+                    />
+                  ),
+                )}
               </div>
 
               <Divider type="horizontal" className="m-0 w-full" />
@@ -361,7 +336,7 @@ function Chat() {
                         }
                       }}
                       placeholder="Tin nhan"
-                      ref={ref}
+                      ref={inputRef}
                       // bordered={false}
                       translate="yes"
                       autoSize
@@ -371,13 +346,14 @@ function Chat() {
                   </Form.Item>
                 </Col>
 
-                <Col className="w-20">
+                <Col className="">
                   <MyButton
                     icon={<SendOutlined />}
                     htmlType="submit"
                     block
                     size="large"
                     type="primary"
+                    className="w-full"
                   ></MyButton>
                 </Col>
               </Row>
