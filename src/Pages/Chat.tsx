@@ -96,23 +96,7 @@ function Chat() {
   });
 
   useEffect(() => {
-    if (chatLoaded.current) {
-      if (!chatLoadedByScroll.current) {
-        // console.log(`messageBoxRef.current?.lastElementChild?.scrollIntoView`);
-
-        messageBoxRef.current?.lastElementChild?.scrollIntoView();
-      } else {
-        if (messageBoxRef.current?.scrollTop === 0) {
-          firstMsgBeforeLoaded.current?.scrollIntoView();
-        }
-
-        chatLoadedByScroll.current = false;
-      }
-    }
-  }, [room?.messages.length]);
-
-  useEffect(() => {
-    if (roomId === room?.room) return;
+    if (roomId === room?.room || isFetchingMessage) return;
     console.log(`calling switchRoom effect`);
     console.log(`🚀 ~ useEffect ~ oom?.ro:`, room?.room, roomId);
 
@@ -132,7 +116,11 @@ function Chat() {
 
     console.log(`roomId !== room?.room`);
     if (roomId !== room?.room) {
-      switchRoom(roomId) || navigate(`${routeChat}`);
+      if (!switchRoom(roomId)) {
+        console.log(`calling navigate(${routeChat});`);
+
+        navigate(`${routeChat}`);
+      }
     }
   }, [navigate, query, room?.room, roomId, switchRoom]);
 
@@ -158,6 +146,25 @@ function Chat() {
   useEffect(() => {
     inputRef.current?.focus();
   }, [room?.messages.length]);
+
+  useEffect(
+    () => {
+      if (chatLoaded.current) {
+        if (!chatLoadedByScroll.current) {
+          // console.log(`messageBoxRef.current?.lastElementChild?.scrollIntoView`);
+
+          messageBoxRef.current?.lastElementChild?.scrollIntoView();
+        } else {
+          if (messageBoxRef.current?.scrollTop === 0) {
+            firstMsgBeforeLoaded.current?.scrollIntoView();
+          }
+
+          chatLoadedByScroll.current = false;
+        }
+      }
+    },
+    // , [room?.messages.length]
+  );
 
   return (
     <div className="h-full">

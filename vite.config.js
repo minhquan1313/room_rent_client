@@ -24,7 +24,7 @@ export default defineConfig({
   // },
   plugins: [
     //
-    // mkcert(),
+    mkcert(),
     react(),
     svgr(),
   ],

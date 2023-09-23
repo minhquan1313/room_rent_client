@@ -25,8 +25,6 @@ interface IProps {
   children: ReactNode;
 }
 
-const isRemember = false;
-
 export const UserContext = createContext<IUserContext>(null as never);
 
 export default function UserProvider({ children }: IProps) {
@@ -113,20 +111,27 @@ export default function UserProvider({ children }: IProps) {
 
   // refresh token on app start
   useEffect(() => {
-    user && user.token && loginTokenBackground(user.token, isRemember);
+    if (user) {
+      user.token && loginTokenBackground(user.token, true);
+    } else {
+      const token = localStorage.getItem("token");
+      if (token) {
+        loginTokenBackground(token, true);
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // refresh token background
-  useEffect(() => {
-    function autoLogin() {
-      user && user.token && loginTokenBackground(user.token, isRemember);
-    }
+  // useEffect(() => {
+  //   function autoLogin() {
+  //     user && user.token && loginTokenBackground(user.token, isRemember);
+  //   }
 
-    // const itv = setInterval(autoLogin, 60000);
+  //   // const itv = setInterval(autoLogin, 60000);
 
-    // return () => clearInterval(itv);
-  }, [loginTokenBackground, user]);
+  //   // return () => clearInterval(itv);
+  // }, [loginTokenBackground, user]);
 
   useEffect(() => {
     const myInterceptor = fetcher.interceptors.response.use(

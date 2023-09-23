@@ -63,7 +63,7 @@ export default function ChatSocketProvider({ children }: IProps) {
    * Load tất cả các cuộc trò chuyện hiện có của user này :>
    * Là load tất cả 1 lần luôn
    */
-  const { data: chatListInit, isLoading } = useSWR<TChatList[]>(
+  const { data: chatListInit } = useSWR<TChatList[]>(
     () => (shouldFetch ? `/chat/list/${user!._id}` : null),
     fetcher,
   );
@@ -337,6 +337,7 @@ export default function ChatSocketProvider({ children }: IProps) {
 
     chatListInit.forEach((r) => (r.canFetchMoreMessage = true));
     setChatList(chatListInit);
+
     console.log(`🚀 ~ useEffect ~ chatListInit:`, chatListInit);
   }, [chatListInit]);
 
@@ -377,7 +378,7 @@ export default function ChatSocketProvider({ children }: IProps) {
 
   const value = (() => ({
     room,
-    isFetchingMessage: isLoading,
+    isFetchingMessage: shouldFetch,
     chatList,
     switchRoom,
     sendMessage,

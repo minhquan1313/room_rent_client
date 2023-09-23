@@ -3,6 +3,7 @@ import ChatSocketProvider from "@/Contexts/ChatSocketProvider";
 import GlobalDataProvider from "@/Contexts/GlobalDataProvider";
 import GoogleMapProvider from "@/Contexts/GoogleMapProvider";
 import InteractedUserProvider from "@/Contexts/InteractedUserProvider";
+import NotificationProvider from "@/Contexts/NotificationProvider";
 import RoomProvider from "@/Contexts/RoomProvider";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserLocationProvider from "@/Contexts/UserLocationProvider";
@@ -23,15 +24,17 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <GlobalDataProvider>
           <RoomProvider>
             <UserProvider>
-              <UserLocationProvider>
-                <GoogleMapProvider>
+              <GoogleMapProvider>
+                <UserLocationProvider>
                   <ChatSocketProvider>
                     <InteractedUserProvider>
-                      <App />
+                      <NotificationProvider>
+                        <App />
+                      </NotificationProvider>
                     </InteractedUserProvider>
                   </ChatSocketProvider>
-                </GoogleMapProvider>
-              </UserLocationProvider>
+                </UserLocationProvider>
+              </GoogleMapProvider>
             </UserProvider>
           </RoomProvider>
         </GlobalDataProvider>
