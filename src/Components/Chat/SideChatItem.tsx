@@ -72,7 +72,7 @@ const SideChatItem_ = ({
               {members.length <= 2 ? (
                 <>
                   {/* {toStringUserName(user)} */}
-                  {toStringUserName(user)} / {user?._id} / {user?.username}
+                  {user?.username} / {user?._id} / {toStringUserName(user)}
                 </>
               ) : (
                 <>Nhóm chat {members.length} người</>

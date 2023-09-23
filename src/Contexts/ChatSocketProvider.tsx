@@ -366,6 +366,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       return;
     } else {
       // #BUG: Nếu có nhiều máy đăng nhập, thì sẽ gửi nhiều lần cái này làm tạo nhiều lần trên db
+      // #BUG: Nếu có nhiều máy đăng nhập, thì khi gửi tin nhắn ở máy A, máy B sẽ không hiện tin nhắn
       triggerSeen(
         lastMessage,
         room.members.map((e) => e.user),
