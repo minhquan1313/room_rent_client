@@ -1,12 +1,18 @@
 import MyImage from "@/Components/MyImage";
+import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
+import { isRoleAdmin } from "@/constants/roleType";
+import { routeRoomDetail, routeRoomEdit } from "@/constants/route";
 import { IRoom } from "@/types/IRoom";
+import { calculateDistance } from "@/utils/calculateDistance";
 import { dateFormat } from "@/utils/dateFormat";
 import { numberFormat } from "@/utils/numberFormat";
 import { toStringLocation } from "@/utils/toString";
 import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
-import { Badge, Card, Tooltip, Typography } from "antd";
-import { ReactNode, useContext } from "react";
+import { List, Tooltip, Typography } from "antd";
+import convert from "convert";
+import { ReactNode, memo, useContext } from "react";
+import { Link } from "react-router-dom";
 
 interface RoomCardProps {
   room: IRoom;
@@ -14,42 +20,107 @@ interface RoomCardProps {
   actions?: ReactNode[];
   onSave?(saved: boolean): void;
 }
-export const RoomListItem = ({
-  room: { images, name, location, createdAt, owner, price_per_month },
-  saved,
-  onSave,
-}: RoomCardProps) => {
+
+function RoomListItem_({ room, saved, onSave }: RoomCardProps) {
+  const { _id, images, name, location, createdAt, owner, price_per_month } =
+    room;
+
   const { user } = useContext(UserContext);
+  const { coords } = useContext(UserLocationContext);
+
   const SavedComponent = saved ? HeartFilled : HeartOutlined;
 
   const actions: ReactNode[] = [
-    <SavedComponent key="save" onClick={() => onSave && onSave(!!saved)} />,
+    <a
+      onClick={(e) => {
+        e.preventDefault();
+        console.log(room._id);
+
+        onSave && onSave(!!saved);
+      }}
+      // icon={<SavedComponent />}
+      key="save"
+      type="text"
+      className="hover:!bg-transparent"
+    >
+      <SavedComponent />
+    </a>,
   ];
-  user?._id === owner._id &&
+
+  (user?._id === owner._id || isRoleAdmin(user?.role.title)) &&
     actions.push(
       ...[
         //
         <Tooltip title="Sửa thông tin">
-          <EditOutlined key="edit" />
+          <Link
+            to={`${routeRoomEdit}/${_id}`}
+            state={{
+              room,
+            }}
+          >
+            <EditOutlined key="edit" />
+          </Link>
         </Tooltip>,
       ],
     );
 
   return (
-    <Badge.Ribbon
-      text={numberFormat(String(price_per_month), true)}
-      color={(() => {
-        if (price_per_month >= 3000000) return "red";
-        if (price_per_month >= 2000000) return "gold";
-        if (price_per_month >= 1000000) return "pink";
-        if (price_per_month >= 500000) return "lime";
+    <List.Item actions={actions}>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Link
+          state={{
+            room,
+          }}
+          to={`${routeRoomDetail}/${_id}`}
+          className="block flex-1"
+        >
+          <div className="flex justify-between">
+            <Typography.Paragraph>
+              {location?.province ?? " "}
+            </Typography.Paragraph>
+          </div>
 
-        return "blue";
-        // return "blue";
-      })()}
-    >
-      <Card
-        cover={
+          <Typography.Title level={5} className="leading-6">
+            {name}
+          </Typography.Title>
+
+          <Typography.Paragraph className="!mt-auto leading-6">
+            {location ? toStringLocation(location, false) : "..."}
+          </Typography.Paragraph>
+
+          {coords && location && (
+            <Typography.Paragraph className="text-right">
+              {(() => {
+                const v = convert(
+                  calculateDistance(coords, {
+                    lat: location.lat_long.coordinates[1],
+                    lng: location.lat_long.coordinates[0],
+                  }),
+                  "m",
+                ).to("best");
+
+                return `${v.quantity.toFixed(0)} ${v.unit}`;
+              })()}
+            </Typography.Paragraph>
+          )}
+
+          <Typography.Paragraph>
+            {numberFormat(price_per_month)} / tháng
+          </Typography.Paragraph>
+
+          <Typography.Paragraph>
+            {dateFormat(createdAt).fromNow()} -{" "}
+            {dateFormat(createdAt).format("LLL")}
+          </Typography.Paragraph>
+        </Link>
+
+        <Link
+          to={`${routeRoomDetail}/${_id}`}
+          state={{
+            room,
+          }}
+          className="block w-full sm:w-80"
+        >
           <MyImage
             src={images[0]?.image}
             addServer
@@ -57,36 +128,11 @@ export const RoomListItem = ({
             className="aspect-video object-cover"
             preview={false}
           />
-        }
-        // className="transition hover:shadow-lg"
-        actions={actions}
-        size="small"
-      >
-        <div className="flex justify-between">
-          <Typography.Paragraph ellipsis={{ rows: 1 }}>
-            {location?.province ?? " "}
-          </Typography.Paragraph>
-
-          <Typography.Text className="whitespace-nowrap">
-            {dateFormat(createdAt).fromNow()}
-          </Typography.Text>
-        </div>
-
-        <Typography.Title
-          level={5}
-          ellipsis={{ rows: 2 }}
-          className="h-12 leading-6"
-        >
-          {name}
-        </Typography.Title>
-
-        <Typography.Paragraph
-          ellipsis={{ rows: 2 }}
-          className="!mb-0 !mt-auto h-12 leading-6"
-        >
-          {location ? toStringLocation(location, false) : "..."}
-        </Typography.Paragraph>
-      </Card>
-    </Badge.Ribbon>
+        </Link>
+      </div>
+    </List.Item>
   );
-};
+}
+
+const RoomListItem = memo(RoomListItem_);
+export default RoomListItem;

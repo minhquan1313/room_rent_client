@@ -1,9 +1,8 @@
-import MyButton from "@/Components/MyButton";
+import { ChatBtn } from "@/Components/ChatBtn";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeChat } from "@/constants/route";
-import { MessageFilled, MessageOutlined } from "@ant-design/icons";
 import { Badge } from "antd";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
@@ -26,11 +25,7 @@ const ChatHeader = () => {
   return (
     <Link to={routeChat}>
       <Badge count={count}>
-        <MyButton
-          icon={myTheme === "dark" ? <MessageFilled /> : <MessageOutlined />}
-          shape="circle"
-          size="large"
-        />
+        <ChatBtn size="large" />
       </Badge>
     </Link>
   );

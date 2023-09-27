@@ -1,6 +1,6 @@
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
-import { routeRoomAdd } from "@/constants/route";
+import { routeRoomAdd, routeUserDetail } from "@/constants/route";
 import { preloadImage } from "@/utils/preloadImage";
 import { toStringUserName } from "@/utils/toString";
 import { LogoutOutlined } from "@ant-design/icons";
@@ -46,7 +46,7 @@ const UserHeader = () => {
     preloadImage(user.image).then(() => setIsImagePreloaded(true));
   }, [user?.image]);
 
-  if (!user) return <></>;
+  if (!user) return null;
 
   return (
     <Spin spinning={isUploading || !isImagePreloaded}>
@@ -56,13 +56,18 @@ const UserHeader = () => {
             {
               key: "/info",
               label: (
-                <Link to="/info">
+                <Link
+                  to={`${routeUserDetail}/${user._id}`}
+                  state={{
+                    user,
+                  }}
+                >
                   <Space>
                     {toStringUserName(user)}
 
                     {isRoleOwner(user.role.title) && (
                       <Badge
-                        title={user.role.display_name ?? ""}
+                        // title={user.role.display_name ?? ""}
                         color="cyan"
                         count={user.role.display_name}
                       />

@@ -1,28 +1,30 @@
-import MyButton from "@/Components/MyButton";
+import { ChatBtn } from "@/Components/ChatBtn";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { routeChat } from "@/constants/route";
+import { ButtonProps } from "antd";
 import { memo, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-interface Props {
-  to: string;
-  userId: string;
+interface Props extends ButtonProps {
+  toUserId: string;
+  fromUserId: string;
 }
-const QuickChatBtn_ = ({ userId, to }: Props) => {
+const QuickChatBtn_ = ({ fromUserId, toUserId, ...rest }: Props) => {
   const navigate = useNavigate();
 
   const { searchForChatRoom } = useContext(ChatSocketContext);
   const [clicked, setClicked] = useState(false);
 
   return (
-    <MyButton
+    <ChatBtn
+      {...rest}
       onClick={async () => {
         setClicked(true);
         /**
          * Search cuộc trò chuyện có sẵn trong db
          */
         try {
-          const chatRoom = await searchForChatRoom([to, userId]);
+          const chatRoom = await searchForChatRoom([toUserId, fromUserId]);
           console.log(`🚀 ~ onClick={ ~ chatRoom:`, chatRoom);
 
           if (chatRoom.length) {
@@ -31,17 +33,16 @@ const QuickChatBtn_ = ({ userId, to }: Props) => {
             navigate(`${routeChat}/${chatRoom[0].room}`);
           } else {
             // Chat mới
-            navigate(`${routeChat}?to=${to}`);
+            navigate(`${routeChat}?to=${toUserId}`);
           }
         } catch (error) {
           /* empty */
         }
         setClicked(false);
       }}
+      type="primary"
       loading={clicked}
-    >
-      Chat ngay
-    </MyButton>
+    />
   );
 };
 

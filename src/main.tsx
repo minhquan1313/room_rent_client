@@ -4,7 +4,6 @@ import GlobalDataProvider from "@/Contexts/GlobalDataProvider";
 import GoogleMapProvider from "@/Contexts/GoogleMapProvider";
 import InteractedUserProvider from "@/Contexts/InteractedUserProvider";
 import NotificationProvider from "@/Contexts/NotificationProvider";
-import RoomProvider from "@/Contexts/RoomProvider";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserLocationProvider from "@/Contexts/UserLocationProvider";
 import UserProvider from "@/Contexts/UserProvider";
@@ -22,21 +21,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <ThemeProvider>
         <GlobalDataProvider>
-          <RoomProvider>
-            <UserProvider>
-              <GoogleMapProvider>
-                <UserLocationProvider>
-                  <ChatSocketProvider>
-                    <InteractedUserProvider>
-                      <NotificationProvider>
-                        <App />
-                      </NotificationProvider>
-                    </InteractedUserProvider>
-                  </ChatSocketProvider>
-                </UserLocationProvider>
-              </GoogleMapProvider>
-            </UserProvider>
-          </RoomProvider>
+          <UserProvider>
+            <GoogleMapProvider>
+              <UserLocationProvider>
+                <ChatSocketProvider>
+                  <InteractedUserProvider>
+                    <NotificationProvider>
+                      <App />
+                    </NotificationProvider>
+                  </InteractedUserProvider>
+                </ChatSocketProvider>
+              </UserLocationProvider>
+            </GoogleMapProvider>
+          </UserProvider>
         </GlobalDataProvider>
       </ThemeProvider>
     </BrowserRouter>

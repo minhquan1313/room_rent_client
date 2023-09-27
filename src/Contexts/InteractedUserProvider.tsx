@@ -39,16 +39,13 @@ export default function InteractedUserProviderProvider({ children }: IProps) {
   };
 
   function addUser(user: IUser) {
-    if (users.current[user._id]) return;
-
+    // if (users.current[user._id]) {
+    //   users.current[user._id] = user;
+    //   return;
+    // } else {
     users.current[user._id] = user;
-    // console.log(`🚀 ~ addUser ~ user:`, user);
-
     setShouldUpdate({});
-    // setUsers((users) => ({
-    //   ...users,
-    //   [user._id]: user,
-    // }));
+    // }
   }
 
   function preloadUser(id: string | string[]) {

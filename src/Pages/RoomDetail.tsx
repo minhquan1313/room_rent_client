@@ -4,11 +4,10 @@ import MyImage from "@/Components/MyImage";
 import { QuickChatBtn } from "@/Components/QuickChatBtn";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
-import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleAdmin } from "@/constants/roleType";
-import { routeRoomEdit } from "@/constants/route";
+import { routeRoomEdit, routeUserDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
 import { dateFormat } from "@/utils/dateFormat";
@@ -30,15 +29,23 @@ import {
 } from "antd";
 import Meta from "antd/es/card/Meta";
 import { Coords } from "google-map-react";
-import { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const imageGutter: [number, number] = [8, 8];
 
 const RoomDetail = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { addUser } = useContext(InteractedUserProviderContext);
-  const { currentRoom, setCurrentRoom } = useContext(RoomContext);
   const { loadMapTo, addMarker, addUserMarker } = useContext(GoogleMapContext);
   const { user } = useContext(UserContext);
   const { locationDenied, coords } = useContext(UserLocationContext);
@@ -49,7 +56,7 @@ const RoomDetail = () => {
     // currentRoom ? undefined : `/rooms/${id}`,
     fetcher,
   );
-  const room = room_ || currentRoom;
+  const room = room_ || (location.state.room as IRoom | undefined);
   pageTitle(room?.name || "Đang tải");
 
   const mapRef = useRef<HTMLDivElement>(null);
@@ -74,6 +81,18 @@ const RoomDetail = () => {
   // console.log(`🚀 ~ useEffect ~ id:`, id);
   // console.log(`🚀 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`);
   // });
+  useLayoutEffect(() => {
+    /**
+     * Kiểm tra nhà có disable không
+     */
+    if (!room) return;
+    console.log(`🚀 ~ useLayoutEffect ~ room:`, room);
+
+    // if (room.disabled || !room.is_visible || !room.verified) {
+
+    //   navigate(`/`);
+    // }
+  }, [room]);
 
   useEffect(() => {
     if (!mapRef.current || loaded.current) return;
@@ -141,18 +160,18 @@ const RoomDetail = () => {
     })();
   }, [addMarker, map, room]);
 
-  useEffect(() => {
-    if (!currentRoom || currentRoom._id === id) return;
+  // useEffect(() => {
+  //   if (!currentRoom || currentRoom._id === id) return;
 
-    setCurrentRoom(undefined);
-  }, [currentRoom, id, setCurrentRoom]);
+  //   setCurrentRoom(undefined);
+  // }, [currentRoom, id, setCurrentRoom]);
 
   useEffect(() => {
     if (!room_) return;
 
-    setCurrentRoom(room_);
+    // setCurrentRoom(room_);
     addUser(room_.owner);
-  }, [room_, setCurrentRoom]);
+  }, [room_]);
 
   // const items: DescriptionsProps["items"] = getDescriptionsRoom(room);
 
@@ -260,7 +279,10 @@ const RoomDetail = () => {
               extra={
                 <Space>
                   {user && room.owner._id !== user._id && (
-                    <QuickChatBtn to={room.owner._id} userId={user._id} />
+                    <QuickChatBtn
+                      toUserId={room.owner._id}
+                      fromUserId={user._id}
+                    />
                   )}
                   <MyButton
                     type="primary"
@@ -273,24 +295,38 @@ const RoomDetail = () => {
             >
               <Meta
                 avatar={
-                  <Avatar src={room.owner.image}>
-                    {room.owner.first_name[0]}
-                  </Avatar>
+                  <Link
+                    to={`${routeUserDetail}/${room.owner._id}`}
+                    state={{
+                      user: room.owner,
+                    }}
+                  >
+                    <Avatar src={room.owner.image}>
+                      {room.owner.first_name[0]}
+                    </Avatar>
+                  </Link>
                 }
                 title={
-                  <Space>
-                    {toStringUserName(room.owner)}
+                  <Link
+                    to={`${routeUserDetail}/${room.owner._id}`}
+                    state={{
+                      user: room.owner,
+                    }}
+                  >
+                    <Space>
+                      {toStringUserName(room.owner)}
 
-                    {isRoleAdmin(room.owner.role.title) ? (
-                      <Badge
-                        title={room.owner.role.display_name ?? ""}
-                        color="gold"
-                        count={room.owner.role.display_name}
-                      />
-                    ) : (
-                      ""
-                    )}
-                  </Space>
+                      {isRoleAdmin(room.owner.role.title) ? (
+                        <Badge
+                          title={room.owner.role.display_name ?? ""}
+                          color="gold"
+                          count={room.owner.role.display_name}
+                        />
+                      ) : (
+                        ""
+                      )}
+                    </Space>
+                  </Link>
                 }
                 description={
                   <Typography.Text copyable>

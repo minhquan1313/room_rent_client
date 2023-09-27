@@ -28,9 +28,9 @@ export interface IRoom {
   number_of_bathroom: number | null;
   number_of_floor: number;
 
-  available: boolean;
+  is_visible: boolean;
   disabled: boolean;
-  admin_checked: boolean;
+  verified_real: boolean;
   verified: boolean;
 
   updatedAt: Date;
@@ -64,8 +64,6 @@ export type RoomPayload = {
   number_of_bedroom?: number;
   number_of_bathroom?: number;
   number_of_floor?: number;
-
-  available?: boolean;
 };
 
 export interface RoomLocationPayload

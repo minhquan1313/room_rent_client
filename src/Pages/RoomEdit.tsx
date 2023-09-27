@@ -3,7 +3,6 @@ import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import RoomFormAddEdit from "@/Components/RoomFormAddEdit";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
-import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeRoomDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
@@ -14,14 +13,13 @@ import { formatObject } from "@/utils/objectToPayloadParams";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Form, Space, Typography, message } from "antd";
 import { useContext, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const RoomEdit = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const { currentRoom, setCurrentRoom } = useContext(RoomContext);
-  // const { loadMapTo, addMarker } = useContext(GoogleMapContext);
   const { isLogging } = useContext(UserContext);
   const [messageApi, contextHolder] = message.useMessage();
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
@@ -29,15 +27,11 @@ const RoomEdit = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<ErrorJsonResponse>();
   const files = useRef<FilesUploadRef>(null);
-  const location = useRef<RoomLocationPayload>(null);
+  const locationRef = useRef<RoomLocationPayload>(null);
 
   const { id } = useParams();
-  const { data: room_ } = useSWR<IRoom>(
-    `/rooms/${id}`,
-    // currentRoom ? undefined : `/rooms/${id}`,
-    fetcher,
-  );
-  const room = room_ || currentRoom;
+  const { data: room_ } = useSWR<IRoom>(`/rooms/${id}`, fetcher);
+  const room = room_ || (location.state?.room as IRoom | undefined);
 
   pageTitle(room?.name ? `Sửa - ${room.name}` : "Đang tải");
 
@@ -70,15 +64,15 @@ const RoomEdit = () => {
               console.log(`🚀 ~ onFinish={ ~ values:`, values);
 
               console.log(`🚀 ~ RoomEdit ~ files.current:`, files.current);
-              console.log(`🚀 ~ onFinish ~ location:`, location.current);
-              if (!location.current) {
+              console.log(`🚀 ~ onFinish ~ location:`, locationRef.current);
+              if (!locationRef.current) {
                 messageApi.open({
                   type: "error",
                   content: "Điền thông tin về vị trí",
                 });
               } else if (
-                location.current.lat === 0 ||
-                location.current.long === 0
+                locationRef.current.lat === 0 ||
+                locationRef.current.long === 0
               ) {
                 messageApi.open({
                   type: "error",
@@ -86,20 +80,20 @@ const RoomEdit = () => {
                 });
 
                 return;
-              } else if (location.current.country === "") {
+              } else if (locationRef.current.country === "") {
                 messageApi.open({
                   type: "error",
                   content: "Thiếu thông tin về quốc gia",
                 });
 
                 return;
-              } else if (location.current.province === "") {
+              } else if (locationRef.current.province === "") {
                 messageApi.open({
                   type: "error",
                   content: "Thiếu thông tin về tỉnh thành",
                 });
                 return;
-              } else if (location.current.detail_location === "") {
+              } else if (locationRef.current.detail_location === "") {
                 messageApi.open({
                   type: "warning",
                   content:
@@ -107,7 +101,7 @@ const RoomEdit = () => {
                 });
               }
 
-              values.location = location.current!;
+              values.location = locationRef.current!;
               if (values.owner === "") {
                 delete values.owner;
               }
@@ -134,8 +128,12 @@ const RoomEdit = () => {
               setError(undefined);
               try {
                 await fetcher.patchForm(`/rooms/${room._id}`, payload);
-                setCurrentRoom(undefined);
-                navigate(`${routeRoomDetail}/${room._id}`);
+
+                navigate(`${routeRoomDetail}/${room._id}`, {
+                  state: {
+                    room,
+                  },
+                });
 
                 messageApi.open({
                   type: "success",
@@ -147,7 +145,7 @@ const RoomEdit = () => {
               setSubmitting(false);
             }}
           >
-            <RoomFormAddEdit files={files} location={location} room={room} />
+            <RoomFormAddEdit files={files} location={locationRef} room={room} />
             {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
             <Form.Item noStyle={!error}>
               <Space.Compact block>

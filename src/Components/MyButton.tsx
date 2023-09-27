@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 interface IProps extends ButtonProps {
   to?: string;
-  loading?: boolean;
   display?: "inline";
 }
 function MyButton({ to, type = "default", children, ...rest }: IProps) {

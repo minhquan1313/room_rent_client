@@ -24,6 +24,7 @@ import { useCallback, useContext, useEffect, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 
+const MIN_SCROLL_TOP = 500;
 function Chat() {
   const {
     chatList,
@@ -53,6 +54,7 @@ function Chat() {
 
   const chatLoaded = useRef(true);
   const chatLoadedByScroll = useRef(false);
+  const forceLoadChatByCode = useRef(false);
 
   const messageBoxRef = useRef<HTMLDivElement>(null);
   const firstMsgBeforeLoaded = useRef<Element | null | undefined>(null);
@@ -76,24 +78,6 @@ function Chat() {
       document.querySelector("#root")?.classList.remove("max-h-full");
     };
   }, []);
-
-  useEffect(() => {
-    if (!messageBoxRef.current) return;
-    const { clientHeight, scrollHeight } = messageBoxRef.current;
-
-    if (
-      clientHeight === scrollHeight &&
-      room?.canFetchMoreMessage &&
-      chatLoaded.current
-    ) {
-      chatLoaded.current = false;
-      // messageBoxRef.current.scrollTop = 1;
-      loadMoreHistoryChat().then(() => {
-        chatLoaded.current = true;
-        chatLoadedByScroll.current = false;
-      });
-    }
-  });
 
   useEffect(() => {
     if (roomId === room?.room || isFetchingMessage) return;
@@ -149,14 +133,31 @@ function Chat() {
 
   useEffect(
     () => {
+      console.log(`🚀 ~ chatLoaded.current:`, chatLoaded.current);
       if (chatLoaded.current) {
+        console.log(
+          `🚀 ~ chatLoadedByScroll.current:`,
+          chatLoadedByScroll.current,
+        );
         if (!chatLoadedByScroll.current) {
-          // console.log(`messageBoxRef.current?.lastElementChild?.scrollIntoView`);
+          /**
+           * Cuộn xuống cuối cùng, để xem tin nhắn mới nhất
+           */
 
-          messageBoxRef.current?.lastElementChild?.scrollIntoView();
+          console.log(
+            `🚀 ~ messageBoxRef.current?.lastElementChild?.scrollIntoView():`,
+          );
+          if (messageBoxRef.current) {
+            const { scrollHeight } = messageBoxRef.current;
+            console.log(`🚀 ~ scrollHeight:`, scrollHeight);
+
+            messageBoxRef.current.scrollTop = scrollHeight;
+          }
+          // messageBoxRef.current?.lastElementChild?.scrollIntoView();
         } else {
           if (messageBoxRef.current?.scrollTop === 0) {
             firstMsgBeforeLoaded.current?.scrollIntoView();
+            console.log(`🚀 ~ firstMsgBeforeLoaded.current?.scrollIntoView():`);
           }
 
           chatLoadedByScroll.current = false;
@@ -165,6 +166,33 @@ function Chat() {
     },
     // , [room?.messages.length]
   );
+  useEffect(() => {
+    /**
+     * BẮT BUỘC PHẢI CHẠY SAU BƯỚC SCROLL TOP
+     * Tự động load message khi vừa vào cuộc trò chuyện đến khi
+     * độ dài cuộc trò chuyện đủ dài và có thể cuộn được
+     */
+    if (!messageBoxRef.current) return;
+    const { clientHeight, scrollHeight, scrollTop } = messageBoxRef.current;
+
+    if (
+      (clientHeight === scrollHeight || scrollTop <= MIN_SCROLL_TOP) &&
+      room?.canFetchMoreMessage &&
+      chatLoaded.current
+    ) {
+      chatLoaded.current = false;
+
+      chatLoadedByScroll.current = false;
+      forceLoadChatByCode.current = true;
+      loadMoreHistoryChat().then(() => {
+        console.log(
+          `🚀 ~ loadMoreHistoryChat ~ chatLoaded.current:`,
+          chatLoaded.current,
+        );
+        chatLoaded.current = true;
+      });
+    }
+  });
 
   return (
     <div className="h-full">
@@ -182,6 +210,7 @@ function Chat() {
                     ) {
                       messageBoxRef.current.scrollTop = 1;
                     }
+                    console.log(`loadMoreHistoryChat onClick`);
                     loadMoreHistoryChat();
                   }}
                   disabled={!room?.canFetchMoreMessage}
@@ -274,9 +303,14 @@ function Chat() {
               {/* Chat messages */}
               <div
                 onScroll={(e) => {
+                  if (forceLoadChatByCode.current) {
+                    forceLoadChatByCode.current = false;
+                    return;
+                  }
+
                   if (
                     messageBoxRef.current &&
-                    messageBoxRef.current.scrollTop <= 500 &&
+                    messageBoxRef.current.scrollTop <= MIN_SCROLL_TOP &&
                     room?.canFetchMoreMessage &&
                     chatLoaded.current
                   ) {
@@ -285,9 +319,12 @@ function Chat() {
 
                     chatLoaded.current = false;
 
+                    console.log(`loadMoreHistoryChat onScroll`);
+
+                    forceLoadChatByCode.current = false;
+                    chatLoadedByScroll.current = true;
                     loadMoreHistoryChat().then(() => {
                       chatLoaded.current = true;
-                      chatLoadedByScroll.current = true;
 
                       if (messageBoxRef.current) {
                         firstMsgBeforeLoaded.current =

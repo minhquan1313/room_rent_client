@@ -3,7 +3,6 @@ import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import RoomFormAddEdit from "@/Components/RoomFormAddEdit";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
-import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeRoomDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
@@ -20,7 +19,6 @@ function AddRoom() {
 
   const navigate = useNavigate();
 
-  const { currentRoom, setCurrentRoom } = useContext(RoomContext);
   const { isLogging } = useContext(UserContext);
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
   const [messageApi, contextHolder] = message.useMessage();
@@ -96,8 +94,11 @@ function AddRoom() {
 
         const r = await fetcher.postForm<any, IRoom>("/rooms", payload);
 
-        setCurrentRoom(r);
-        navigate(`${routeRoomDetail}/${r._id}`);
+        navigate(`${routeRoomDetail}/${r._id}`, {
+          state: {
+            room: r,
+          },
+        });
 
         setSubmitting(false);
         console.log(`🚀 ~ r:`, r);

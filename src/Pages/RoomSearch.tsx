@@ -9,10 +9,8 @@ import {
 import SelectRoomType from "@/Components/SelectRoomType";
 import SelectService from "@/Components/SelectService";
 import SelectSortField from "@/Components/SelectSortField";
-import { RoomContext } from "@/Contexts/RoomProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { proximityThreshold } from "@/constants";
-import { routeRoomDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { locationResolve } from "@/services/locationResolve";
 import { IRoom, RoomSearchQuery } from "@/types/IRoom";
@@ -39,7 +37,7 @@ import {
   Tooltip,
 } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 
 const LIMIT = [5, 10, 20, 30];
@@ -52,7 +50,6 @@ type Fields = RoomSearchQuery & {
 const RoomSearch = () => {
   pageTitle("Tìm kiếm");
 
-  const { setCurrentRoom } = useContext(RoomContext);
   const { locationDenied, refreshCoords } = useContext(UserLocationContext);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -102,11 +99,11 @@ const RoomSearch = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  // set setSearchPayload when route first load
-  // form.submit();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  useEffect(() => {
+    // set setSearchPayload when route first load
+    form.submit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     rooms;
@@ -203,6 +200,7 @@ const RoomSearch = () => {
           const { district, province, ward, ...rest } = e;
           fields = rest;
         } else {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const {
             search_close_to,
             search_close_to_lat,
@@ -271,13 +269,15 @@ const RoomSearch = () => {
                 {rooms?.length ? (
                   rooms.map((room) => (
                     <Col xs={8} key={room._id} className="w-1/5">
-                      <Link
+                      {/* <Link
                         to={`${routeRoomDetail}/${room._id}`}
                         className="block"
-                        onClick={() => setCurrentRoom(room)}
-                      >
-                        <RoomCard room={room} />
-                      </Link>
+                        state={{
+                          room,
+                        }}
+                      > */}
+                      <RoomCard room={room} />
+                      {/* </Link> */}
                     </Col>
                   ))
                 ) : (

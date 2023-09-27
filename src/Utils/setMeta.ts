@@ -1,4 +1,4 @@
-import { TTheme } from "../Contexts/ThemeProvider";
+import { TTheme } from "@/Contexts/ThemeProvider";
 
 export function setMetaTheme(theme: TTheme, color?: string) {
   setMeta({ content: theme, name: "color-scheme" });

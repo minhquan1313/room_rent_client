@@ -1,16 +1,12 @@
 import { MyFlickity } from "@/Components/MyFlickity";
 import { RoomCard } from "@/Components/RoomCard";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
-import { RoomContext } from "@/Contexts/RoomProvider";
-import { routeRoomDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
 import { useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
 import useSWR from "swr";
 
 export const RecentRooms = () => {
-  const { setCurrentRoom } = useContext(RoomContext);
   const { addUser } = useContext(InteractedUserProviderContext);
 
   const { data: roomsRecent } = useSWR<IRoom[]>(
@@ -32,14 +28,14 @@ export const RecentRooms = () => {
             className="w-full px-2 sm:w-1/2 lg:w-1/3 2xl:w-1/4"
             key={room._id}
           >
-            <Link
+            {/* <Link
               to={`${routeRoomDetail}/${room._id}`}
-              onClick={() => {
-                setCurrentRoom(room);
+              state={{
+                room,
               }}
-            >
-              <RoomCard room={room} />
-            </Link>
+            > */}
+            <RoomCard room={room} />
+            {/* </Link> */}
           </div>
         ))}
     </MyFlickity>

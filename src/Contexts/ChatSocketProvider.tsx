@@ -251,8 +251,8 @@ export default function ChatSocketProvider({ children }: IProps) {
         from_date_to_previous: room.messages[0].createdAt.toString(),
       });
       console.log(
-        `🚀 ~ switchRoom ~ param:`,
-        decodeURIComponent(param as unknown as string),
+        `🚀 ~ loadMoreHistoryChat ~ param:`,
+        decodeURIComponent(String(param)),
       );
 
       fetcher

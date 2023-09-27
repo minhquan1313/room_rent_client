@@ -10,6 +10,7 @@ import AddRoom from "@/Pages/RoomAdd";
 import RoomDetail from "@/Pages/RoomDetail";
 import RoomEdit from "@/Pages/RoomEdit";
 import RoomSearch from "@/Pages/RoomSearch";
+import UserDetail from "@/Pages/UserDetail";
 import { isRoleOwner } from "@/constants/roleType";
 import {
   routeChat,
@@ -17,6 +18,7 @@ import {
   routeRoomDetail,
   routeRoomEdit,
   routeRoomSearch,
+  routeUserDetail,
 } from "@/constants/route";
 import { pageTitle } from "@/utils/pageTitle";
 import { useContext } from "react";
@@ -63,6 +65,8 @@ function App() {
             path={`${routeChat}/:roomId`}
             element={user ? <Chat /> : <Navigate to="/" />}
           />
+
+          <Route path={`${routeUserDetail}/:userId`} element={<UserDetail />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
