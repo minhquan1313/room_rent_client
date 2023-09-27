@@ -67,12 +67,13 @@ export default function ThemeSwitcher() {
       }
     >
       <MyButton
-        type={themeChangedManually ? "primary" : "dashed"}
-        shape="circle"
         onClick={() => {
           switchTheme(myTheme === "dark" ? "light" : "dark");
         }}
+        type={themeChangedManually ? "primary" : "dashed"}
         icon={myTheme === "dark" ? <MoonIcon /> : <SunIcon />}
+        shape="circle"
+        size="large"
       />
     </Popover>
   );

@@ -2,16 +2,18 @@ import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
 import { QuickChatBtn } from "@/Components/QuickChatBtn";
 import RoomListOfUser from "@/Components/RoomListOfUser";
+import { SettingBtn } from "@/Components/SettingBtn";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleOwner } from "@/constants/roleType";
+import { routeUpdate } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IUser } from "@/types/IUser";
 import { pageTitle } from "@/utils/pageTitle";
 import { toStringUserName } from "@/utils/toString";
 import { Avatar, Badge, Divider, Space, Typography } from "antd";
 import { useContext, useEffect } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const UserDetail = () => {
@@ -73,13 +75,24 @@ const UserDetail = () => {
             </div>
 
             {me && me._id !== user._id && (
-              <div className="">
+              <div>
                 <QuickChatBtn
                   toUserId={user._id}
                   fromUserId={me._id}
                   size="large"
                 />
               </div>
+            )}
+
+            {me && me._id === user._id && (
+              <Link
+                to={routeUpdate}
+                state={{
+                  user,
+                }}
+              >
+                <SettingBtn size="large" />
+              </Link>
             )}
           </div>
         )}

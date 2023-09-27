@@ -1,12 +1,12 @@
+import MyImage from "@/Components/MyImage";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
 import { routeRoomAdd, routeUserDetail } from "@/constants/route";
-import { preloadImage } from "@/utils/preloadImage";
 import { toStringUserName } from "@/utils/toString";
 import { LogoutOutlined } from "@ant-design/icons";
 import { Avatar, Badge, Dropdown, Space, Spin } from "antd";
 import classNames from "classnames";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 
 const UserHeader = () => {
@@ -38,13 +38,16 @@ const UserHeader = () => {
   //   setIsUploading(false);
   // };
 
-  useEffect(() => {
-    if (!user?.image) return;
+  // useEffect(() => {
+  //   if (!user?.image) return;
 
-    setIsImagePreloaded(false);
+  //   setIsImagePreloaded(false);
 
-    preloadImage(user.image).then(() => setIsImagePreloaded(true));
-  }, [user?.image]);
+  //   preloadImage({
+  //     url: user.image,
+  //     addServer: true,
+  //   }).then(() => setIsImagePreloaded(true));
+  // }, [user?.image]);
 
   if (!user) return null;
 
@@ -103,13 +106,23 @@ const UserHeader = () => {
         // open={true}
       >
         <Avatar
-          size="large"
-          src={user.image}
           className={classNames("select-none", {
             "border-2 border-solid border-yellow-500": isRoleAdmin(
               user.role.title,
             ),
           })}
+          size="large"
+          src={
+            user.image && (
+              <MyImage
+                className="aspect-square object-cover"
+                src={user.image}
+                addServer
+                preview={false}
+              />
+            )
+          }
+
           // icon={<UserOutlined />}
           // onClick={() => {
           //   (() => {
@@ -123,8 +136,8 @@ const UserHeader = () => {
           //   })();
           // }}
         >
-          {user.username}
-          {/* {user.first_name[0]} */}
+          {/* {user.username} */}
+          {user.first_name[0]}
         </Avatar>
         {/* </Link> */}
       </Dropdown>

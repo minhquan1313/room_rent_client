@@ -108,7 +108,7 @@ export default function NotificationProvider({ children }: Props) {
         maskClosable={false}
       >
         <p>
-          Nhận thông báo khi có tin nhắn đến không {toStringUserName(user)}??
+          Nhận thông báo khi có tin nhắn đến hong {toStringUserName(user)}??
         </p>
       </Modal>
       {children}

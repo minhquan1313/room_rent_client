@@ -1,5 +1,4 @@
 import BadgeRoomPrice from "@/Components/BadgeRoomPrice";
-import MyButton from "@/Components/MyButton";
 import MyImage from "@/Components/MyImage";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
@@ -31,17 +30,13 @@ export const RoomCard = ({ room, saved, onSave }: RoomCardProps) => {
   const SavedComponent = saved ? HeartFilled : HeartOutlined;
 
   const actions: ReactNode[] = [
-    <MyButton
+    <SavedComponent
       onClick={(e) => {
         e.preventDefault();
         console.log(room._id);
 
         onSave && onSave(!!saved);
       }}
-      icon={<SavedComponent />}
-      key="save"
-      type="link"
-      className="hover:!bg-transparent"
     />,
   ];
 

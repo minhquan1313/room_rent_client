@@ -31,20 +31,14 @@ function RoomListItem_({ room, saved, onSave }: RoomCardProps) {
   const SavedComponent = saved ? HeartFilled : HeartOutlined;
 
   const actions: ReactNode[] = [
-    <a
+    <SavedComponent
       onClick={(e) => {
         e.preventDefault();
         console.log(room._id);
 
         onSave && onSave(!!saved);
       }}
-      // icon={<SavedComponent />}
-      key="save"
-      type="text"
-      className="hover:!bg-transparent"
-    >
-      <SavedComponent />
-    </a>,
+    />,
   ];
 
   (user?._id === owner._id || isRoleAdmin(user?.role.title)) &&

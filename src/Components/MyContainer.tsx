@@ -55,7 +55,7 @@ function Center({ children, className, ...rest }: IProps) {
 function Raw({ children }: Pick<IProps, "children">) {
   useEffect(() => {
     // document.documentElement.className = "overflow-y-scroll";
-    document.body.className = "overflow-x-hidden";
+    // document.documentElement.className = "overflow-x-hidden";
 
     const root = document.querySelector("#root");
     root && root.classList.add("flex", "min-h-full", "relative");

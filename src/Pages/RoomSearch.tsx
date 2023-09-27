@@ -200,7 +200,6 @@ const RoomSearch = () => {
           const { district, province, ward, ...rest } = e;
           fields = rest;
         } else {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const {
             search_close_to,
             search_close_to_lat,

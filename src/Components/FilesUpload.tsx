@@ -58,8 +58,10 @@ type FileAcceptType =
 interface Props extends UploadProps {
   beforeUpload?: never;
   fileList?: never;
-  multiple?: never;
+  // multiple?: never;
 
+  imageAspect?: `aspect-${"auto" | "square" | "video"}`;
+  avatar?: boolean;
   accept?: FileAcceptType;
   initImages?: IRoomImage[];
 }
@@ -77,7 +79,7 @@ export type FilesUploadRef = {
 
 // eslint-disable-next-line react-refresh/only-export-components
 const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
-  { accept, initImages, ...p },
+  { accept, initImages, avatar, ...p },
   ref,
 ) => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -142,6 +144,10 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
         id: file.uid,
         file,
       };
+
+      if (p.multiple === false) {
+        if (files.length !== 0) return [f];
+      }
 
       return files ? [...files, f] : [f];
     });
@@ -272,28 +278,31 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
                     id={id}
                     deleted={deleted}
                     isExternal={!file}
+                    aspect={p.imageAspect}
+                    avatar={avatar}
+                    spanFull={p.multiple === false}
                     onRemove={removeImage}
                   />
                 ))}
               </SortableContext>
               <DragOverlay>
-                {activeFile && <SortableItemOverlay src={activeFile.src} />}
+                {activeFile && (
+                  <SortableItemOverlay
+                    src={activeFile.src}
+                    avatar={avatar}
+                    aspect={p.imageAspect}
+                  />
+                )}
               </DragOverlay>
             </DndContext>
           </Row>
         </Image.PreviewGroup>
       )}
 
-      <Upload.Dragger
-        {...p}
-        // accept=""
-        fileList={[]}
-        beforeUpload={beforeUpload}
-        multiple
-      >
+      <Upload.Dragger fileList={[]} beforeUpload={beforeUpload} multiple {...p}>
         <div>
           <PlusOutlined />
-          <div style={{ marginTop: 8 }}>Upload</div>
+          <div style={{ marginTop: 8 }}>Thả file vô đây</div>
         </div>
       </Upload.Dragger>
     </Space>
@@ -305,6 +314,9 @@ type SortableItemProps = {
   id: string;
   isExternal: boolean;
   deleted?: boolean;
+  spanFull?: boolean;
+  aspect?: string;
+  avatar?: boolean;
   onRemove(id: string, isExternal: boolean): void;
 };
 const SortableItem = ({
@@ -312,6 +324,9 @@ const SortableItem = ({
   id,
   isExternal,
   deleted,
+  spanFull,
+  aspect,
+  avatar,
   onRemove,
 }: SortableItemProps) => {
   const {
@@ -331,7 +346,7 @@ const SortableItem = ({
 
   return (
     <Col
-      span={6}
+      span={spanFull ? 24 : 6}
       className={classNames("select-none overflow-visible", {
         "transition-all duration-300": isSorting || isDragging,
         // "opacity-75 grayscale": isSorting && !isDragging,
@@ -347,7 +362,9 @@ const SortableItem = ({
       <div className="relative">
         <MyImage
           className={classNames(
-            "aspect-square select-none rounded-lg object-cover",
+            "select-none object-cover",
+            avatar ? "rounded-full" : "rounded-lg",
+            aspect ?? "aspect-square",
             {
               "border-2 border-solid border-pink-400": isExternal,
             },
@@ -360,8 +377,9 @@ const SortableItem = ({
         <div className="absolute right-0 top-0">
           <MyButton
             onClick={() => onRemove && onRemove(id, isExternal)}
-            className={classNames("rounded-br-none rounded-tl-none", {
+            className={classNames({
               "bg-pink-400": isExternal,
+              "rounded-br-none rounded-tl-none": !avatar,
             })}
             icon={<DeleteOutlined />}
             type="primary"
@@ -375,11 +393,17 @@ const SortableItem = ({
 };
 function SortableItemOverlay({
   src,
+  aspect,
+  avatar,
 }: Omit<SortableItemProps, "id" | "onRemove" | "isExternal">) {
   return (
     <Col span={24} className="cursor-grabbing">
       <MyImage
-        className="aspect-square rounded-lg object-cover shadow-2xl"
+        className={classNames(
+          "object-cover shadow-2xl",
+          avatar ? "rounded-full" : "rounded-lg",
+          aspect ?? "aspect-square",
+        )}
         width={`100%`}
         src={src}
         preview={false}

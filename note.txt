@@ -1,1 +1,6 @@
 #BUG
+Công việc ngày mai
+
+fix server validator phần tel với region code
+
+fe làm tiếp phần lưu ở tab thông tin

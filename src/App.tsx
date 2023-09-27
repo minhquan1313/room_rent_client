@@ -11,6 +11,7 @@ import RoomDetail from "@/Pages/RoomDetail";
 import RoomEdit from "@/Pages/RoomEdit";
 import RoomSearch from "@/Pages/RoomSearch";
 import UserDetail from "@/Pages/UserDetail";
+import UserEdit from "@/Pages/UserEdit";
 import { isRoleOwner } from "@/constants/roleType";
 import {
   routeChat,
@@ -18,6 +19,7 @@ import {
   routeRoomDetail,
   routeRoomEdit,
   routeRoomSearch,
+  routeUpdate,
   routeUserDetail,
 } from "@/constants/route";
 import { pageTitle } from "@/utils/pageTitle";
@@ -66,7 +68,14 @@ function App() {
             element={user ? <Chat /> : <Navigate to="/" />}
           />
 
-          <Route path={`${routeUserDetail}/:userId`} element={<UserDetail />} />
+          <Route path={`${routeUserDetail}/:userId`}>
+            <Route index element={<UserDetail />} />
+
+            <Route
+              path={routeUpdate}
+              element={user ? <UserEdit /> : <Navigate to="/" />}
+            />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />
