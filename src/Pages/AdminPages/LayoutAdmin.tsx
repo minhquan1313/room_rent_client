@@ -3,7 +3,13 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { routeAdmin } from "@/constants/route";
 import { Layout, Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
-import { useContext, useLayoutEffect, useMemo, useState } from "react";
+import {
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const LayoutAdmin = () => {
@@ -22,7 +28,7 @@ const LayoutAdmin = () => {
 
   const menuClick: MenuProps["onClick"] = (e) => {
     console.log(`🚀 ~ LayoutAdmin ~ e:`, e);
-    navigate(`${e.keyPath.reverse().join("/")}`);
+    navigate(`${[...e.keyPath].reverse().join("/")}`);
   };
   const items = useMemo<MenuProps["items"]>(
     () => [
@@ -55,8 +61,6 @@ const LayoutAdmin = () => {
     ],
     [],
   );
-  openKeys;
-  console.log(`🚀 ~ LayoutAdmin ~ openKeys:`, openKeys);
 
   useLayoutEffect(() => {
     setOpenKeys(location.pathname.split("/").slice(1));
@@ -66,11 +70,18 @@ const LayoutAdmin = () => {
     // typeof items?.[0]?.key === "string" && navigate(items[0]?.key);
   }, [location.pathname]);
 
-  if (!user) return null;
+  useEffect(() => {
+    document.querySelector("#root")?.classList.add("max-h-full");
+    return () => {
+      document.querySelector("#root")?.classList.remove("max-h-full");
+    };
+  }, []);
 
+  if (!user) return null;
   return (
-    <div className="flex min-h-full">
-      <Layout className="flex-grow-0">
+    <div className="flex h-full">
+      <Layout hasSider>
+        {/* <div className="flex w-full"> */}
         <Sider
           collapsible
           collapsed={collapsed}
@@ -89,7 +100,8 @@ const LayoutAdmin = () => {
           />
         </Sider>
       </Layout>
-      <div className="flex-1 flex-shrink-0">
+
+      <div className="relative h-full w-full overflow-x-hidden px-5">
         <Outlet />
       </div>
     </div>

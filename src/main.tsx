@@ -11,7 +11,9 @@ import UserProvider from "@/Contexts/UserProvider";
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
 import "@/styles/flickityOverwrite.css";
 import "@/styles/tailwind.css";
+import { ConfigProvider } from "antd";
 import "antd/dist/reset.css";
+import viVN from "antd/locale/vi_VN";
 import "flickity/css/flickity.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -29,7 +31,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <ChatSocketProvider>
                     <InteractedUserProvider>
                       <NotificationProvider>
-                        <App />
+                        <ConfigProvider locale={viVN}>
+                          <App />
+                        </ConfigProvider>
                       </NotificationProvider>
                     </InteractedUserProvider>
                   </ChatSocketProvider>

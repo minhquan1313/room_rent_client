@@ -13,7 +13,7 @@ import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { proximityThreshold } from "@/constants";
 import { fetcher } from "@/services/fetcher";
 import { locationResolve } from "@/services/locationResolve";
-import { IRoomWithCount, RoomSearchQuery } from "@/types/IRoom";
+import { IDataWithCount, IRoom, RoomSearchQuery } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
 import { isProduction } from "@/utils/isProduction";
 import { numberFormat, numberParser } from "@/utils/numberFormat";
@@ -67,7 +67,7 @@ const RoomSearch = () => {
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchPayload, setSearchPayload] = useState<string>();
-  const { data: rooms, isLoading } = useSWR<IRoomWithCount>(
+  const { data: rooms, isLoading } = useSWR<IDataWithCount<IRoom>>(
     // `/rooms`,
     searchPayload ? `/rooms?${searchPayload}&count&saved` : undefined,
     fetcher,

@@ -11,6 +11,7 @@ export const phoneRule: Rule[] = [
   ({ getFieldValue }) => ({
     message: "Số điện thoại không hợp lệ",
     validator(_, value) {
+      if (value === "") return Promise.resolve();
       const rc =
         getFieldValue("region_code") || getFieldValue(["phone", "region_code"]);
 

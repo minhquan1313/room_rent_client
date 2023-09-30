@@ -1,6 +1,6 @@
 import { theme } from "antd";
 import classNames from "classnames";
-import { HTMLAttributes, ReactNode, useEffect } from "react";
+import { HTMLAttributes, ReactNode } from "react";
 
 interface IProps extends HTMLAttributes<HTMLDivElement> {
   innerClassName?: HTMLAttributes<HTMLDivElement>["className"];
@@ -53,13 +53,12 @@ function Center({ children, className, ...rest }: IProps) {
 }
 
 function Raw({ children }: Pick<IProps, "children">) {
-  useEffect(() => {
-    // document.documentElement.className = "overflow-y-scroll";
-    document.documentElement.className = "overflow-x-hidden";
+  // useEffect(() => {
+  //   document.documentElement.className = "overflow-x-hidden";
 
-    const root = document.querySelector("#root");
-    root && root.classList.add("flex", "min-h-full", "relative");
-  }, []);
+  const root = document.querySelector("#root");
+  root && root.classList.add("flex", "min-h-full", "relative");
+  // }, []);
 
   return <>{children}</>;
 }

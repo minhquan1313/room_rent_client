@@ -40,9 +40,9 @@ export interface IRoom {
   saved?: ISaved[];
 }
 
-export interface IRoomWithCount {
+export interface IDataWithCount<T> {
   count: number;
-  data: IRoom[];
+  data: T[];
 }
 
 export type RoomPayload = {

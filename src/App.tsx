@@ -17,7 +17,7 @@ import RoomSearch from "@/Pages/RoomSearch";
 import UserDetail from "@/Pages/UserDetail";
 import UserEdit from "@/Pages/UserEdit";
 import Verify from "@/Pages/Verify";
-import { isRoleOwner } from "@/constants/roleType";
+import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
 import {
   routeAdmin,
   routeChat,
@@ -48,7 +48,16 @@ function App() {
           <Route index element={<Home />} />
 
           {/* Admin routes start */}
-          <Route path={routeAdmin.index} element={<LayoutAdmin />}>
+          <Route
+            path={routeAdmin.index}
+            element={
+              isRoleAdmin(user?.role?.title) ? (
+                <LayoutAdmin />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          >
             <Route path={routeAdmin.stats} element={<DashBoard />} />
 
             <Route path={routeAdmin.user} element={<UserDashBoard />} />
