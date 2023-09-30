@@ -5,6 +5,6 @@ export interface IRoomServiceCategory {
   title: TRoomServiceCategory;
   display_name: string | null;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

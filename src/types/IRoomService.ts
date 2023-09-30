@@ -35,8 +35,8 @@ export interface IRoomService {
   display_name: string;
   category: IRoomServiceCategory | null;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export type ServicesInCategory = {

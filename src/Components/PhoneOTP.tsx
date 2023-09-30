@@ -1,17 +1,17 @@
 import MyButton from "@/Components/MyButton";
 import MyOtpInput from "@/Components/MyOtpInput";
+import { resendInterval } from "@/constants/resendInterval";
 import { sendOtp, verifyOtp } from "@/services/sendOtp";
 import { dateFormat } from "@/utils/dateFormat";
 import { Space, message } from "antd";
-import { memo, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import Countdown from "react-countdown";
 
 interface Props {
   e164_format: string;
   onSuccess(): void;
 }
-
-const INIT_COUNTDOWN = 120;
+const SIZE = 6;
 const _ = ({ e164_format, onSuccess }: Props) => {
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -20,15 +20,16 @@ const _ = ({ e164_format, onSuccess }: Props) => {
 
   const [allowResend, setAllowResend] = useState(false);
   const [otpResending, setOtpResending] = useState(false);
+  const [otpSentAt, setOtpSentAt] = useState<Date>();
   const [error, setError] = useState(false);
 
-  const [shouldRestartCountDown, setShouldRestartCountDown] = useState({});
+  // const [shouldRestartCountDown, setShouldRestartCountDown] = useState({});
 
   const date = useMemo(() => {
-    const d = new Date();
-    d.setSeconds(d.getSeconds() + INIT_COUNTDOWN);
+    const d = otpSentAt ? new Date(otpSentAt) : new Date();
+    d.setSeconds(d.getSeconds() + resendInterval);
     return d;
-  }, [shouldRestartCountDown]);
+  }, [otpSentAt]);
 
   const onVerify = async () => {
     setOtpSubmitting(true);
@@ -46,10 +47,14 @@ const _ = ({ e164_format, onSuccess }: Props) => {
         });
         setError(true);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.log(`🚀 ~ onVerify ~ error:`, error);
+
       messageApi.open({
         type: "error",
-        content: "Có lỗi khi xác thực, hãy thử lại!",
+        content:
+          error.response?.data?.error?.[0]?.msg ||
+          "Có lỗi khi xác thực, hãy thử lại!",
         duration: 30,
       });
     }
@@ -59,7 +64,12 @@ const _ = ({ e164_format, onSuccess }: Props) => {
     setOtpResending(true);
     try {
       const d = await sendOtp(e164_format);
-      setShouldRestartCountDown({});
+
+      const now = new Date();
+      console.log(`🚀 ~ onResendCode ~ now:`, now);
+
+      setOtpSentAt(now);
+      localStorage.setItem("otpSentAt", String(now.getTime()));
 
       messageApi.open({
         type: "info",
@@ -76,11 +86,30 @@ const _ = ({ e164_format, onSuccess }: Props) => {
     setOtpResending(false);
   };
 
+  useEffect(() => {
+    try {
+      const sent = localStorage.getItem("otpSentAt");
+      console.log(`🚀 ~ useEffect ~ sent:`, sent);
+
+      if (!sent) return;
+
+      setOtpSentAt(new Date(Number(sent)));
+    } catch (error) {
+      //
+    }
+  }, []);
+
+  useEffect(() => {
+    if (otp.length !== SIZE) return;
+
+    onVerify();
+  }, [otp]);
+
   return (
     <Space direction="vertical" className="w-full">
       {contextHolder}
       <MyOtpInput
-        size={6}
+        size={SIZE}
         loading={otpSubmitting}
         value={otp}
         onChange={setOtp}
@@ -89,7 +118,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
       <MyButton
         onClick={onVerify}
         type="primary"
-        disabled={otp.length !== 6}
+        disabled={otp.length !== SIZE}
         block
         danger={error}
         loading={otpSubmitting}
@@ -104,7 +133,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
         block
         loading={otpResending}
       >
-        <Space>
+        <Space size={"small"}>
           Gửi lại mã xác thực
           <Countdown
             key={date.getMilliseconds()}
@@ -112,7 +141,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
             onStart={() => setAllowResend(false)}
             onComplete={() => setAllowResend(true)}
             renderer={(props) =>
-              dateFormat.duration(props.total, "milliseconds").asSeconds()
+              dateFormat.duration(props.total, "milliseconds").asSeconds() || ""
             }
           />
         </Space>

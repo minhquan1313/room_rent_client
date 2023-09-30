@@ -7,8 +7,8 @@ export interface IChatMessage {
   sender: string;
   message: string;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }
 
 type IChatMessageWithoutProps = Omit<

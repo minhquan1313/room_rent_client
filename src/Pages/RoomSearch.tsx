@@ -13,7 +13,7 @@ import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { proximityThreshold } from "@/constants";
 import { fetcher } from "@/services/fetcher";
 import { locationResolve } from "@/services/locationResolve";
-import { IRoom, RoomSearchQuery } from "@/types/IRoom";
+import { IRoomWithCount, RoomSearchQuery } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
 import { isProduction } from "@/utils/isProduction";
 import { numberFormat, numberParser } from "@/utils/numberFormat";
@@ -22,13 +22,17 @@ import {
   objectToPayloadParams,
 } from "@/utils/objectToPayloadParams";
 import { pageTitle } from "@/utils/pageTitle";
+import { AppstoreOutlined } from "@ant-design/icons";
 import {
   Card,
   Col,
+  Drawer,
   Form,
   FormInstance,
+  Grid,
   Input,
   InputNumber,
+  Pagination,
   Row,
   Segmented,
   Space,
@@ -50,54 +54,25 @@ type Fields = RoomSearchQuery & {
 const RoomSearch = () => {
   pageTitle("Tìm kiếm");
 
-  const { locationDenied, refreshCoords } = useContext(UserLocationContext);
+  const { refreshCoords } = useContext(UserLocationContext);
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const screens = Grid.useBreakpoint();
+
+  const [query, setQuery] = useSearchParams();
   const [form] = Form.useForm<Fields>();
   const ref = useRef<FormInstance<Fields>>(null);
 
-  const [provinceCode, setProvinceCode] = useState<string>();
-  const [districtCode, setDistrictCode] = useState<string>();
-
-  // const [coords, setCoords] = useState<Coords>();
-  // const [locationDenied, setLocationDenied] = useState<boolean>();
   const [isSearchCloseTo, setIsSearchCloseTo] = useState(
-    searchParams.get("search_close_to") === "true",
+    query.get("search_close_to") === "true",
   );
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchPayload, setSearchPayload] = useState<string>();
-  const { data: rooms, isLoading } = useSWR<IRoom[]>(
+  const { data: rooms, isLoading } = useSWR<IRoomWithCount>(
     // `/rooms`,
-    searchPayload ? `/rooms?${searchPayload}` : undefined,
+    searchPayload ? `/rooms?${searchPayload}&count&saved` : undefined,
     fetcher,
   );
   // const [changed, setChanged] = useState(false);
-
-  useEffect(() => {
-    // Tải thông tin của tỉnh và quận huyện khi route vừa load lần đầu
-    const province = searchParams.get("province");
-    if (province) {
-      (async () => {
-        const r = await locationResolve("Việt Nam", province);
-        console.log(`🚀 ~ province:`, r);
-
-        const c = r.province?.code;
-        c && setProvinceCode(c);
-      })();
-    }
-
-    const district = searchParams.get("district");
-    if (district) {
-      (async () => {
-        const r = await locationResolve("Việt Nam", undefined, district);
-        console.log(`🚀 ~ district:`, r);
-
-        const c = r.district?.code;
-
-        c && setDistrictCode(c);
-      })();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     // set setSearchPayload when route first load
@@ -106,9 +81,8 @@ const RoomSearch = () => {
   }, []);
 
   useEffect(() => {
-    rooms;
+    // rooms;
     console.log(`🚀 ~ useEffect ~ rooms:`, rooms);
-
     //   provinceCode;
     //   console.log(`🚀 ~ useEffect ~ provinceCode:`, provinceCode);
     // }, [provinceCode]);
@@ -139,6 +113,7 @@ const RoomSearch = () => {
 
     (async () => {
       const coord = await refreshCoords();
+      console.log(`🚀 ~ coord:`, coord);
 
       if (!coord) {
         setIsSearchCloseTo(false);
@@ -147,7 +122,6 @@ const RoomSearch = () => {
         form.setFieldValue("search_close_to_lat", undefined);
         form.setFieldValue("search_close_to_long", undefined);
       } else {
-        // setCoords(coord);
         form.setFieldValue("search_close_to_lat", coord.lat);
         form.setFieldValue("search_close_to_long", coord.lng);
       }
@@ -157,42 +131,9 @@ const RoomSearch = () => {
 
   return (
     <Form
-      initialValues={{
-        kw: searchParams.get("kw"),
-        services: searchParams.get("services")?.split(","),
-        room_type: searchParams.get("room_type"),
-
-        usable_area_from: searchParams.get("usable_area_from"),
-        usable_area_to: searchParams.get("usable_area_to"),
-
-        number_of_floor_from: searchParams.get("number_of_floor_from"),
-        number_of_floor_to: searchParams.get("number_of_floor_to"),
-
-        price_per_month_from: searchParams.get("price_per_month_from"),
-        price_per_month_to: searchParams.get("price_per_month_to"),
-
-        number_of_bedroom_from: searchParams.get("number_of_bedroom_from"),
-        number_of_bedroom_to: searchParams.get("number_of_bedroom_to"),
-
-        number_of_bathroom_from: searchParams.get("number_of_bathroom_from"),
-        number_of_bathroom_to: searchParams.get("number_of_bathroom_to"),
-
-        number_of_living_room_from: searchParams.get(
-          "number_of_living_room_from",
-        ),
-        number_of_living_room_to: searchParams.get("number_of_living_room_to"),
-
-        search_close_to: isSearchCloseTo,
-        search_close_to_lat: searchParams.get("search_close_to_lat"),
-        search_close_to_long: searchParams.get("search_close_to_long"),
-
-        province: searchParams.get("province"),
-        district: searchParams.get("district"),
-        ward: searchParams.get("ward"),
-
-        limit: Number(searchParams.get("limit")) || LIMIT[0],
-      }}
       onFinish={(e: Fields) => {
+        console.log(`🚀 ~ RoomSearch ~ e:`, e);
+
         let fields: Fields = {};
         if (e.search_close_to) {
           // form.setFieldValue("ward", undefined);
@@ -222,9 +163,8 @@ const RoomSearch = () => {
         const query = new URLSearchParams(objFormatted as any).toString();
         const payload = objectToPayloadParams(objFormatted);
 
-        setSearchParams(query);
+        setQuery(query);
 
-        console.log(`🚀 ~ AllRoom ~ onFinish:`, e);
         console.log(`🚀 ~ AllRoom ~ query:`, query);
         console.log(
           `🚀 ~ AllRoom ~ payload:`,
@@ -232,6 +172,56 @@ const RoomSearch = () => {
         );
 
         setSearchPayload(payload.toString());
+
+        document.documentElement.scrollTop = 0;
+      }}
+      onValuesChange={(e, v) => {
+        if ("page" in e) {
+          return form.submit();
+        }
+        if ("limit" in e) {
+          form.setFieldValue("page", 1);
+          return form.submit();
+        }
+
+        // if ("search_close_to" in e) {
+        //   // setIsSearchCloseTo(e["search_close_to"]);
+        //   form.submit();
+        // }
+      }}
+      initialValues={{
+        kw: query.get("kw"),
+        services: query.get("services")?.split(","),
+        room_type: query.get("room_type"),
+
+        usable_area_from: query.get("usable_area_from"),
+        usable_area_to: query.get("usable_area_to"),
+
+        number_of_floor_from: query.get("number_of_floor_from"),
+        number_of_floor_to: query.get("number_of_floor_to"),
+
+        price_per_month_from: query.get("price_per_month_from"),
+        price_per_month_to: query.get("price_per_month_to"),
+
+        number_of_bedroom_from: query.get("number_of_bedroom_from"),
+        number_of_bedroom_to: query.get("number_of_bedroom_to"),
+
+        number_of_bathroom_from: query.get("number_of_bathroom_from"),
+        number_of_bathroom_to: query.get("number_of_bathroom_to"),
+
+        number_of_living_room_from: query.get("number_of_living_room_from"),
+        number_of_living_room_to: query.get("number_of_living_room_to"),
+
+        search_close_to: isSearchCloseTo,
+        search_close_to_lat: query.get("search_close_to_lat"),
+        search_close_to_long: query.get("search_close_to_long"),
+
+        province: query.get("province"),
+        district: query.get("district"),
+        ward: query.get("ward"),
+
+        limit: Number(query.get("limit")) || LIMIT[0],
+        page: Number(query.get("page")) || 1,
       }}
       name="room-search"
       className="my-10"
@@ -248,7 +238,14 @@ const RoomSearch = () => {
             </Form.Item>
           </Col>
 
-          <Col xs={4}>
+          <Col xl={0}>
+            <MyButton
+              onClick={() => setDrawerOpen(true)}
+              icon={<AppstoreOutlined />}
+            />
+          </Col>
+
+          <Col>
             <MyButton
               htmlType="submit"
               type="primary"
@@ -264,305 +261,379 @@ const RoomSearch = () => {
         <Spin spinning={isLoading}>
           <Row gutter={20} wrap={false}>
             <Col flex={"auto"}>
-              <Row gutter={[20, 20]}>
-                {rooms?.length ? (
-                  rooms.map((room) => (
-                    <Col xs={8} key={room._id} className="w-1/5">
-                      {/* <Link
-                        to={`${routeRoomDetail}/${room._id}`}
-                        className="block"
-                        state={{
-                          room,
-                        }}
-                      > */}
-                      <RoomCard room={room} />
-                      {/* </Link> */}
-                    </Col>
-                  ))
-                ) : (
-                  <div>no data</div>
-                )}
-              </Row>
-            </Col>
-
-            <Col xs={6}>
-              <Form.Item<Fields> name="limit">
-                <Segmented options={LIMIT} block />
-              </Form.Item>
-
-              <Form.Item>
-                <Space.Compact block>
-                  <Form.Item<Fields> name="sort_field" noStyle>
-                    <SelectSortField />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="sort" noStyle></Form.Item>
-                </Space.Compact>
-              </Form.Item>
-
-              <Form.Item>
-                <Card
-                  extra={
-                    <Tooltip
-                      title={`Sẽ tìm trong bán kính ${proximityThreshold}m`}
-                    >
-                      <div>
-                        <Form.Item<Fields>
-                          name="search_close_to"
-                          valuePropName="checked"
-                          noStyle
+              {!isLoading && (
+                <Space direction="vertical" className="w-full" size={"large"}>
+                  <Row gutter={[20, 20]}>
+                    {rooms?.data &&
+                      rooms.data.map((room) => (
+                        <Col
+                          xs={24}
+                          sm={12}
+                          xl={8}
+                          // xxl={6}
+                          key={room._id}
+                          className="w-1/5"
                         >
-                          <Switch
-                            disabled={locationDenied}
-                            onChange={(e) => setIsSearchCloseTo(e)}
-                            checkedChildren="Gần đây"
-                            unCheckedChildren={
-                              locationDenied ? "Bị cấm" : "Gần đây"
-                            }
-                          />
-                        </Form.Item>
-                      </div>
-                    </Tooltip>
-                  }
-                  size="small"
-                  title="Vị trí"
-                >
+                          <RoomCard room={room} />
+                        </Col>
+                      ))}
+                  </Row>
+
                   <Form.Item<Fields>
-                    name="search_close_to_lat"
-                    hidden={isProduction}
-                    label="[DEV] Vĩ độ"
+                    noStyle
+                    name={"page"}
+                    valuePropName="current"
                   >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item<Fields>
-                    name="search_close_to_long"
-                    hidden={isProduction}
-                    label="[DEV] Kinh độ"
-                  >
-                    <Input />
-                  </Form.Item>
-                  <Form.Item<Fields> name="province">
-                    <SelectProvince
-                      onSelect={(e) => {
-                        const newCode = e.code;
-                        if (provinceCode === newCode) return;
-
-                        setProvinceCode(newCode);
-
-                        form.setFieldValue("district", undefined);
-                        form.setFieldValue("ward", undefined);
-
-                        setDistrictCode(undefined);
-                      }}
-                      bordered={false}
-                      allowClear
-                      disabled={isSearchCloseTo}
+                    <Pagination
+                      pageSize={Number(query.get("limit"))}
+                      // current={Number(query.get("page")) || 1}
+                      total={rooms?.count}
                     />
                   </Form.Item>
-
-                  <Form.Item<Fields> name="district">
-                    <SelectDistrict
-                      onSelect={(e) => {
-                        const newCode = e.code;
-                        if (provinceCode === newCode) return;
-
-                        setDistrictCode(newCode);
-                        form.setFieldValue("ward", undefined);
-                      }}
-                      code={provinceCode}
-                      bordered={false}
-                      allowClear
-                      disabled={isSearchCloseTo}
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="ward" noStyle>
-                    <SelectWard
-                      code={districtCode}
-                      bordered={false}
-                      allowClear
-                      disabled={isSearchCloseTo}
-                    />
-                  </Form.Item>
-
-                  {/* <Form.Item>
-                  <Space
-                    onClick={() => {
-                      form.setFieldValue("search_close_to", !isSearchCloseTo);
-                      setIsSearchCloseTo(!isSearchCloseTo);
-                    }}
-                    className="w-full cursor-pointer bg-red-300"
-                  >
-                    <Form.Item<Fields>
-                      name="search_close_to"
-                      valuePropName="checked"
-                      noStyle
-                    >
-                      <Switch
-                        disabled={locationDenied}
-                        onChange={(e) => {
-                          setIsSearchCloseTo(e);
-                        }}
-                        checkedChildren="Tìm gần đây"
-                        unCheckedChildren="..."
-                      />
-                    </Form.Item>
-                    Tìm gần đây
-                  </Space>
-                </Form.Item>
-
-                <MyButton block>Lấy vị trí</MyButton> */}
-                </Card>
-              </Form.Item>
-
-              <Form.Item<Fields> name="room_type" label="Kiểu phòng">
-                <SelectRoomType allowClear />
-              </Form.Item>
-
-              <Form.Item<Fields> name="services" label="Dịch vụ">
-                <SelectService allowClear />
-              </Form.Item>
-
-              <Form.Item<Fields> label="Diện tích sử dụng">
-                <Space.Compact block>
-                  <Form.Item<Fields> name="usable_area_from" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Từ"
-                      step={10}
-                      className="w-full"
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="usable_area_to" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Đến"
-                      step={10}
-                      className="w-full"
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-
-              <Form.Item<Fields> label="Số tầng" tooltip="Không tính tầng trệt">
-                <Space.Compact block>
-                  <Form.Item<Fields> name="number_of_floor_from" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Từ"
-                      className="w-full"
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="number_of_floor_to" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Đến"
-                      className="w-full"
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-
-              <Form.Item<Fields> label="Tiền thuê mỗi tháng">
-                <Space.Compact block>
-                  <Form.Item<Fields> name="price_per_month_from" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Từ"
-                      step={100000}
-                      className="w-full"
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="price_per_month_to" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Đến"
-                      step={100000}
-                      className="w-full"
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-
-              <Form.Item<Fields> label="Số phòng ngủ">
-                <Space.Compact block>
-                  <Form.Item<Fields> name="number_of_bedroom_from" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Từ"
-                      className="w-full"
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="number_of_bedroom_to" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Đến"
-                      className="w-full"
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-
-              <Form.Item<Fields> label="Số phòng tắm">
-                <Space.Compact block>
-                  <Form.Item<Fields> name="number_of_bathroom_from" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Từ"
-                      className="w-full"
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="number_of_bathroom_to" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Đến"
-                      className="w-full"
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
-
-              <Form.Item<Fields> label="Số phòng khách">
-                <Space.Compact block>
-                  <Form.Item<Fields> name="number_of_living_room_from" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Từ"
-                      className="w-full"
-                    />
-                  </Form.Item>
-
-                  <Form.Item<Fields> name="number_of_living_room_to" noStyle>
-                    <InputNumber
-                      formatter={numberFormat}
-                      parser={numberParser}
-                      placeholder="Đến"
-                      className="w-full"
-                    />
-                  </Form.Item>
-                </Space.Compact>
-              </Form.Item>
+                  {/* </>
+                  ) : (
+                    <Typography.Paragraph>
+                      Không có dữ liệu
+                    </Typography.Paragraph>
+                  )} */}
+                </Space>
+              )}
             </Col>
+
+            <Col xs={0} xl={6}>
+              <SearchFilter
+                isSearchCloseTo={isSearchCloseTo}
+                setIsSearchCloseTo={setIsSearchCloseTo}
+                form={form}
+              />
+            </Col>
+
+            {!screens.xl && (
+              <Drawer
+                title={"Bộ lọc"}
+                placement="right"
+                onClose={() => setDrawerOpen(false)}
+                open={drawerOpen}
+              >
+                <SearchFilter
+                  isSearchCloseTo={isSearchCloseTo}
+                  setIsSearchCloseTo={setIsSearchCloseTo}
+                  form={form}
+                />
+              </Drawer>
+            )}
           </Row>
         </Spin>
       </MyContainer>
     </Form>
+  );
+};
+
+type SearchFilterProps = {
+  isSearchCloseTo: boolean;
+  setIsSearchCloseTo(v: boolean): void;
+  form: FormInstance<Fields>;
+};
+
+const SearchFilter = ({
+  form,
+  isSearchCloseTo,
+  setIsSearchCloseTo,
+}: SearchFilterProps) => {
+  const [query, setQuery] = useSearchParams();
+
+  const { locationDenied } = useContext(UserLocationContext);
+  const [provinceCode, setProvinceCode] = useState<string>();
+  const [districtCode, setDistrictCode] = useState<string>();
+
+  useEffect(() => {
+    // Tải thông tin của tỉnh và quận huyện khi route vừa load lần đầu
+    const province = query.get("province");
+    if (province) {
+      (async () => {
+        const r = await locationResolve("Việt Nam", province);
+        // console.log(`🚀 ~ province:`, r);
+
+        const c = r.province?.code;
+        c && setProvinceCode(c);
+      })();
+    }
+
+    const district = query.get("district");
+    if (district) {
+      (async () => {
+        const r = await locationResolve("Việt Nam", undefined, district);
+        // console.log(`🚀 ~ district:`, r);
+
+        const c = r.district?.code;
+
+        c && setDistrictCode(c);
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <>
+      <Form.Item<Fields> name="limit">
+        <Segmented options={LIMIT} block />
+      </Form.Item>
+      <Form.Item>
+        <Space.Compact block>
+          <Form.Item<Fields> name="sort_field" noStyle>
+            <SelectSortField />
+          </Form.Item>
+
+          {/* <Form.Item<Fields> name="sort" noStyle></Form.Item> */}
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item>
+        <Card
+          extra={
+            <Tooltip title={`Sẽ tìm trong bán kính ${proximityThreshold}m`}>
+              <div>
+                <Form.Item<Fields>
+                  name="search_close_to"
+                  valuePropName="checked"
+                  noStyle
+                >
+                  <Switch
+                    disabled={locationDenied}
+                    onChange={(e) => setIsSearchCloseTo(e)}
+                    checkedChildren="Gần đây"
+                    unCheckedChildren={locationDenied ? "Bị cấm" : "Gần đây"}
+                  />
+                </Form.Item>
+              </div>
+            </Tooltip>
+          }
+          size="small"
+          title="Vị trí"
+        >
+          <Form.Item<Fields>
+            name="search_close_to_lat"
+            hidden={isProduction}
+            label="[DEV] Vĩ độ"
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item<Fields>
+            name="search_close_to_long"
+            hidden={isProduction}
+            label="[DEV] Kinh độ"
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item<Fields> name="province">
+            <SelectProvince
+              onSelect={(e) => {
+                const newCode = e.code;
+                if (provinceCode === newCode) return;
+
+                setProvinceCode(newCode);
+
+                form.setFieldValue("district", undefined);
+                form.setFieldValue("ward", undefined);
+
+                setDistrictCode(undefined);
+              }}
+              bordered={false}
+              allowClear
+              disabled={isSearchCloseTo}
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="district">
+            <SelectDistrict
+              onSelect={(e) => {
+                const newCode = e.code;
+                if (provinceCode === newCode) return;
+
+                setDistrictCode(newCode);
+                form.setFieldValue("ward", undefined);
+              }}
+              code={provinceCode}
+              bordered={false}
+              allowClear
+              disabled={isSearchCloseTo}
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="ward" noStyle>
+            <SelectWard
+              code={districtCode}
+              bordered={false}
+              allowClear
+              disabled={isSearchCloseTo}
+            />
+          </Form.Item>
+
+          {/* <Form.Item>
+      <Space
+        onClick={() => {
+          form.setFieldValue("search_close_to", !isSearchCloseTo);
+          setIsSearchCloseTo(!isSearchCloseTo);
+        }}
+        className="w-full cursor-pointer bg-red-300"
+      >
+        <Form.Item<Fields>
+          name="search_close_to"
+          valuePropName="checked"
+          noStyle
+        >
+          <Switch
+            disabled={locationDenied}
+            onChange={(e) => {
+              setIsSearchCloseTo(e);
+            }}
+            checkedChildren="Tìm gần đây"
+            unCheckedChildren="..."
+          />
+        </Form.Item>
+        Tìm gần đây
+      </Space>
+    </Form.Item>
+
+    <MyButton block>Lấy vị trí</MyButton> */}
+        </Card>
+      </Form.Item>
+      <Form.Item<Fields> name="room_type" label="Kiểu phòng">
+        <SelectRoomType allowClear />
+      </Form.Item>
+      <Form.Item<Fields> name="services" label="Dịch vụ">
+        <SelectService allowClear />
+      </Form.Item>
+      <Form.Item<Fields> label="Diện tích sử dụng">
+        <Space.Compact block>
+          <Form.Item<Fields> name="usable_area_from" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Từ"
+              step={10}
+              className="w-full"
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="usable_area_to" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Đến"
+              step={10}
+              className="w-full"
+            />
+          </Form.Item>
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item<Fields> label="Số tầng" tooltip="Không tính tầng trệt">
+        <Space.Compact block>
+          <Form.Item<Fields> name="number_of_floor_from" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Từ"
+              className="w-full"
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="number_of_floor_to" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Đến"
+              className="w-full"
+            />
+          </Form.Item>
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item<Fields> label="Tiền thuê mỗi tháng">
+        <Space.Compact block>
+          <Form.Item<Fields> name="price_per_month_from" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Từ"
+              step={100000}
+              className="w-full"
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="price_per_month_to" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Đến"
+              step={100000}
+              className="w-full"
+            />
+          </Form.Item>
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item<Fields> label="Số phòng ngủ">
+        <Space.Compact block>
+          <Form.Item<Fields> name="number_of_bedroom_from" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Từ"
+              className="w-full"
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="number_of_bedroom_to" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Đến"
+              className="w-full"
+            />
+          </Form.Item>
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item<Fields> label="Số phòng tắm">
+        <Space.Compact block>
+          <Form.Item<Fields> name="number_of_bathroom_from" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Từ"
+              className="w-full"
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="number_of_bathroom_to" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Đến"
+              className="w-full"
+            />
+          </Form.Item>
+        </Space.Compact>
+      </Form.Item>
+      <Form.Item<Fields> label="Số phòng khách">
+        <Space.Compact block>
+          <Form.Item<Fields> name="number_of_living_room_from" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Từ"
+              className="w-full"
+            />
+          </Form.Item>
+
+          <Form.Item<Fields> name="number_of_living_room_to" noStyle>
+            <InputNumber
+              formatter={numberFormat}
+              parser={numberParser}
+              placeholder="Đến"
+              className="w-full"
+            />
+          </Form.Item>
+        </Space.Compact>
+      </Form.Item>
+    </>
   );
 };
 

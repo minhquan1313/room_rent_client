@@ -1,9 +1,8 @@
-export interface IChatSeen {
+export interface ISaved {
   _id: string;
 
+  user: string;
   room: string;
-  message_id: string;
-  seen_by: string;
 
   updatedAt: string;
   createdAt: string;

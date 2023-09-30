@@ -10,8 +10,8 @@ export interface INotification {
     auth: string;
   };
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export type TSubscription = {

@@ -9,20 +9,57 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 
 type Props = {
   children: ReactNode;
 };
 
-interface IThemeContext {
-  //
+interface INotificationContext {
+  enabling: boolean;
+  denied: boolean;
+  unRegister: () => Promise<void>;
+  register: () => Promise<boolean>;
 }
 
-export const NotificationContext = createContext<IThemeContext>(null as never);
+export const NotificationContext = createContext<INotificationContext>(
+  null as never,
+);
 export default function NotificationProvider({ children }: Props) {
+  const location = useLocation();
+
   const { user } = useContext(UserContext);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [enabling, setEnabling] = useState(false);
+  const [denied, setDenied] = useState(false);
+
+  const unRegister = async () => {
+    await chatPushNotification.removeServiceWorker();
+    clearStorage();
+    setEnabling(false);
+  };
+  const register = async () => {
+    try {
+      const sub = await chatPushNotification.subscribe();
+      if (sub) {
+        // save server db
+        await chatPushNotification.makeSubscribeToServer(sub);
+        setEnabling(true);
+        setDenied(false);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.log(`🚀 ~ //.then ~ error:`, error);
+      unRegister();
+      setDenied(true);
+
+      return false;
+    }
+  };
 
   useEffect(() => {
     if (!user?._id) {
@@ -32,8 +69,7 @@ export default function NotificationProvider({ children }: Props) {
        * User logout hoặc đổi user
        * Lúc này cần unregister
        */
-      chatPushNotification.removeServiceWorker();
-      clearStorage();
+      unRegister();
       return;
     }
 
@@ -44,10 +80,9 @@ export default function NotificationProvider({ children }: Props) {
     if (getStorage() === false) {
       console.log(`User đã từ chối`);
 
+      setEnabling(false);
       return;
     }
-
-    console.log(`Check sub`);
 
     chatPushNotification.checkSubscribe().then(async (sub) => {
       console.log(
@@ -56,37 +91,33 @@ export default function NotificationProvider({ children }: Props) {
         JSON.parse(JSON.stringify(sub)),
       );
 
-      if (sub) return;
+      if (sub) {
+        /**
+         * Đã subscribe
+         */
+        setEnabling(true);
+        return;
+      }
 
-      const per = await chatPushNotification.checkPermission();
-      if (per !== false) setIsModalOpen(true);
+      const permission = await chatPushNotification.checkPermission();
+      if (permission === false) {
+        setDenied(true);
+      }
+
+      if (permission !== false && location.pathname === "/") {
+        // setIsModalOpen(true);
+      }
     });
-  }, [user?._id]);
+  }, [user?._id, location.pathname]);
 
   async function handleOk() {
     setStorage(true);
     setLoading(true);
-    try {
-      const sub = await chatPushNotification.subscribe();
-      //    .then((sub) => {
-      console.log(
-        `🚀 ~ chatPushNotification.subscribe ~ sub:`,
-        sub,
-        JSON.parse(JSON.stringify(sub)),
-      );
 
-      if (sub) {
-        //
-        await chatPushNotification.makeSubscribeToServer(sub);
-      }
+    await register();
 
-      // save server db
-    } catch (error) {
-      //
-    }
     setIsModalOpen(false);
     setLoading(false);
-    // });
   }
 
   function handleCancel() {
@@ -94,7 +125,7 @@ export default function NotificationProvider({ children }: Props) {
     setStorage(false);
   }
 
-  const value = {};
+  const value = { enabling, denied, unRegister, register };
   return (
     <NotificationContext.Provider value={value}>
       <Modal

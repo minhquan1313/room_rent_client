@@ -1,5 +1,4 @@
 export type ErrorJsonResponse = {
-  success: boolean;
   error: {
     msg: string;
     path?: string;

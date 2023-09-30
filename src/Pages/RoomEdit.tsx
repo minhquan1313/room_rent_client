@@ -4,20 +4,19 @@ import MyContainer from "@/Components/MyContainer";
 import RoomFormAddEdit from "@/Components/RoomFormAddEdit";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { routeRoomDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
 import { formatObject } from "@/utils/objectToPayloadParams";
 import { pageTitle } from "@/utils/pageTitle";
-import { Alert, Form, Space, Typography, message } from "antd";
+import { Affix, Alert, Form, Space, Switch, Typography, message } from "antd";
 import { useContext, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const RoomEdit = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
 
   const { isLogging } = useContext(UserContext);
@@ -41,25 +40,6 @@ const RoomEdit = () => {
         {contextHolder}
         {room && (
           <Form
-            initialValues={{
-              ...room,
-
-              location: {
-                ...room.location,
-                lat: room.location?.lat_long.coordinates[1],
-                long: room.location?.lat_long.coordinates[0],
-              },
-
-              owner: room.owner._id,
-              room_type: room.room_type.title,
-              services: room.services.map((e) => e.title),
-            }}
-            name="room"
-            className="w-full"
-            layout="vertical"
-            onChange={() => setError(undefined)}
-            disabled={submitting || isLogging}
-            size={isMobile() ? "large" : undefined}
             onFinish={async (values: RoomPayload) => {
               console.log(`🚀 ~ onFinish={ ~ values:`, values);
 
@@ -129,11 +109,11 @@ const RoomEdit = () => {
               try {
                 await fetcher.patchForm(`/rooms/${room._id}`, payload);
 
-                navigate(`${routeRoomDetail}/${room._id}`, {
-                  state: {
-                    room,
-                  },
-                });
+                // navigate(`${routeRoomDetail}/${room._id}`, {
+                //   state: {
+                //     room,
+                //   },
+                // });
 
                 messageApi.open({
                   type: "success",
@@ -144,24 +124,81 @@ const RoomEdit = () => {
               }
               setSubmitting(false);
             }}
+            initialValues={{
+              ...room,
+
+              location: {
+                ...room.location,
+                lat: room.location?.lat_long.coordinates[1],
+                long: room.location?.lat_long.coordinates[0],
+              },
+
+              owner: room.owner,
+              room_type: room.room_type.title,
+              services: room.services.map((e) => e.title),
+            }}
+            name="room"
+            className="w-full"
+            layout="vertical"
+            onChange={() => setError(undefined)}
+            disabled={submitting || isLogging}
+            size={isMobile() ? "large" : undefined}
           >
+            <Space>
+              <Form.Item<IRoom>
+                name={"is_visible"}
+                label="Trạng thái hiển thị"
+                valuePropName="checked"
+              >
+                <Switch />
+              </Form.Item>
+
+              <Form.Item<IRoom>
+                name={"disabled"}
+                valuePropName="checked"
+                label={"Bài bị cấm"}
+                tooltip="Chỉ quản trị mới có quyền thay đổi"
+              >
+                <Switch disabled />
+              </Form.Item>
+
+              <Form.Item<IRoom>
+                name={"verified"}
+                valuePropName="checked"
+                label={"Admin đã duyệt bài"}
+                tooltip="Chỉ quản trị mới có quyền thay đổi"
+              >
+                <Switch disabled />
+              </Form.Item>
+
+              <Form.Item<IRoom>
+                name={"verified_real"}
+                valuePropName="checked"
+                label={"Admin đã xem tận nơi"}
+                tooltip="Chỉ quản trị mới có quyền thay đổi"
+              >
+                <Switch disabled />
+              </Form.Item>
+            </Space>
+
             <RoomFormAddEdit files={files} location={locationRef} room={room} />
             {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
-            <Form.Item noStyle={!error}>
-              <Space.Compact block>
-                <MyButton
-                  block
-                  type="primary"
-                  loading={submitting || isLogging}
-                  disabled={!roomServicesConverted || !roomTypes}
-                  danger={!!error}
-                  htmlType="submit"
-                >
-                  Sửa
-                </MyButton>
-              </Space.Compact>
-            </Form.Item>
-
+            <Affix offsetBottom={8}>
+              <Form.Item noStyle={!error}>
+                <Space.Compact block>
+                  <MyButton
+                    block
+                    type="primary"
+                    loading={submitting || isLogging}
+                    disabled={!roomServicesConverted || !roomTypes}
+                    danger={!!error}
+                    htmlType="submit"
+                  >
+                    Lưu
+                  </MyButton>
+                </Space.Compact>
+              </Form.Item>
+            </Affix>
             <Form.Item noStyle>
               {error && (
                 <Alert

@@ -1,66 +1,62 @@
+import ActionRoomCard from "@/Components/ActionRoomCard";
 import MyImage from "@/Components/MyImage";
+import RoomStateTags from "@/Components/RoomStateTags";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
-import { UserContext } from "@/Contexts/UserProvider";
-import { isRoleAdmin } from "@/constants/roleType";
-import { routeRoomDetail, routeRoomEdit } from "@/constants/route";
+import { routeRoomDetail } from "@/constants/route";
 import { IRoom } from "@/types/IRoom";
 import { calculateDistance } from "@/utils/calculateDistance";
 import { dateFormat } from "@/utils/dateFormat";
 import { numberFormat } from "@/utils/numberFormat";
 import { toStringLocation } from "@/utils/toString";
-import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
-import { List, Tooltip, Typography } from "antd";
+import { List, Typography } from "antd";
 import convert from "convert";
-import { ReactNode, memo, useContext } from "react";
+import { memo, useContext } from "react";
 import { Link } from "react-router-dom";
 
 interface RoomCardProps {
   room: IRoom;
-  saved?: boolean;
-  actions?: ReactNode[];
-  onSave?(saved: boolean): void;
+  showState?: boolean;
 }
 
-function RoomListItem_({ room, saved, onSave }: RoomCardProps) {
-  const { _id, images, name, location, createdAt, owner, price_per_month } =
-    room;
+function RoomListItem_({ room, showState }: RoomCardProps) {
+  const { _id, images, name, location, createdAt, price_per_month } = room;
 
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
   const { coords } = useContext(UserLocationContext);
 
-  const SavedComponent = saved ? HeartFilled : HeartOutlined;
+  // const SavedComponent = saved ? HeartFilled : HeartOutlined;
 
-  const actions: ReactNode[] = [
-    <SavedComponent
-      onClick={(e) => {
-        e.preventDefault();
-        console.log(room._id);
+  // const actions: ReactNode[] = [
+  //   <SavedComponent
+  //     onClick={(e) => {
+  //       e.preventDefault();
+  //       console.log(room._id);
 
-        onSave && onSave(!!saved);
-      }}
-    />,
-  ];
+  //       onSave && onSave(!!saved);
+  //     }}
+  //   />,
+  // ];
 
-  (user?._id === owner._id || isRoleAdmin(user?.role.title)) &&
-    actions.push(
-      ...[
-        //
-        <Tooltip title="Sửa thông tin">
-          <Link
-            to={`${routeRoomEdit}/${_id}`}
-            state={{
-              room,
-            }}
-          >
-            <EditOutlined key="edit" />
-          </Link>
-        </Tooltip>,
-      ],
-    );
+  // (user?._id === owner || isRoleAdmin(user?.role.title)) &&
+  //   actions.push(
+  //     ...[
+  //       //
+  //       <Tooltip title="Sửa thông tin">
+  //         <Link
+  //           to={`${routeRoomEdit}/${_id}`}
+  //           state={{
+  //             room,
+  //           }}
+  //         >
+  //           <EditOutlined key="edit" />
+  //         </Link>
+  //       </Tooltip>,
+  //     ],
+  //   );
 
   return (
-    <List.Item actions={actions}>
-      <div className="flex flex-col gap-2 sm:flex-row">
+    <List.Item actions={ActionRoomCard({ room })} className="">
+      <div className="flex flex-col gap-2 md:flex-row">
         <Link
           state={{
             room,
@@ -106,6 +102,8 @@ function RoomListItem_({ room, saved, onSave }: RoomCardProps) {
             {dateFormat(createdAt).fromNow()} -{" "}
             {dateFormat(createdAt).format("LLL")}
           </Typography.Paragraph>
+
+          {RoomStateTags({ room })}
         </Link>
 
         <Link
@@ -113,7 +111,7 @@ function RoomListItem_({ room, saved, onSave }: RoomCardProps) {
           state={{
             room,
           }}
-          className="block w-full sm:w-80"
+          className="block w-full md:w-96"
         >
           <MyImage
             src={images[0]?.image}

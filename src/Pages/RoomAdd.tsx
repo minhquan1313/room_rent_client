@@ -11,7 +11,7 @@ import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Form, Space, Typography, message } from "antd";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function AddRoom() {
@@ -19,7 +19,7 @@ function AddRoom() {
 
   const navigate = useNavigate();
 
-  const { isLogging } = useContext(UserContext);
+  const { isLogging, user } = useContext(UserContext);
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
   const [messageApi, contextHolder] = message.useMessage();
   // const [form] = Form.useForm();
@@ -115,68 +115,85 @@ function AddRoom() {
     })();
   };
 
+  useEffect(() => {
+    document.documentElement.scrollTop = 0;
+  }, []);
+
   return (
     <MyContainer className="py-5">
       {contextHolder}
-      <Typography.Title>Thêm phòng mới</Typography.Title>
-      <Form
-        initialValues={{
-          number_of_living_room: 1,
-          number_of_bathroom: 1,
-          number_of_bedroom: 1,
-          number_of_floor: 1,
-          price_currency_code: "VND",
+      {!user?.phone?.verified ? (
+        <>
+          <Alert
+            message="Số điện thoại chưa xác thực!"
+            description="Hãy vào Cài đặt và xác thực số điện thoại để có thể đăng tin!"
+            type="error"
+            showIcon
+          />
+        </>
+      ) : (
+        <>
+          <Typography.Title>Thêm phòng mới</Typography.Title>
+          <Form
+            initialValues={{
+              number_of_living_room: 1,
+              number_of_bathroom: 1,
+              number_of_bedroom: 1,
+              number_of_floor: 1,
+              price_currency_code: "VND",
 
-          usable_area: 100,
-          usable_area_unit: "m2",
+              usable_area: 100,
+              usable_area_unit: "m2",
 
-          room_type: "nt",
-          name: "Tên phòng ",
-          //  + Math.random()
-          price_per_month: 450000,
+              room_type: "nt",
+              name: "Tên phòng ",
+              //  + Math.random()
+              price_per_month: 450000,
 
-          // lat: 2,
-        }}
-        name="room"
-        className="w-full"
-        layout="vertical"
-        onChange={() => setError(undefined)}
-        disabled={submitting || isLogging}
-        size={isMobile() ? "large" : undefined}
-        onFinish={onFinish}
-        autoComplete="on"
-      >
-        <RoomFormAddEdit files={files} location={location} />
+              // lat: 2,
+            }}
+            name="room"
+            className="w-full"
+            layout="vertical"
+            onChange={() => setError(undefined)}
+            disabled={submitting || isLogging}
+            size={isMobile() ? "large" : undefined}
+            onFinish={onFinish}
+            autoComplete="on"
+          >
+            <RoomFormAddEdit files={files} location={location} />
 
-        {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
-        <Form.Item noStyle={!error}>
-          <Space.Compact block>
-            <MyButton
-              block
-              type="primary"
-              loading={submitting || isLogging}
-              disabled={!roomServicesConverted || !roomTypes}
-              danger={!!error}
-              htmlType="submit"
-            >
-              Thêm
-            </MyButton>
-          </Space.Compact>
-        </Form.Item>
+            {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */}
+            <Form.Item noStyle={!error}>
+              <Space.Compact block>
+                <MyButton
+                  block
+                  type="primary"
+                  loading={submitting || isLogging}
+                  disabled={!roomServicesConverted || !roomTypes}
+                  danger={!!error}
+                  htmlType="submit"
+                >
+                  Thêm
+                </MyButton>
+              </Space.Compact>
+            </Form.Item>
 
-        <Form.Item noStyle>
-          {error && (
-            <Alert
-              type="error"
-              message={error.error.map(({ msg }) => (
-                <div key={msg} className="text-center">
-                  <Typography.Text type="danger">{msg}</Typography.Text>
-                </div>
-              ))}
-            />
-          )}
-        </Form.Item>
-      </Form>
+            <Form.Item noStyle>
+              {error && (
+                <Alert
+                  type="error"
+                  message={error.error.map(({ msg }) => (
+                    <div key={msg} className="text-center">
+                      <Typography.Text type="danger">{msg}</Typography.Text>
+                    </div>
+                  ))}
+                />
+              )}
+            </Form.Item>
+          </Form>
+        </>
+      )}
     </MyContainer>
   );
 }

@@ -5,6 +5,6 @@ export interface IRoomType {
   title: TRoomType;
   display_name: string | null;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

@@ -6,6 +6,7 @@ import {
   createContext,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -32,21 +33,21 @@ export default function UserProvider({ children }: IProps) {
   const [isLogging, setIsLogging] = useState(false);
 
   const login = useCallback(async (u: UserLoginPayload, remember: boolean) => {
-    setIsLogging(() => true);
+    setIsLogging(true);
 
     try {
       const url = `/users/login`;
 
       const user = await fetcher.post<never, IUser>(url, u);
-      setIsLogging(() => false);
+      setIsLogging(false);
 
       saveData(user, remember);
-      setUser(() => user);
+      setUser(user);
       // _user = user;
       return user;
     } catch (error) {
       logout();
-      setIsLogging(() => false);
+      setIsLogging(false);
 
       // return null;
       throw error;
@@ -70,7 +71,7 @@ export default function UserProvider({ children }: IProps) {
         // setIsLogging(() => false);
 
         saveData(user, remember);
-        setUser(() => user);
+        setUser(user);
 
         return user;
       } catch (error) {
@@ -82,6 +83,12 @@ export default function UserProvider({ children }: IProps) {
     },
     [],
   );
+
+  const logout = () => {
+    clearData();
+    setUser(null);
+  };
+
   const register = useCallback(async function (
     u: UserRegisterPayload,
     remember: boolean,
@@ -101,13 +108,10 @@ export default function UserProvider({ children }: IProps) {
       throw error;
     }
   }, []);
-  const refresh = () => {
+
+  const refresh = useCallback(() => {
     user?.token && loginTokenBackground(user.token, true);
-  };
-  const logout = () => {
-    clearData();
-    setUser(null);
-  };
+  }, [loginTokenBackground, user?.token]);
 
   // refresh token on app start
   useEffect(() => {
@@ -150,15 +154,18 @@ export default function UserProvider({ children }: IProps) {
     };
   }, []);
 
-  const value: IUserContext = {
-    user,
-    isLogging,
-    login,
-    logout,
-    register,
-    loginTokenBackground,
-    refresh,
-  };
+  const value: IUserContext = useMemo(
+    () => ({
+      user,
+      isLogging,
+      login,
+      logout,
+      register,
+      loginTokenBackground,
+      refresh,
+    }),
+    [isLogging, login, loginTokenBackground, refresh, register, user],
+  );
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 

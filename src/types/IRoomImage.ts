@@ -7,6 +7,6 @@ export interface IRoomImage {
   image: string;
   order: number | null;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

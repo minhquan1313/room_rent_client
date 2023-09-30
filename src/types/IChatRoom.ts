@@ -5,8 +5,8 @@ import { IChatSeen } from "@/types/IChatSeen";
 export interface IChatRoom {
   _id: string;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }
 
 export interface IChatMessageWithSeen extends IChatMessage {

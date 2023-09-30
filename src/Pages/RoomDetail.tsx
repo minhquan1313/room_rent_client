@@ -1,3 +1,4 @@
+import MyAvatar from "@/Components/MyAvatar";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
@@ -10,6 +11,7 @@ import { isRoleAdmin } from "@/constants/roleType";
 import { routeRoomEdit, routeUserDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
+import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
 import { getDescriptionsRoom } from "@/utils/getDescriptionsRoom";
 import { pageTitle } from "@/utils/pageTitle";
@@ -17,7 +19,6 @@ import { roomServiceIcon } from "@/utils/roomServiceIcon";
 import { toStringUserName } from "@/utils/toString";
 import { GoogleOutlined } from "@ant-design/icons";
 import {
-  Avatar,
   Badge,
   Card,
   Col,
@@ -36,16 +37,16 @@ import {
   useRef,
   useState,
 } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const imageGutter: [number, number] = [8, 8];
 
 const RoomDetail = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const location = useLocation();
 
-  const { addUser } = useContext(InteractedUserProviderContext);
+  const { addUser, getUser } = useContext(InteractedUserProviderContext);
   const { loadMapTo, addMarker, addUserMarker } = useContext(GoogleMapContext);
   const { user } = useContext(UserContext);
   const { locationDenied, coords } = useContext(UserLocationContext);
@@ -63,6 +64,7 @@ const RoomDetail = () => {
   const loaded = useRef(false);
   const [map, setMap] = useState<google.maps.Map>();
   const marker = useRef<google.maps.Marker>();
+  const [owner, setOwner] = useState<IUser | null>(getUser(room?.owner));
 
   function centerMarker(map?: google.maps.Map, marker?: google.maps.Marker) {
     if (!marker || !map) return;
@@ -170,10 +172,14 @@ const RoomDetail = () => {
     if (!room_) return;
 
     // setCurrentRoom(room_);
-    addUser(room_.owner);
-  }, [room_]);
+    // addUser(room_.owner);
+    setOwner(getUser(room_.owner));
+  }, [getUser, room_]);
 
   // const items: DescriptionsProps["items"] = getDescriptionsRoom(room);
+  useEffect(() => {
+    document.documentElement.scrollTop = 0;
+  }, []);
 
   return (
     <div>
@@ -184,7 +190,7 @@ const RoomDetail = () => {
               <Typography.Title>
                 {room.name}
 
-                {user?._id === room.owner._id && (
+                {user?._id === room.owner && (
                   <MyButton to={routeRoomEdit + "/" + room._id}>Sửa</MyButton>
                 )}
               </Typography.Title>
@@ -278,62 +284,66 @@ const RoomDetail = () => {
               title="Liên hệ"
               extra={
                 <Space>
-                  {user && room.owner._id !== user._id && (
-                    <QuickChatBtn
-                      toUserId={room.owner._id}
-                      fromUserId={user._id}
-                    />
+                  {user && room.owner !== user._id && (
+                    <QuickChatBtn toUserId={room.owner} fromUserId={user._id} />
                   )}
                   <MyButton
                     type="primary"
-                    to={`tel:${room.owner.phone?.e164_format}`}
+                    loading={!owner}
+                    to={!owner ? undefined : `tel:${owner.phone?.e164_format}`}
                   >
                     Gọi
                   </MyButton>
                 </Space>
               }
+              loading={!owner}
             >
-              <Meta
-                avatar={
-                  <Link
-                    to={`${routeUserDetail}/${room.owner._id}`}
-                    state={{
-                      user: room.owner,
-                    }}
-                  >
-                    <Avatar src={room.owner.image}>
-                      {room.owner.first_name[0]}
-                    </Avatar>
-                  </Link>
-                }
-                title={
-                  <Link
-                    to={`${routeUserDetail}/${room.owner._id}`}
-                    state={{
-                      user: room.owner,
-                    }}
-                  >
-                    <Space>
-                      {toStringUserName(room.owner)}
+              {owner && (
+                <Meta
+                  avatar={
+                    <Link
+                      to={`${routeUserDetail}/${room.owner}`}
+                      state={{
+                        user: owner,
+                      }}
+                    >
+                      <MyAvatar
+                        src={owner.image}
+                        addServer
+                        alt={owner.first_name[0]}
+                        size={"large"}
+                      />
+                    </Link>
+                  }
+                  title={
+                    <Link
+                      to={`${routeUserDetail}/${owner._id}`}
+                      state={{
+                        user: owner,
+                      }}
+                    >
+                      <Space>
+                        {toStringUserName(owner)}
 
-                      {isRoleAdmin(room.owner.role.title) ? (
-                        <Badge
-                          title={room.owner.role.display_name ?? ""}
-                          color="gold"
-                          count={room.owner.role.display_name}
-                        />
-                      ) : (
-                        ""
-                      )}
-                    </Space>
-                  </Link>
-                }
-                description={
-                  <Typography.Text copyable>
-                    {room.owner.phone?.e164_format}
-                  </Typography.Text>
-                }
-              />
+                        {isRoleAdmin(owner.role.title) ? (
+                          <Badge
+                            title={owner.role.display_name ?? ""}
+                            color="gold"
+                            count={owner.role.display_name}
+                          />
+                        ) : (
+                          ""
+                        )}
+                      </Space>
+                    </Link>
+                  }
+                  description={
+                    <Typography.Text copyable>
+                      {owner.phone?.e164_format}
+                    </Typography.Text>
+                  }
+                />
+              )}
             </Card>
 
             <Card

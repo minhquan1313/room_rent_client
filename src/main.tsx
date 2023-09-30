@@ -4,6 +4,7 @@ import GlobalDataProvider from "@/Contexts/GlobalDataProvider";
 import GoogleMapProvider from "@/Contexts/GoogleMapProvider";
 import InteractedUserProvider from "@/Contexts/InteractedUserProvider";
 import NotificationProvider from "@/Contexts/NotificationProvider";
+import SavedProvider from "@/Contexts/SavedProvider";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserLocationProvider from "@/Contexts/UserLocationProvider";
 import UserProvider from "@/Contexts/UserProvider";
@@ -20,21 +21,23 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider>
-        <GlobalDataProvider>
-          <UserProvider>
-            <GoogleMapProvider>
-              <UserLocationProvider>
-                <ChatSocketProvider>
-                  <InteractedUserProvider>
-                    <NotificationProvider>
-                      <App />
-                    </NotificationProvider>
-                  </InteractedUserProvider>
-                </ChatSocketProvider>
-              </UserLocationProvider>
-            </GoogleMapProvider>
-          </UserProvider>
-        </GlobalDataProvider>
+        <UserProvider>
+          <GlobalDataProvider>
+            <SavedProvider>
+              <GoogleMapProvider>
+                <UserLocationProvider>
+                  <ChatSocketProvider>
+                    <InteractedUserProvider>
+                      <NotificationProvider>
+                        <App />
+                      </NotificationProvider>
+                    </InteractedUserProvider>
+                  </ChatSocketProvider>
+                </UserLocationProvider>
+              </GoogleMapProvider>
+            </SavedProvider>
+          </GlobalDataProvider>
+        </UserProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,

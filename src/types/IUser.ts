@@ -18,8 +18,8 @@ export interface IUser {
   phone: IPhoneNumber | null;
   email: IEmail | null;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 
   token?: string;
 }

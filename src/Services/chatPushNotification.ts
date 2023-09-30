@@ -59,14 +59,13 @@ export const chatPushNotification = {
 
   checkSubscribe() {
     return new Promise<PushSubscription | null>((r) => {
-      console.log(`Check`);
       navigator.serviceWorker.getRegistrations().then((registrations) => {
-        console.log(
-          `🚀 ~ navigator.serviceWorker.getRegistrations ~ registrations:`,
-          registrations,
-        );
+        // console.log(
+        //   `🚀 ~ navigator.serviceWorker.getRegistrations ~ registrations:`,
+        //   registrations,
+        // );
 
-        if (!registrations.length) r(null);
+        if (!registrations.length) return r(null);
 
         navigator.serviceWorker.ready.then((reg) => {
           console.log(`ready`);
@@ -74,10 +73,10 @@ export const chatPushNotification = {
           reg.pushManager.getSubscription().then((sub) => {
             if (!sub) {
               // ask user to register for Push
-              r(sub);
+              return r(sub);
             } else {
               // You have subscription, update the database
-              r(sub);
+              return r(sub);
             }
           });
         });

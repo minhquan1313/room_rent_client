@@ -68,6 +68,14 @@ export default function ChatSocketProvider({ children }: IProps) {
     fetcher,
   );
 
+  function reset() {
+    setChatList([]);
+    setSocket(undefined);
+    setReceiver([]);
+    setRoom(undefined);
+    setShouldFetch(true);
+  }
+
   const sendMessage = (msg: { message: string; receiver?: string[] }) => {
     if (!room) {
       // Không trong 1 room nào, gửi tin nhắn cho người mới
@@ -315,7 +323,7 @@ export default function ChatSocketProvider({ children }: IProps) {
     // Init socket
 
     if (!user?.token) {
-      // reset();
+      reset();
       return;
     }
 

@@ -1,23 +1,23 @@
 import { HomeSearch } from "@/Components/HomeSearch";
-import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
 import { PopularProvinces } from "@/Components/PopularProvinces";
 import { RecentRooms } from "@/Components/RecentRooms";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
 import banner from "@/assets/images/pexels-pixabay-277787.jpg";
-import { routeRoomAdd } from "@/constants/route";
-import { isProduction } from "@/utils/isProduction";
 import { pageTitle } from "@/utils/pageTitle";
-import { Divider, Space, Typography } from "antd";
+import { Divider, Typography } from "antd";
 import classNames from "classnames";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 
 function Home() {
   pageTitle("Trang chủ");
 
   const { myTheme } = useContext(ThemeContext);
 
+  useEffect(() => {
+    document.documentElement.scrollTop = 0;
+  }, []);
   return (
     <div>
       <div className="relative">
@@ -59,14 +59,14 @@ function Home() {
         </MyContainer>
       </div>
 
-      {!isProduction && (
+      {/* {!isProduction && (
         <MyContainer className="mt-10">
           <Space>
             [DEV]
             <MyButton to={routeRoomAdd}>Thêm phòng</MyButton>
           </Space>
         </MyContainer>
-      )}
+      )} */}
 
       <MyContainer className="mt-10">
         <Divider orientation="left">

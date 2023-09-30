@@ -3,9 +3,8 @@ import RoomListItem from "@/Components/RoomListItem";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
 import { Divider, List, Skeleton } from "antd";
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
-import useSWR from "swr";
 
 interface Props {
   userId: string;
@@ -18,14 +17,17 @@ function RoomListOfUser_({ userId }: Props) {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
 
-  const [f, setF] = useState(true);
-  const { data } = useSWR<IRoom[]>(
-    f ? `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}` : null,
-    fetcher,
-  );
-  console.log(`🚀 ~ data:`, data);
+  const fetched = useRef(rooms.length !== 0);
+
+  // const [f, setF] = useState(true);
+  // const { data } = useSWR<IRoom[]>(
+  //   f ? `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved` : null,
+  //   fetcher,
+  // );
+  // console.log(`🚀 ~ data:`, data);
 
   async function loadMoreData() {
+    fetched.current = true;
     console.log(`🚀 ~ loadMoreData`);
     console.log(`🚀 ~ loadMoreData ~ hasMore:`, hasMore);
     console.log(`🚀 ~ loadMoreData ~ loading:`, loading);
@@ -34,7 +36,7 @@ function RoomListOfUser_({ userId }: Props) {
     setLoading(true);
     try {
       const d = await fetcher<any, IRoom[]>(
-        `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}`,
+        `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved`,
       );
       console.log(`🚀 ~ loadMoreData ~ d:`, d);
 
@@ -49,30 +51,35 @@ function RoomListOfUser_({ userId }: Props) {
   }
 
   useEffect(() => {
-    console.log("asd");
+    if (fetched.current) return;
 
-    setRooms(data || rooms);
-    console.log(`🚀 ~ useEffect ~ rooms:`, rooms);
+    loadMoreData();
+  }, []);
+  // useEffect(() => {
+  //   console.log("asd");
 
-    console.log(`🚀 ~ useEffect ~ data:`, data);
+  //   setRooms(data || rooms);
+  //   console.log(`🚀 ~ useEffect ~ rooms:`, rooms);
 
-    if (!data) return;
+  //   console.log(`🚀 ~ useEffect ~ data:`, data);
 
-    setPage(page + 1);
-    if (data.length < LIMIT) setHasMore(false);
-    setF(false);
-  }, [data]);
+  //   if (!data) return;
 
-  useEffect(() => {
-    console.log(`🚀 ~ useEffect ~ userId:`, userId);
+  //   setPage(page + 1);
+  //   if (data.length < LIMIT) setHasMore(false);
+  //   setF(false);
+  // }, [data]);
 
-    if (data) return;
+  // useEffect(() => {
+  //   console.log(`🚀 ~ useEffect ~ userId:`, userId);
 
-    setLoading(false);
-    setHasMore(true);
-    setPage(1);
-    setF(true);
-  }, [userId]);
+  //   if (data) return;
+
+  //   setLoading(false);
+  //   setHasMore(true);
+  //   setPage(1);
+  //   setF(true);
+  // }, [userId]);
 
   return (
     <InfiniteScroll
@@ -84,16 +91,7 @@ function RoomListOfUser_({ userId }: Props) {
       // scrollableTarget="scrollableDiv"
     >
       <List
-        renderItem={(room) => (
-          // <List.Item
-          //   actions={[
-          //     <a key="list-loadmore-edit">edit</a>,
-          //     <a key="list-loadmore-more">more</a>,
-          //   ]}
-          // >
-          <RoomListItem room={room} />
-          // </List.Item>
-        )}
+        renderItem={(room) => <RoomListItem room={room} key={room._id} />}
         locale={{
           emptyText: <NotFoundContent />,
         }}

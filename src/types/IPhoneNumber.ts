@@ -10,6 +10,6 @@ export interface IPhoneNumber {
   e164_format: string;
   verified: boolean;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

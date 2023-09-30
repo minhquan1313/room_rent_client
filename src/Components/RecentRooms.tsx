@@ -7,18 +7,19 @@ import { useContext, useEffect } from "react";
 import useSWR from "swr";
 
 export const RecentRooms = () => {
-  const { addUser } = useContext(InteractedUserProviderContext);
+  const { getUser } = useContext(InteractedUserProviderContext);
 
   const { data: roomsRecent } = useSWR<IRoom[]>(
-    "/rooms?sort_field=createdAt&sort=-1&limit=4&disabled=false",
+    "/rooms?sort_field=createdAt&sort=-1&limit=4&disabled=false&is_visible=true&saved",
     fetcher,
   );
   // console.log(`🚀 ~ RecentRooms ~ roomsRecent:`, roomsRecent);
 
   useEffect(() => {
-    roomsRecent?.forEach((r) => addUser(r.owner));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomsRecent]);
+    console.log(`🚀 ~ RecentRooms ~ roomsRecent:`, roomsRecent);
+    //   roomsRecent?.forEach((r) => addUser(r.owner));
+    //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  });
 
   return (
     <MyFlickity>

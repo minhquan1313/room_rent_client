@@ -5,6 +5,6 @@ export interface IRole {
   title: TRole;
   display_name: string | null;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

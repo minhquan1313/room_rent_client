@@ -1,15 +1,14 @@
 import { ChatBtn } from "@/Components/ChatBtn";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
-import { ThemeContext } from "@/Contexts/ThemeProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeChat } from "@/constants/route";
 import { Badge } from "antd";
-import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Fragment, useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 const ChatHeader = () => {
   const { chatList } = useContext(ChatSocketContext);
-  const { myTheme } = useContext(ThemeContext);
+  const location = useLocation();
   const { user: me } = useContext(UserContext);
 
   const count = chatList.reduce((t, r) => {
@@ -20,14 +19,14 @@ const ChatHeader = () => {
     return t + (seenByMe ? 0 : 1);
   }, 0);
 
-  // if (!chatList.length) return null;
+  const Wrapper = location.pathname.startsWith(routeChat) ? Fragment : Link;
 
   return (
-    <Link to={routeChat}>
+    <Wrapper to={routeChat}>
       <Badge count={count}>
         <ChatBtn size="large" />
       </Badge>
-    </Link>
+    </Wrapper>
   );
 };
 

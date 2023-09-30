@@ -16,6 +16,6 @@ export interface IRoomLocation {
   ward?: string;
   detail_location?: string;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

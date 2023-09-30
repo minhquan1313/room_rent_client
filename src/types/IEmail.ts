@@ -7,6 +7,6 @@ export interface IEmail {
   email: string;
   verified: boolean;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
 }

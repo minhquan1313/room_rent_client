@@ -11,7 +11,7 @@ type Props = {
   children: ReactNode;
 };
 
-interface IThemeContext {
+interface IContext {
   //
   roles?: IRole[];
   genders?: IGender[];
@@ -19,7 +19,7 @@ interface IThemeContext {
   roomServicesConverted?: ServicesInCategory[];
   roomTypes?: IRoomType[];
 }
-export const GlobalDataContext = createContext<IThemeContext>(null as never);
+export const GlobalDataContext = createContext<IContext>(null as never);
 export default function GlobalDataProvider({ children }: Props) {
   const { data: roles } = useSWR<IRole[]>("/roles", fetcher);
   const { data: genders } = useSWR<IGender[]>("/genders", fetcher);

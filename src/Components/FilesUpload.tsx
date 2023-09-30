@@ -60,7 +60,7 @@ interface Props extends UploadProps {
   fileList?: never;
   // multiple?: never;
 
-  imageAspect?: `aspect-${"auto" | "square" | "video"}`;
+  imageAspect?: `aspect-${"auto" | "square" | "video" | string}`;
   avatar?: boolean;
   accept?: FileAcceptType;
   initImages?: IRoomImage[];

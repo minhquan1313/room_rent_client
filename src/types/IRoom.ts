@@ -1,13 +1,14 @@
+import { ISaved } from "@/types/ISaved";
 import { IRoomImage } from "./IRoomImage";
 import { IRoomLocation } from "./IRoomLocation";
 import { IRoomService, TRoomService } from "./IRoomService";
 import { IRoomType, TRoomType } from "./IRoomType";
-import { IUser } from "./IUser";
 
 export interface IRoom {
   _id: string;
 
-  owner: IUser;
+  owner: string;
+  // owner: IUser;
   room_type: IRoomType;
   location: IRoomLocation | null;
   images: IRoomImage[];
@@ -33,8 +34,15 @@ export interface IRoom {
   verified_real: boolean;
   verified: boolean;
 
-  updatedAt: Date;
-  createdAt: Date;
+  updatedAt: string;
+  createdAt: string;
+
+  saved?: ISaved[];
+}
+
+export interface IRoomWithCount {
+  count: number;
+  data: IRoom[];
 }
 
 export type RoomPayload = {
