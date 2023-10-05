@@ -1,7 +1,6 @@
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { Typography } from "antd";
 import { NotificationInstance } from "antd/es/notification/interface";
-import { AxiosError } from "axios";
 
 export const notificationResponseError = ({
   notification,
@@ -10,12 +9,12 @@ export const notificationResponseError = ({
 }: {
   notification: NotificationInstance;
   error: any;
-  message: string;
+  message?: string;
 }) =>
   notification.open({
     type: "error",
-    duration: 0,
-    message,
+    duration: 30,
+    message: message || "Lỗi",
     description: (error!.response.data as ErrorJsonResponse).error.map(
       ({ msg }) => (
         <div key={msg}>

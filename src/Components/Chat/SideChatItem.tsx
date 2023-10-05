@@ -1,13 +1,14 @@
+import MyAvatar from "@/Components/MyAvatar";
 import MyButton from "@/Components/MyButton";
-import MyImage from "@/Components/MyImage";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleTopAdmin } from "@/constants/roleType";
 import { IChatMember } from "@/types/IChatMember";
 import { IChatMessageWithSeen } from "@/types/IChatRoom";
 import { IUser } from "@/types/IUser";
+import { isMobile } from "@/utils/isMobile";
 import { toStringUserName } from "@/utils/toString";
 import { DeleteOutlined } from "@ant-design/icons";
-import { Avatar, Badge, Spin, Typography } from "antd";
+import { Badge, Spin, Typography } from "antd";
 import { BaseButtonProps } from "antd/es/button/button";
 import { memo, useContext } from "react";
 
@@ -40,35 +41,18 @@ const SideChatItem_ = ({
         className="h-fit rounded-none border-none"
       >
         <div className="flex space-x-2 py-2 text-left">
-          <Badge
-            dot={!lastMsg.seen.find((u) => u.seen_by === me?._id)}
-            // status="processing"
-          >
-            <Avatar
-              src={
-                user?.image ? (
-                  <MyImage
-                    src={user.image}
-                    addServer
-                    preview={false}
-                    width={`100%`}
-                    height={`100%`}
-                  />
-                ) : null
-              }
-              size={"large"}
+          <Badge dot={!lastMsg.seen.find((u) => u.seen_by === me?._id)}>
+            <MyAvatar
+              src={user?.image}
+              size={isMobile() ? "default" : "large"}
+              addServer
               className="flex-shrink-0"
-            >
-              {user?.first_name[0]}
-            </Avatar>
+              alt={user?.first_name[0]}
+            />
           </Badge>
 
-          <div className="flex-1 overflow-hidden">
-            <Typography.Paragraph
-              ellipsis={{ rows: 1 }}
-              // className="!m-0 whitespace-normal"
-              className="!m-0"
-            >
+          <div className="hidden flex-1 overflow-hidden sm:block">
+            <Typography.Paragraph ellipsis={{ rows: 1 }} className="!m-0">
               {members.length <= 2 ? (
                 <>
                   {/* {toStringUserName(user)} */}
@@ -90,7 +74,7 @@ const SideChatItem_ = ({
             </Typography.Paragraph>
           </div>
 
-          {isRoleTopAdmin(me?.role.title) && (
+          {isRoleTopAdmin(me?.role?.title) && (
             <MyButton
               onClick={async (e) => {
                 e.stopPropagation();

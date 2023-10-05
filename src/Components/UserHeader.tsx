@@ -23,7 +23,7 @@ const UserHeader = () => {
     <Dropdown
       menu={{
         items: [
-          isRoleAdmin(user.role.title)
+          isRoleAdmin(user.role?.title)
             ? {
                 key: routeAdmin.index,
                 label: (
@@ -45,11 +45,11 @@ const UserHeader = () => {
                 <Space>
                   {toStringUserName(user)}
 
-                  {isRoleOwner(user.role.title) && (
+                  {isRoleOwner(user.role?.title) && (
                     <Badge
-                      // title={user.role.display_name ?? ""}
+                      // title={user.role?.display_name ?? ""}
                       color="cyan"
-                      count={user.role.display_name}
+                      count={user.role?.display_name}
                     />
                   )}
                 </Space>
@@ -57,7 +57,7 @@ const UserHeader = () => {
             ),
             disabled: false,
           },
-          isRoleOwner(user.role.title)
+          isRoleOwner(user.role?.title)
             ? {
                 key: routeRoomAdd,
                 label: <Link to={routeRoomAdd}>Thêm phòng</Link>,
@@ -88,7 +88,7 @@ const UserHeader = () => {
       <MyAvatar
         className={classNames("select-none", {
           "border-2 border-solid border-yellow-500": isRoleAdmin(
-            user.role.title,
+            user.role?.title,
           ),
         })}
         src={user.image}

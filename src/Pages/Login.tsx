@@ -72,10 +72,10 @@ function Login() {
     };
   }, [location.key, navigate]);
 
-  useEffect(() => {
-    error;
-    console.log(`🚀 ~ useEffect ~ error:`, error);
-  });
+  // useEffect(() => {
+  //   error;
+  //   console.log(`🚀 ~ useEffect ~ error:`, error);
+  // });
 
   return (
     <MyContainer.Center className="max-w-sm py-5">

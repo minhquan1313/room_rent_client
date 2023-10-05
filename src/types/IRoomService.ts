@@ -32,7 +32,7 @@ export interface IRoomService {
   _id: string;
 
   title: string;
-  display_name: string;
+  display_name: string | null;
   category: IRoomServiceCategory | null;
 
   updatedAt: string;

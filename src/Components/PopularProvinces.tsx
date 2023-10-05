@@ -2,7 +2,7 @@ import { MyFlickity } from "@/Components/MyFlickity";
 import MyImage from "@/Components/MyImage";
 import { routeRoomSearch } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
-import { CountRoom } from "@/types/IRoom";
+import { TCountData } from "@/types/IRoom";
 import { Typography } from "antd";
 import { useEffect, useRef } from "react";
 import Flickity from "react-flickity-component";
@@ -12,8 +12,8 @@ import useSWR from "swr";
 export const PopularProvinces = () => {
   const ref = useRef<HTMLDivElement>(null);
 
-  const { data: roomCounts } = useSWR<CountRoom[]>(
-    "/stats/count-room?limit=4",
+  const { data: roomCounts } = useSWR<TCountData[]>(
+    "/stats/count-room?limit=4&province",
     fetcher,
   );
 
@@ -35,14 +35,14 @@ export const PopularProvinces = () => {
 
   return (
     <MyFlickity>
-      {roomCounts?.length &&
-        roomCounts.map(({ count, province, image }) => (
+      {roomCounts?.[0] &&
+        roomCounts.map(({ count, label, image }) => (
           <div
             className="aspect-[4/5] w-full sm:w-1/2 lg:w-1/3 2xl:w-1/4"
-            key={province}
+            key={label}
           >
             <Link
-              to={`${routeRoomSearch}?province=${province}`}
+              to={`${routeRoomSearch}?province=${label}`}
               className="block h-full px-2"
             >
               <div className="relative h-full overflow-hidden rounded-lg">
@@ -56,7 +56,7 @@ export const PopularProvinces = () => {
                 />
                 <div className="absolute inset-x-0 bottom-0 z-20 p-5">
                   <Typography.Title level={3} className="!text-white">
-                    {province}
+                    {label}
                   </Typography.Title>
                   <Typography.Text className="!text-white">
                     {count} tin

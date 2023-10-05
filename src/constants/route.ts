@@ -27,5 +27,6 @@ export const routeAdmin = {
   room: "rooms",
   roomList: "room-all",
   roomService: "room-services",
+  roomServiceCate: "room-service-categories",
   roomType: "room-types",
 };

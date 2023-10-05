@@ -1,9 +1,10 @@
-import MyImage from "@/Components/MyImage";
+import MyAvatar from "@/Components/MyAvatar";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { IChatSeen } from "@/types/IChatSeen";
 import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
+import { isMobile } from "@/utils/isMobile";
 import { toStringUserName } from "@/utils/toString";
 import { Avatar, Card, Space, Tooltip, Typography, theme } from "antd";
 import classNames from "classnames";
@@ -38,22 +39,12 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
           <Typography.Text>{message}</Typography.Text>
         ) : (
           <Space className="items-start">
-            <Avatar
-              src={
-                user?.image ? (
-                  <MyImage
-                    src={user.image}
-                    addServer
-                    preview={false}
-                    width={`100%`}
-                    height={`100%`}
-                  />
-                ) : null
-              }
-              size={50}
-            >
-              {user?.first_name[0]}
-            </Avatar>
+            <MyAvatar
+              src={user?.image}
+              size={isMobile() ? "default" : 50}
+              addServer
+              alt={user?.first_name[0]}
+            />
 
             <Space direction="vertical" size={"small"}>
               {showDetailUser && (
@@ -78,7 +69,16 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
             // .filter((s) => s.seen_by !== me?._id)
             .map((r) => (
               <Tooltip title={getUser(r.seen_by)?.username} key={r.seen_by}>
-                <Avatar
+                <MyAvatar
+                  src={(() => {
+                    const u = getUser(r.seen_by);
+                    return u ? u.image : undefined;
+                  })()}
+                  size={"small"}
+                  addServer
+                  alt={getUser(r.seen_by)?.first_name[0]}
+                />
+                {/* <Avatar
                   src={(() => {
                     const u = getUser(r.seen_by);
                     return u ? u.image : undefined;
@@ -86,7 +86,7 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
                   size={"small"}
                 >
                   {getUser(r.seen_by)?.first_name[0]}
-                </Avatar>
+                </Avatar> */}
               </Tooltip>
             ))}
         </Space>

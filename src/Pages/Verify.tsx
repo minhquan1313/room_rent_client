@@ -9,7 +9,7 @@ import { useSearchParams } from "react-router-dom";
 function Verify() {
   pageTitle("Xác thực");
 
-  const [query, setQuery] = useSearchParams();
+  const [query] = useSearchParams();
   const [success, setSuccess] = useState<boolean>();
   const [error, setError] = useState<string>();
   const submitted = useRef(false);
@@ -40,6 +40,7 @@ function Verify() {
         submitted.current = true;
         break;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="mx-auto my-auto h-full items-center">

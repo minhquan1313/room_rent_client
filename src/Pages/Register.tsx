@@ -137,15 +137,15 @@ function Register() {
           layout="vertical"
           onChange={() => setError(undefined)}
           disabled={submitting || isLogging}
-          initialValues={{
-            region_code: "VN",
-            first_name: "Binh",
-            tell: 889379138,
-            username: "binh",
-            password: "1",
-            role: "user",
-            gender: "male",
-          }}
+          // initialValues={{
+          //   region_code: "VN",
+          //   first_name: "Binh",
+          //   tell: 889379138,
+          //   username: "binh",
+          //   password: "1",
+          //   role: "user",
+          //   gender: "male",
+          // }}
           onFinish={onFinish}
           size={isMobile() ? "large" : undefined}
         >
@@ -202,7 +202,7 @@ function Register() {
                     required: true,
                     message: "Tên không bỏ trống",
                   },
-                  noWhiteSpace,
+                  ...noWhiteSpace,
                 ]}
               >
                 <Input />

@@ -1,30 +1,41 @@
 import { TRoomService } from "@/types/IRoomService";
-import { QuestionOutlined, WifiOutlined } from "@ant-design/icons";
+import {
+  CarOutlined,
+  DeploymentUnitOutlined,
+  ExpandAltOutlined,
+  EyeOutlined,
+  FireOutlined,
+  InsertRowLeftOutlined,
+  NumberOutlined,
+  QuestionOutlined,
+  SafetyOutlined,
+  WifiOutlined,
+} from "@ant-design/icons";
 
 export function roomServiceIcon(service: string) {
   switch (service as TRoomService) {
     case "wifi":
       return <WifiOutlined />;
     case "mt":
-      return <WifiOutlined />;
+      return <ExpandAltOutlined />;
     case "anc":
-      return <WifiOutlined />;
+      return <SafetyOutlined />;
     case "bct":
-      return <WifiOutlined />;
+      return <NumberOutlined />;
     case "bdxr":
-      return <WifiOutlined />;
+      return <CarOutlined />;
     case "bnl":
-      return <WifiOutlined />;
+      return <FireOutlined />;
     case "bv":
-      return <WifiOutlined />;
+      return <InsertRowLeftOutlined />;
     case "bxb":
       return <WifiOutlined />;
     case "c":
       return <WifiOutlined />;
     case "can":
-      return <WifiOutlined />;
+      return <EyeOutlined />;
     case "cv":
-      return <WifiOutlined />;
+      return <DeploymentUnitOutlined />;
     case "dh":
       return <WifiOutlined />;
     case "gl":

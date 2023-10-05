@@ -7,7 +7,7 @@ import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { isRoleAdmin } from "@/constants/roleType";
+import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
 import { routeRoomEdit, routeUserDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
@@ -57,7 +57,7 @@ const RoomDetail = () => {
     // currentRoom ? undefined : `/rooms/${id}`,
     fetcher,
   );
-  const room = room_ || (location.state.room as IRoom | undefined);
+  const room = room_ || (location.state?.room as IRoom | undefined);
   pageTitle(room?.name || "Đang tải");
 
   const mapRef = useRef<HTMLDivElement>(null);
@@ -190,9 +190,10 @@ const RoomDetail = () => {
               <Typography.Title>
                 {room.name}
 
-                {user?._id === room.owner && (
-                  <MyButton to={routeRoomEdit + "/" + room._id}>Sửa</MyButton>
-                )}
+                {user?._id === room.owner ||
+                  (isRoleAdmin(user?.role?.title) && (
+                    <MyButton to={routeRoomEdit + "/" + room._id}>Sửa</MyButton>
+                  ))}
               </Typography.Title>
 
               <Typography.Paragraph className="text-right">
@@ -325,11 +326,11 @@ const RoomDetail = () => {
                       <Space>
                         {toStringUserName(owner)}
 
-                        {isRoleAdmin(owner.role.title) ? (
+                        {isRoleAdmin(owner.role?.title) ? (
                           <Badge
-                            title={owner.role.display_name ?? ""}
+                            title={owner.role?.display_name ?? ""}
                             color="gold"
-                            count={owner.role.display_name}
+                            count={owner.role?.display_name}
                           />
                         ) : (
                           ""

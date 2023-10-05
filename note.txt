@@ -1,4 +1,2 @@
 #BUG
-Công việc ngày mai
-
-Làm tiếp xoá user
+thêm icon cho mỗi service

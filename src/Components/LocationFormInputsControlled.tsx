@@ -110,7 +110,7 @@ export const LocationFormInputsControlled: FC<{
   const thirdCountrySelect = useCallback<
     NonNullable<SelectLocation["onSelect"]>
   >(
-    ({ code, name }) => {
+    ({ code }) => {
       // setCountry(name);
       setThirdCountryCode(code);
 
@@ -137,7 +137,7 @@ export const LocationFormInputsControlled: FC<{
   const thirdProvinceSelect = useCallback<
     NonNullable<SelectLocation["onSelect"]>
   >(
-    ({ code, name }) => {
+    ({ code }) => {
       // setProvince(name);
       setThirdProvinceCode(code);
 
@@ -155,7 +155,7 @@ export const LocationFormInputsControlled: FC<{
   const thirdDistrictSelect = useCallback<
     NonNullable<SelectLocation["onSelect"]>
   >(
-    ({ code, name }) => {
+    ({ code }) => {
       // setDistrict(name);
       setThirdDistrictCode(code);
 
@@ -238,7 +238,7 @@ export const LocationFormInputsControlled: FC<{
           error === "OVER_QUERY_LIMIT"
             ? "API hết lượt dùng rồi :>"
             : "Có lỗi khi lấy địa chỉ, mở console",
-        duration: 10,
+        duration: 30,
         icon: <StopOutlined />,
       });
     }
@@ -263,50 +263,9 @@ export const LocationFormInputsControlled: FC<{
 
       const ward = str.pop();
 
-      const detailLocation = str.join(", ");
-
-      // if (geoLocation.address_components.length >= 5) {
-      //   const s = [];
-      //   for (const r of geoLocation.address_components) {
-      //     if (r.types.includes("political")) break;
-      //     s.push(r.long_name);
-      //   }
-      //   detailLocation = s.join(", ");
-      // }
-
-      // setDetailLocation(detailLocation);
+      // const detailLocation = str.join(", ");
 
       await resolveLocationFromGG("Viet nam", province, district, ward);
-      // const data = await locationResolve("Viet nam", province, district, ward);
-      // console.log(`🚀 ~ onCoordChange ~ data:`, data);
-
-      // if (!Object.keys(data).length) {
-      //   //
-      //   messageApi.open({
-      //     type: "error",
-      //     content: "Vùng không hỗ trợ",
-      //   });
-      // } else {
-      //   setThirdCountryCode(data.country ? data.country.code : undefined);
-      //   setCountry(() => (data.country ? data.country.name : undefined));
-
-      //   setThirdProvinceCode(data.province ? data.province.code : undefined);
-      //   setProvince(() => (data.province ? data.province.name : undefined));
-
-      //   setThirdDistrictCode(data.district ? data.district.code : undefined);
-      //   setDistrict(() => (data.district ? data.district.name : undefined));
-
-      //   // setThirdWardCode(data.ward ? data.ward.code : undefined);
-      //   setWard(() => (data.ward ? data.ward.name : undefined));
-      // }
-
-      // resolveLocationFromGG(country, province, district, ward);
-      // console.log(`🚀 ~ onCoordChange ~ country, province, district, ward:`, {
-      //   country,
-      //   province,
-      //   district,
-      //   ward,
-      // });
     }
   }
 

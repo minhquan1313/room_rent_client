@@ -14,6 +14,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLocation } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 import useSWR from "swr";
 
@@ -43,6 +44,7 @@ const LIMIT = 5;
 export default function ChatSocketProvider({ children }: IProps) {
   const { user } = useContext(UserContext);
   const [socket, setSocket] = useState<Socket>();
+  const location = useLocation();
 
   /**
    * Chat room được fetch duy nhất 1 lần từ server, để lấy các chat
@@ -63,10 +65,9 @@ export default function ChatSocketProvider({ children }: IProps) {
    * Load tất cả các cuộc trò chuyện hiện có của user này :>
    * Là load tất cả 1 lần luôn
    */
-  const { data: chatListInit } = useSWR<TChatList[]>(
-    () => (shouldFetch ? `/chat/list/${user!._id}` : null),
-    fetcher,
-  );
+  const { data: chatListInit } = useSWR<TChatList[]>(() => {
+    return shouldFetch ? `/chat/list/${user!._id}` : null;
+  }, fetcher);
 
   function reset() {
     setChatList([]);
@@ -383,6 +384,12 @@ export default function ChatSocketProvider({ children }: IProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.room]);
+
+  // useEffect(() => {
+  //   if (!location.pathname.startsWith(routeChat)) {
+  //     setRoom(undefined);
+  //   }
+  // }, [location.pathname]);
 
   const value = (() => ({
     room,

@@ -3,7 +3,7 @@ import PhoneOTP from "@/Components/PhoneOTP";
 import SelectGender from "@/Components/SelectGender";
 import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import { UserContext } from "@/Contexts/UserProvider";
-import { TUserEditFields } from "@/Pages/UserEdit";
+import { TUserEditFields } from "@/Pages/UserInfo";
 import { resendInterval } from "@/constants/resendInterval";
 import { emailRule } from "@/rules/emailRule";
 import { phoneRule } from "@/rules/phoneRule";
@@ -66,7 +66,7 @@ const NormalInfoEdit = () => {
         if (email?.email !== user.email?.email) {
           payload.email = email?.email;
         }
-        if (gender?.title !== user.gender.title) {
+        if (gender?.title !== user.gender?.title) {
           payload.gender = gender?.title;
         }
         if (first_name !== user.first_name) {

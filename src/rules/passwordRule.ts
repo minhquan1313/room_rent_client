@@ -6,5 +6,5 @@ export const passwordRule: Rule[] = [
   //   min: 6,
   //   message: "Mật khẩu từ 6 kí tự trở lên",
   // },
-  noWhiteSpace,
+  ...noWhiteSpace,
 ];

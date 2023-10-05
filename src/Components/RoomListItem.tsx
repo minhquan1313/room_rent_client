@@ -103,7 +103,7 @@ function RoomListItem_({ room, showState }: RoomCardProps) {
             {dateFormat(createdAt).format("LLL")}
           </Typography.Paragraph>
 
-          {RoomStateTags({ room })}
+          <RoomStateTags room={room} />
         </Link>
 
         <Link

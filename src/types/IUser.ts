@@ -13,8 +13,8 @@ export interface IUser {
   image: string | null;
   owner_banner: string | null;
   disabled: boolean;
-  gender: IGender;
-  role: IRole;
+  gender: IGender | null;
+  role: IRole | null;
   phone: IPhoneNumber | null;
   email: IEmail | null;
 

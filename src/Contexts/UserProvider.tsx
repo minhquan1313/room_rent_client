@@ -39,6 +39,8 @@ export default function UserProvider({ children }: IProps) {
       const url = `/users/login`;
 
       const user = await fetcher.post<never, IUser>(url, u);
+      console.log(`🚀 ~ login ~ user:`, user);
+
       setIsLogging(false);
 
       saveData(user, remember);
@@ -85,6 +87,8 @@ export default function UserProvider({ children }: IProps) {
   );
 
   const logout = () => {
+    console.log(`calling logout`);
+
     clearData();
     setUser(null);
   };
@@ -143,8 +147,9 @@ export default function UserProvider({ children }: IProps) {
         return response;
       },
       function (error) {
+        console.log(`🚀 ~ useEffect ~ error:`, error);
+
         error.response.status === 401 && logout();
-        // throw error;
         return Promise.reject(error);
       },
     );

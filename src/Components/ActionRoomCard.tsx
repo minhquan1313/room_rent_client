@@ -5,7 +5,7 @@ import { routeRoomEdit } from "@/constants/route";
 import { deleteSaved, saveRoom } from "@/services/saveRoom";
 import { IRoom } from "@/types/IRoom";
 import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
-import { Tooltip } from "antd";
+import { Space, Tooltip } from "antd";
 import { ReactNode, useContext, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -28,37 +28,40 @@ const ActionRoomCard = ({ room }: Props): ReactNode[] => {
     : HeartOutlined;
 
   const actions: ReactNode[] = [
-    <SavedComponent
-      onClick={async () => {
-        console.log(_id, saved);
-        if (!user || !saved) return;
+    <Space>
+      {room.saved?.[0] && room.saved.length}
+      <SavedComponent
+        onClick={async () => {
+          console.log(_id, saved);
+          if (!user || !saved) return;
 
-        const isSaved = saved.find((r) => r.user === user._id);
-        console.log(`🚀 ~ onClick={ ~ isSaved:`, isSaved);
+          const isSaved = saved.find((r) => r.user === user._id);
+          console.log(`🚀 ~ onClick={ ~ isSaved:`, isSaved);
 
-        try {
-          if (isSaved) {
-            // unSave
-            remove(isSaved.room);
-            await deleteSaved(isSaved._id);
-            room.saved = saved.filter((r) => r !== isSaved);
-          } else {
-            // save
-            const doc = await saveRoom(user._id, _id);
-            room.saved = saved.concat(doc);
-            add(room, "left");
+          try {
+            if (isSaved) {
+              // unSave
+              remove(isSaved.room);
+              await deleteSaved(isSaved._id);
+              room.saved = saved.filter((r) => r !== isSaved);
+            } else {
+              // save
+              const doc = await saveRoom(user._id, _id);
+              room.saved = saved.concat(doc);
+              add(room, "left");
+            }
+            update();
+          } catch (error) {
+            console.log(`🚀 ~ error:`, error);
+
+            //
           }
-          update();
-        } catch (error) {
-          console.log(`🚀 ~ error:`, error);
-
-          //
-        }
-      }}
-    />,
+        }}
+      />
+    </Space>,
   ];
 
-  if (user?._id === room.owner || isRoleAdmin(user?.role.title)) {
+  if (user?._id === room.owner || isRoleAdmin(user?.role?.title)) {
     actions.push(
       ...[
         <Tooltip title="Sửa thông tin">

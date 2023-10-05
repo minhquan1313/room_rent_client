@@ -1,7 +1,7 @@
 import FilesUpload, { FilesUploadRef } from "@/Components/FilesUpload";
 import MyButton from "@/Components/MyButton";
 import { UserContext } from "@/Contexts/UserProvider";
-import { TUserEditFields } from "@/Pages/UserEdit";
+import { TUserEditFields } from "@/Pages/UserInfo";
 import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";

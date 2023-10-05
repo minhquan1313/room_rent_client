@@ -241,7 +241,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
           error === "OVER_QUERY_LIMIT"
             ? "API hết lượt dùng rồi :>"
             : "Có lỗi khi lấy địa chỉ, mở console",
-        duration: 10,
+        duration: 30,
         icon: <StopOutlined />,
       });
     }

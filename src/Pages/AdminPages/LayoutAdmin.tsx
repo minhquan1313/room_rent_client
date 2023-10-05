@@ -53,6 +53,10 @@ const LayoutAdmin = () => {
             label: "Dịch vụ",
           },
           {
+            key: routeAdmin.roomServiceCate,
+            label: "Loại dịch vụ",
+          },
+          {
             key: routeAdmin.roomType,
             label: "Kiểu phòng",
           },
@@ -101,7 +105,7 @@ const LayoutAdmin = () => {
         </Sider>
       </Layout>
 
-      <div className="relative h-full w-full overflow-x-hidden px-5">
+      <div className="relative h-full w-full overflow-x-hidden p-5">
         <Outlet />
       </div>
     </div>

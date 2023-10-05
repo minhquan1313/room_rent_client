@@ -3,7 +3,7 @@ import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeChat } from "@/constants/route";
 import { Badge } from "antd";
-import { Fragment, useContext } from "react";
+import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 const ChatHeader = () => {
@@ -19,14 +19,14 @@ const ChatHeader = () => {
     return t + (seenByMe ? 0 : 1);
   }, 0);
 
-  const Wrapper = location.pathname.startsWith(routeChat) ? Fragment : Link;
+  // const Wrapper = location.pathname.startsWith(routeChat) ?  : Link;
 
   return (
-    <Wrapper to={routeChat}>
+    <Link to={routeChat}>
       <Badge count={count}>
         <ChatBtn size="large" />
       </Badge>
-    </Wrapper>
+    </Link>
   );
 };
 

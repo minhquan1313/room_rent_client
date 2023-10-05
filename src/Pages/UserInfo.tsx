@@ -17,7 +17,7 @@ export type TUserEditFields = Partial<IUser> & {
   file?: File;
   file_to?: "avatar" | "banner";
 };
-const UserEdit = () => {
+const UserInfo = () => {
   const { user } = useContext(UserContext);
   const [query, setQuery] = useSearchParams();
   const screens = Grid.useBreakpoint();
@@ -76,4 +76,4 @@ const UserEdit = () => {
   );
 };
 
-export default UserEdit;
+export default UserInfo;

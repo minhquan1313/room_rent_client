@@ -7,11 +7,13 @@ export const phoneRule: Rule[] = [
   //   min: 6,
   //   message: "Mật khẩu từ 6 kí tự trở lên",
   // },
-  noWhiteSpace,
+  ...noWhiteSpace,
   ({ getFieldValue }) => ({
     message: "Số điện thoại không hợp lệ",
     validator(_, value) {
-      if (value === "") return Promise.resolve();
+      console.log(`🚀 ~ validator ~ value:`, value);
+
+      if (value === "" || value === undefined) return Promise.resolve();
       const rc =
         getFieldValue("region_code") || getFieldValue(["phone", "region_code"]);
 

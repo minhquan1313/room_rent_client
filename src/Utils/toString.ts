@@ -17,5 +17,5 @@ export const toStringLocation = (
 export const toStringUserName = (u?: IUser | null) => {
   if (!u) return "";
 
-  return `${u.last_name ?? ""} ${u.first_name}`;
+  return `${u.last_name ?? ""} ${u.first_name}`.trim();
 };

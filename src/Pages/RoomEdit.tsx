@@ -4,6 +4,7 @@ import MyContainer from "@/Components/MyContainer";
 import RoomFormAddEdit from "@/Components/RoomFormAddEdit";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
+import { isRoleAdmin } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
@@ -15,30 +16,40 @@ import { useContext, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
-const RoomEdit = () => {
-  // const navigate = useNavigate();
-  const location = useLocation();
-
-  const { isLogging } = useContext(UserContext);
-  const [messageApi, contextHolder] = message.useMessage();
+interface Props {
+  room?: IRoom;
+  onSaveSuccess?(): void;
+}
+const RoomEdit = ({ onSaveSuccess, room: roomPassed }: Props) => {
+  const { isLogging, user } = useContext(UserContext);
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
+
+  const location = useLocation();
+  const { id } = useParams();
+
+  const [form] = Form.useForm();
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<ErrorJsonResponse>();
+
   const files = useRef<FilesUploadRef>(null);
   const locationRef = useRef<RoomLocationPayload>(null);
 
-  const { id } = useParams();
-  const { data: room_ } = useSWR<IRoom>(`/rooms/${id}`, fetcher);
-  const room = room_ || (location.state?.room as IRoom | undefined);
+  const { data: room_ } = useSWR<IRoom>(id ? `/rooms/${id}` : null, fetcher);
+
+  const room =
+    roomPassed || room_ || (location.state?.room as IRoom | undefined);
 
   pageTitle(room?.name ? `Sửa - ${room.name}` : "Đang tải");
 
   return (
-    <div>
-      <MyContainer className="my-10">
-        {contextHolder}
-        {room && (
+    <MyContainer className="py-5">
+      {contextHolder}
+      {room && (
+        <>
+          <Typography.Title>Chỉnh sửa phòng</Typography.Title>
           <Form
             onFinish={async (values: RoomPayload) => {
               console.log(`🚀 ~ onFinish={ ~ values:`, values);
@@ -119,6 +130,8 @@ const RoomEdit = () => {
                   type: "success",
                   content: "Sửa thành công",
                 });
+
+                onSaveSuccess && onSaveSuccess();
               } catch (error) {
                 setError((error as any).response.data as ErrorJsonResponse);
               }
@@ -133,8 +146,7 @@ const RoomEdit = () => {
                 long: room.location?.lat_long.coordinates[0],
               },
 
-              owner: room.owner,
-              room_type: room.room_type.title,
+              room_type: room.room_type?.title,
               services: room.services.map((e) => e.title),
             }}
             name="room"
@@ -143,6 +155,7 @@ const RoomEdit = () => {
             onChange={() => setError(undefined)}
             disabled={submitting || isLogging}
             size={isMobile() ? "large" : undefined}
+            form={form}
           >
             <Space>
               <Form.Item<IRoom>
@@ -159,7 +172,7 @@ const RoomEdit = () => {
                 label={"Bài bị cấm"}
                 tooltip="Chỉ quản trị mới có quyền thay đổi"
               >
-                <Switch disabled />
+                <Switch disabled={!isRoleAdmin(user?.role?.title)} />
               </Form.Item>
 
               <Form.Item<IRoom>
@@ -168,7 +181,7 @@ const RoomEdit = () => {
                 label={"Admin đã duyệt bài"}
                 tooltip="Chỉ quản trị mới có quyền thay đổi"
               >
-                <Switch disabled />
+                <Switch disabled={!isRoleAdmin(user?.role?.title)} />
               </Form.Item>
 
               <Form.Item<IRoom>
@@ -177,7 +190,7 @@ const RoomEdit = () => {
                 label={"Admin đã xem tận nơi"}
                 tooltip="Chỉ quản trị mới có quyền thay đổi"
               >
-                <Switch disabled />
+                <Switch disabled={!isRoleAdmin(user?.role?.title)} />
               </Form.Item>
             </Space>
 
@@ -186,6 +199,9 @@ const RoomEdit = () => {
             <Affix offsetBottom={8}>
               <Form.Item noStyle={!error}>
                 <Space.Compact block>
+                  <MyButton block onClick={() => form.resetFields()}>
+                    Reset
+                  </MyButton>
                   <MyButton
                     block
                     type="primary"
@@ -212,9 +228,9 @@ const RoomEdit = () => {
               )}
             </Form.Item>
           </Form>
-        )}
-      </MyContainer>
-    </div>
+        </>
+      )}
+    </MyContainer>
   );
 };
 

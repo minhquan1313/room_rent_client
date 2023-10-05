@@ -1,27 +1,22 @@
+import AddUser from "@/Components/AdminPages/AddUser";
 import EditUser from "@/Components/AdminPages/EditUser";
 import MyButton from "@/Components/MyButton";
-import MyImage from "@/Components/MyImage";
-import { VerifyBadge } from "@/Components/VerifyBadge";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner, isRoleTopAdmin, roleOrder } from "@/constants/roleType";
 import { UserService } from "@/services/UserService";
 import { fetcher } from "@/services/fetcher";
 import { IDataWithCount } from "@/types/IRoom";
 import { IUser } from "@/types/IUser";
 import { TCommonQuery } from "@/types/TCommonQuery";
-import { dateFormat } from "@/utils/dateFormat";
+import getTableColumn from "@/utils/getTableColumn/getTableColumn";
 import { pageTitle } from "@/utils/pageTitle";
-import { SearchOutlined } from "@ant-design/icons";
-import { Input, Space, Switch, Typography } from "antd";
+import { Popconfirm, Space, Typography } from "antd";
 import Table, { ColumnsType, TableProps } from "antd/es/table";
 import QueryString from "qs";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
-type DataType = IUser & {
-  key: React.Key;
-};
+type DataType = IUser;
 // type DataType = {
 //   [k in keyof IUser]?: any;
 // } & {
@@ -36,250 +31,81 @@ const UserDashBoard = () => {
   const [allUsers, setAllUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [showAddUser, setShowAddUser] = useState(false);
   const [editUser, setEditUser] = useState<IUser>();
   const [total, setTotal] = useState(0);
   const [disablingUser, setDisablingUser] = useState<IUser>();
   const [queries, setQueries] = useState<TCommonQuery>({
     page: 1,
-    limit: 3,
+    limit: 5,
   });
+  // const keywordRef = useRef<InputRef>(null);
 
   // const tableWrapperRef = useRef<HTMLDivElement>(null);
   // const [tableWrapperHeight, setTableWrapperHeight] = useState(0);
   const columns = useMemo<ColumnsType<DataType>>(
-    () => [
-      {
-        title: "Username",
-        dataIndex: "username",
-        width: 200,
-        sorter: true,
-      },
-      Table.EXPAND_COLUMN,
-      {
-        title: "ID",
-        dataIndex: "_id",
-        width: 250,
-        // sorter: true,
-      },
-      {
-        title: "Tên",
-        dataIndex: "first_name",
-        width: 200,
-        sorter: true,
-      },
-      {
-        title: "Họ",
-        dataIndex: "last_name",
-        width: 200,
-        sorter: true,
-      },
-      {
-        title: "Vai trò",
-        dataIndex: "role",
-        width: 200,
-        sorter: true,
-        filters: roles?.map((g) => ({
-          text: g.display_name,
-          value: g.title,
-        })),
-        render(value, record, index) {
-          return value.display_name;
-        },
-      },
-      {
-        title: "Giới tính",
-        dataIndex: "gender",
-        width: 200,
-        sorter: true,
-        filters: genders?.map((g) => ({
-          text: g.display_name,
-          value: g.title,
-        })),
-        render(value, record, index) {
-          return value.display_name;
-        },
-      },
-      {
-        title: "Email",
-        dataIndex: "email",
-        width: 250,
-        render(value: IUser["email"], record, index) {
-          return (
-            <Space>
-              {value?.email}
-              <VerifyBadge state={value?.verified} />
-            </Space>
-          );
-        },
-      },
-      {
-        title: "Điện thoại",
-        dataIndex: "phone",
-        width: 200,
-        filterIcon: (filtered: boolean) => (
-          <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
-        ),
-        filterDropdown: ({
-          setSelectedKeys,
-          selectedKeys,
-          confirm,
-          clearFilters,
-        }) => (
-          <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
-            <Input
-              placeholder={`Tìm số điện thoại`}
-              value={selectedKeys[0]}
-              onChange={(e) =>
-                setSelectedKeys(e.target.value ? [e.target.value] : [])
-              }
-              onPressEnter={() => {
-                confirm({
-                  closeDropdown: true,
-                });
-              }}
-              style={{ marginBottom: 8, display: "block" }}
-            />
-            <Space>
-              <MyButton
-                type="primary"
-                onClick={() => {
-                  confirm({
-                    closeDropdown: true,
-                  });
-                }}
-                icon={<SearchOutlined />}
-                size="small"
-                style={{ width: 90 }}
-              >
-                Tìm
-              </MyButton>
-              <MyButton
-                onClick={() => {
-                  clearFilters && clearFilters();
-                  setSelectedKeys([]);
-                  confirm({
-                    closeDropdown: false,
-                  });
-                }}
-                size="small"
-                style={{ width: 90 }}
-              >
-                Reset
-              </MyButton>
-            </Space>
-          </div>
-        ),
-        render(value: IUser["phone"], record, index) {
-          return (
-            <Space>
-              {value?.e164_format}
-              <VerifyBadge state={value?.verified} />
-            </Space>
-          );
-        },
-      },
-      {
-        title: "Avatar",
-        dataIndex: "image",
-        width: 200,
-        render(value, record, index) {
-          return value ? (
-            <MyImage
-              src={value}
-              addServer
-              width={100}
-              height={100}
-              className="aspect-square object-contain"
-            />
-          ) : (
-            <div style={{ height: 100 }} />
-          );
-        },
-      },
-      {
-        title: "Bìa chủ phòng",
-        dataIndex: "owner_banner",
-        width: 200,
-        render(value, record, index) {
-          return isRoleOwner(record.role.title) && value ? (
-            <MyImage
-              src={value}
-              addServer
-              width={100}
-              // height={100}
-              className={`object-cover ${bannerAspect}`}
-            />
-          ) : null;
-        },
-      },
-      {
-        title: "Tạo lúc",
-        dataIndex: "createdAt",
-        width: 200,
-        sorter: true,
-        render: (value) => dateFormat(value).format("LLL"),
-      },
-      {
-        title: "Cập nhật",
-        dataIndex: "updatedAt",
-        width: 200,
-        sorter: true,
-        render: (value) => dateFormat(value).format("LLL"),
-      },
-      {
-        title: "Hoạt động",
-        dataIndex: "disabled",
-        width: 200,
-        filters: [
-          {
-            text: "Cho phép",
-            value: false,
-          },
-          {
-            text: "Cấm",
-            value: true,
-          },
-        ],
+    () =>
+      !user
+        ? []
+        : [
+            ...getTableColumn.user(
+              roles,
+              genders,
+              disablingUser,
+              setDisablingUser,
+              disableUser,
+              user,
+            ),
+            {
+              title: "Hành động",
+              key: "action",
+              width: 200,
+              fixed: "right",
+              render: (_, record) => {
+                const disabled =
+                  isRoleTopAdmin(record.role?.title) ||
+                  record._id === user?._id ||
+                  roleOrder(record.role?.title) >= roleOrder(user?.role?.title);
 
-        render: (value, record) => {
-          return (
-            <Switch
-              checked={!value}
-              loading={disablingUser?._id === record._id}
-              onChange={async (e) => {
-                setDisablingUser(record);
-                console.log(e, record._id);
-                await disableUser(record._id, !e);
-              }}
-            />
-          );
-        },
-      },
-      {
-        title: "...",
-        key: "action",
-        width: 200,
-        fixed: "right",
-        render: (_, record) => {
-          const disabled =
-            isRoleTopAdmin(record.role.title) ||
-            record._id === user?._id ||
-            roleOrder(record.role.title) >= roleOrder(user?.role.title);
+                if (disabled) return null;
 
-          if (disabled) return null;
-
-          return (
-            <Space size="middle">
-              <MyButton onClick={() => setEditUser(record)}>Sửa</MyButton>
-              <MyButton onClick={() => deleteUser(record._id)} danger>
-                Xoá
-              </MyButton>
-            </Space>
-          );
-        },
-      },
-    ],
-    [disablingUser?._id, genders, roles],
+                const popDeleteTitle = isRoleOwner(record.role?.title) ? (
+                  <>
+                    <div>
+                      Đây là tài khoản{" "}
+                      <Typography.Text type="warning">
+                        chủ phòng
+                      </Typography.Text>
+                    </div>
+                    <div>
+                      Xoá sẽ{" "}
+                      <Typography.Text type="danger">
+                        xoá luôn các phòng
+                      </Typography.Text>{" "}
+                      mà người này đăng
+                    </div>
+                    <div>Bạn có chắc muốn xoá?</div>
+                  </>
+                ) : (
+                  "Bạn có chắc chắn xoá?"
+                );
+                return (
+                  <Space size="middle">
+                    <MyButton onClick={() => setEditUser(record)}>Sửa</MyButton>
+                    <Popconfirm
+                      title={popDeleteTitle}
+                      onConfirm={() => deleteUser(record._id)}
+                      okText="Xoá"
+                      okType="danger"
+                    >
+                      <MyButton danger>Xoá</MyButton>
+                    </Popconfirm>
+                  </Space>
+                );
+              },
+            },
+          ],
+    [disablingUser, genders, roles, user],
   );
   const data = useMemo<DataType[]>(
     () =>
@@ -292,7 +118,7 @@ const UserDashBoard = () => {
     [allUsers],
   );
 
-  const disableUser = async (id: string, disabled: boolean) => {
+  async function disableUser(id: string, disabled: boolean) {
     //
     try {
       await UserService.update(id, {
@@ -301,18 +127,19 @@ const UserDashBoard = () => {
       await fetchData();
     } catch (error) {
       console.log(`🚀 ~ disableUser ~ error:`, error);
-
-      //
     }
     setDisablingUser(undefined);
+  }
+  const deleteUser = async (id: string) => {
+    try {
+      await UserService.delete(id);
+      await fetchData();
+    } catch (error) {
+      console.log(`🚀 ~ deleteUser ~ error:`, error);
+    }
   };
-  const deleteUser = (id: string) => {
-    console.log(`🚀 ~ deleteUser ~ id:`, id);
 
-    //
-  };
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const queryPayload = QueryString.stringify(queries);
     console.log(`🚀 ~ fetchData ~ queries:`, queries);
     console.log(`🚀 ~ fetchData ~ queryPayload:`, queryPayload);
@@ -329,26 +156,11 @@ const UserDashBoard = () => {
 
       setAllUsers(d.data);
       setTotal(d.count);
-
-      // setQueries({
-      //   ...queries,
-      // });
-      //   setLoading(false);
-      //   setTableParams({
-      //     ...tableParams,
-      //     pagination: {
-      //       ...tableParams.pagination,
-      //       total: 200,
-      //       // 200 is mock data, you should read it from server
-      //       // total: data.totalCount,
-      //     },
-      //   });
-      // });
     } catch (error) {
       //
     }
     setLoading(false);
-  };
+  }, [JSON.stringify(queries)]);
 
   const handleTableChange: TableProps<DataType>["onChange"] = (
     pagination,
@@ -373,7 +185,9 @@ const UserDashBoard = () => {
 
       newQ[key] = v;
 
-      if (key === "phone") newQ[key] = v[0];
+      if (["phone", "_id"].includes(key)) {
+        newQ[key] = v[0];
+      }
     });
 
     setQueries(newQ);
@@ -383,41 +197,68 @@ const UserDashBoard = () => {
       setAllUsers([]);
     }
   };
+  const handleAddUser = useCallback(() => {
+    fetchData();
+    setShowAddUser(false);
+  }, [fetchData]);
+
+  const handleEditUser = useCallback(() => {
+    fetchData();
+    setEditUser(undefined);
+  }, [fetchData]);
+
+  const handleCancel = useCallback(() => {
+    setEditUser(undefined);
+    setShowAddUser(false);
+  }, []);
+  // const searchKeyword = useCallback((value: string) => {
+  //   if (value) {
+  //     setQueries((q) => ({
+  //       ...q,
+  //       kw: value,
+  //     }));
+  //   } else {
+  //     setQueries((q) => {
+  //       delete q.kw;
+  //       return {
+  //         ...q,
+  //       };
+  //     });
+  //   }
+  //   setQueries((q) =>
+  //     value
+  //       ? {
+  //           ...q,
+  //           kw: value,
+  //         }
+  //       : q,
+  //   );
+  // }, []);
 
   useEffect(() => {
     fetchData();
   }, [JSON.stringify(queries)]);
 
-  // useEffect(() => {
-  //   const f = () => {
-  //     setTableWrapperHeight(tableWrapperRef.current?.clientHeight || 0);
-  //   };
-  //   window.addEventListener("resize", f);
-
-  //   return () => {
-  //     window.removeEventListener("resize", f);
-  //   };
-  // }, []);
-
   return (
-    <div className="h-full">
-      {/* Filter */}
-      <div className="">
-        {/* Search */}
-        <div className="">Search</div>
-      </div>
-      {/* Data */}
-      <div
-        className="max-h-full w-full"
-        // ref={tableWrapperRef}
-      >
+    <Space direction="vertical" className="h-full w-full py-5">
+      <MyButton onClick={() => setShowAddUser(true)} type="primary" block>
+        Thêm user
+      </MyButton>
+      <div className="max-h-full w-full">
         <Table
           expandable={{
             expandedRowRender: (record) => (
               <Typography.Paragraph style={{ margin: 0 }}>
                 <Space direction="vertical">
-                  <div> ID: {record._id}</div>
-                  <div> PASS: {record.password}</div>
+                  <div>
+                    ID: <Typography.Text copyable>{record._id}</Typography.Text>
+                  </div>
+                  <div>
+                    PASS:{" "}
+                    <Typography.Text copyable>
+                      {record.password}
+                    </Typography.Text>
+                  </div>
                 </Space>
               </Typography.Paragraph>
             ),
@@ -432,29 +273,31 @@ const UserDashBoard = () => {
           }}
           onChange={handleTableChange}
           columns={columns}
-          // locale={{
-          //   emptyText: <NotFoundContent />,
-          // }}
           dataSource={data}
           scroll={{
             x: "100%",
-            y: window.innerHeight - 250 < 500 ? 500 : window.innerHeight - 250,
-            // y: tableWrapperHeight - 150,
+            y: (() => {
+              const value = window.innerHeight - 300;
+              return value < 500 ? 500 : value;
+            })(),
           }}
           rowKey={(record) => record._id}
           loading={loading}
           className="h-full"
         />
       </div>
+
       <EditUser
         user={editUser}
-        handleCancel={() => setEditUser(undefined)}
-        onSaveSuccess={() => {
-          fetchData();
-          setEditUser(undefined);
-        }}
+        handleCancel={handleCancel}
+        onSaveSuccess={handleEditUser}
       />
-    </div>
+      <AddUser
+        handleCancel={handleCancel}
+        onSaveSuccess={handleAddUser}
+        show={showAddUser}
+      />
+    </Space>
   );
 };
 

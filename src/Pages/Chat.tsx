@@ -4,10 +4,11 @@ import MyButton from "@/Components/MyButton";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { routeChat } from "@/constants/route";
+import { routeChat, routeUserDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IUser } from "@/types/IUser";
 import { isProduction } from "@/utils/isProduction";
+import { pageTitle } from "@/utils/pageTitle";
 import { toStringUserName } from "@/utils/toString";
 import { SendOutlined } from "@ant-design/icons";
 import {
@@ -17,15 +18,22 @@ import {
   Input,
   InputRef,
   Row,
-  Select,
+  Space,
   Typography,
 } from "antd";
 import { useCallback, useContext, useEffect, useRef } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import useSWR from "swr";
 
 const MIN_SCROLL_TOP = 500;
 function Chat() {
+  pageTitle("Chat");
+
   const {
     chatList,
     room,
@@ -82,17 +90,23 @@ function Chat() {
   useEffect(() => {
     if (roomId === room?.room || isFetchingMessage) return;
     console.log(`calling switchRoom effect`);
-    console.log(`🚀 ~ useEffect ~ oom?.ro:`, room?.room, roomId);
+
+    console.log(
+      `🚀 ~ useEffect ~ room?.room:`,
+      room?.room,
+      roomId,
+      query.get("to"),
+    );
 
     if (!roomId) {
-      console.log(`calling !roomId`);
-      console.log(`🚀 ~ useEffect ~ room?.room:`, room?.room);
-
       if (room?.room) {
-        if (query.get(`to`)) {
-          navigate(`${routeChat}/${room?.room}`);
+        if (query.get("to")) {
+          // switchRoom(undefined);
+          // console.log("navigate(`${routeChat}/${room?.room}`)");
         } else {
-          switchRoom(room?.room);
+          // console.log("switchRoom(room?.room)");
+          navigate(`${routeChat}/${room?.room}`);
+          // switchRoom(room?.room);
         }
       }
       return;
@@ -101,8 +115,7 @@ function Chat() {
     console.log(`roomId !== room?.room`);
     if (roomId !== room?.room) {
       if (!switchRoom(roomId)) {
-        console.log(`calling navigate(${routeChat});`);
-
+        console.log("navigate(`${routeChat}`)");
         navigate(`${routeChat}`);
       }
     }
@@ -123,6 +136,9 @@ function Chat() {
 
       if (chatRoom.length) {
         switchRoom(chatRoom[0].room);
+        navigate(`${routeChat}/${chatRoom[0].room}`);
+      } else {
+        switchRoom(undefined);
       }
     })();
   }, [query, searchForChatRoom, switchRoom, user]);
@@ -133,23 +149,23 @@ function Chat() {
 
   useEffect(
     () => {
-      console.log(`🚀 ~ chatLoaded.current:`, chatLoaded.current);
+      // console.log(`🚀 ~ chatLoaded.current:`, chatLoaded.current);
       if (chatLoaded.current) {
-        console.log(
-          `🚀 ~ chatLoadedByScroll.current:`,
-          chatLoadedByScroll.current,
-        );
+        // console.log(
+        //   `🚀 ~ chatLoadedByScroll.current:`,
+        //   chatLoadedByScroll.current,
+        // );
         if (!chatLoadedByScroll.current) {
           /**
            * Cuộn xuống cuối cùng, để xem tin nhắn mới nhất
            */
 
-          console.log(
-            `🚀 ~ messageBoxRef.current?.lastElementChild?.scrollIntoView():`,
-          );
+          // console.log(
+          //   `🚀 ~ messageBoxRef.current?.lastElementChild?.scrollIntoView():`,
+          // );
           if (messageBoxRef.current) {
             const { scrollHeight } = messageBoxRef.current;
-            console.log(`🚀 ~ scrollHeight:`, scrollHeight);
+            // console.log(`🚀 ~ scrollHeight:`, scrollHeight);
 
             messageBoxRef.current.scrollTop = scrollHeight;
           }
@@ -157,7 +173,7 @@ function Chat() {
         } else {
           if (messageBoxRef.current?.scrollTop === 0) {
             firstMsgBeforeLoaded.current?.scrollIntoView();
-            console.log(`🚀 ~ firstMsgBeforeLoaded.current?.scrollIntoView():`);
+            // console.log(`🚀 ~ firstMsgBeforeLoaded.current?.scrollIntoView():`);
           }
 
           chatLoadedByScroll.current = false;
@@ -198,9 +214,11 @@ function Chat() {
     <div className="h-full">
       {!isFetchingMessage ? (
         <Row className="h-full">
-          <Col className="h-full w-full max-w-[12rem] overflow-y-auto overflow-x-hidden md:max-w-xs ">
+          {/* Side bên */}
+          {/* <Col className="h-full w-full max-w-[12rem] overflow-y-auto overflow-x-hidden md:max-w-xs "> */}
+          <Col className="h-full max-w-xs overflow-y-auto overflow-x-hidden sm:w-full">
             {/* ChatHeads */}
-            {!isProduction && (
+            {/* {!isProduction && (
               <div>
                 <MyButton
                   onClick={() => {
@@ -244,7 +262,7 @@ function Chat() {
                   }}
                 />
               </div>
-            )}
+            )} */}
 
             {chatList.map((c) => (
               <SideChatItem
@@ -272,13 +290,8 @@ function Chat() {
 
           <Divider type="vertical" className="m-0 h-full" />
 
+          {/* Message box */}
           <Col flex={"1"} className="h-full max-h-full overflow-hidden">
-            {/* {chatList.length === 0 ? (
-              <Typography.Title className="flex h-full w-full items-center justify-center">
-                Hãy tìm ai đó để bắt chuyện
-              </Typography.Title>
-            ) : 
-            ( */}
             <Form
               onFinish={(e) => {
                 form.resetFields();
@@ -299,7 +312,36 @@ function Chat() {
               className="flex h-full flex-col"
               form={form}
             >
-              <div className="">header</div>
+              {room?.room && (
+                <div className="p-5">
+                  <Space split={<Divider type="vertical" />}>
+                    {room.members
+                      .filter((e) => e.user !== user?._id)
+                      .map((u) => {
+                        console.log(`🚀 ~ .map ~ u:`, u);
+
+                        const x = getUser(u.user);
+
+                        return (
+                          <Link to={routeUserDetail + "/" + x?._id}>
+                            {toStringUserName(x)}
+                          </Link>
+                        );
+                      })}
+                  </Space>
+                  {/* {toStringUserName(
+                    (() => {
+                      const u = room.members.find((e) => e.user !== user?._id)
+                        ?.user;
+
+                      const x = getUser(u);
+
+                      return x;
+                    })(),
+                  )} */}
+                </div>
+              )}
+              <Divider className="m-0" />
               {/* Chat messages */}
               <div
                 onScroll={(e) => {
@@ -333,7 +375,7 @@ function Chat() {
                     });
                   }
                 }}
-                className="flex-1 space-y-5 overflow-y-scroll p-5"
+                className="flex-1 space-y-5 overflow-y-scroll p-2 sm:p-5"
                 ref={messageBoxRef}
               >
                 {query.get("to") && (
@@ -361,7 +403,12 @@ function Chat() {
 
               <Divider type="horizontal" className="m-0 w-full" />
 
-              <Row gutter={[8, 8]} align={"bottom"} className="p-5">
+              <Row
+                gutter={[8, 8]}
+                align={"bottom"}
+                className="p-2 sm:p-5"
+                wrap={false}
+              >
                 <Col flex={"auto"}>
                   <Form.Item
                     noStyle
@@ -379,12 +426,14 @@ function Chat() {
                           form.submit();
                         }
                       }}
+                      autoSize={{
+                        maxRows: 5,
+                      }}
                       placeholder="Tin nhan"
                       ref={inputRef}
-                      // bordered={false}
                       translate="yes"
-                      autoSize
-                      className="bg-slate-800"
+                      bordered={false}
+                      // className="bg-slate-800"
                       size="large"
                     />
                   </Form.Item>
@@ -398,7 +447,7 @@ function Chat() {
                     size="large"
                     type="primary"
                     className="w-full"
-                  ></MyButton>
+                  />
                 </Col>
               </Row>
             </Form>

@@ -9,7 +9,7 @@ export interface IRoom {
 
   owner: string;
   // owner: IUser;
-  room_type: IRoomType;
+  room_type: IRoomType | null;
   location: IRoomLocation | null;
   images: IRoomImage[];
   services: IRoomService[];
@@ -83,10 +83,10 @@ export interface RoomLocationPayload
   long: number;
 }
 
-export type CountRoom = {
-  province: string;
+export type TCountData = {
+  label: string;
   count: number;
-  image: string;
+  image?: string;
 };
 
 export interface RoomSearchQuery {

@@ -1,7 +1,11 @@
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
+import AllRoomDashBoard from "@/Pages/AdminPages/AllRoomDashBoard";
 import DashBoard from "@/Pages/AdminPages/DashBoard";
 import LayoutAdmin from "@/Pages/AdminPages/LayoutAdmin";
+import RoomServiceCategoriesDashBoard from "@/Pages/AdminPages/RoomServiceCategoriesDashBoard";
+import RoomServicesDashBoard from "@/Pages/AdminPages/RoomServicesDashBoard";
+import RoomTypesDashBoard from "@/Pages/AdminPages/RoomTypesDashBoard";
 import UserDashBoard from "@/Pages/AdminPages/UserDashBoard";
 import BookMarkRoom from "@/Pages/BookMarkRoom";
 import Chat from "@/Pages/Chat";
@@ -15,7 +19,7 @@ import RoomDetail from "@/Pages/RoomDetail";
 import RoomEdit from "@/Pages/RoomEdit";
 import RoomSearch from "@/Pages/RoomSearch";
 import UserDetail from "@/Pages/UserDetail";
-import UserEdit from "@/Pages/UserEdit";
+import UserInfo from "@/Pages/UserInfo";
 import Verify from "@/Pages/Verify";
 import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
 import {
@@ -62,6 +66,25 @@ function App() {
 
             <Route path={routeAdmin.user} element={<UserDashBoard />} />
 
+            <Route path={routeAdmin.room}>
+              <Route
+                path={routeAdmin.roomList}
+                element={<AllRoomDashBoard />}
+              />
+              <Route
+                path={routeAdmin.roomType}
+                element={<RoomTypesDashBoard />}
+              />
+              <Route
+                path={routeAdmin.roomService}
+                element={<RoomServicesDashBoard />}
+              />
+              <Route
+                path={routeAdmin.roomServiceCate}
+                element={<RoomServiceCategoriesDashBoard />}
+              />
+            </Route>
+
             <Route path={"*"} element={<DashBoard />} />
           </Route>
           {/* Admin routes end */}
@@ -105,7 +128,7 @@ function App() {
 
             <Route
               path={routeUpdate}
-              element={user ? <UserEdit /> : <Navigate to="/" />}
+              element={user ? <UserInfo /> : <Navigate to="/" />}
             />
           </Route>
         </Route>

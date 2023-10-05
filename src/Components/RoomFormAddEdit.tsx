@@ -29,7 +29,7 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
       <Form.Item<RoomPayload>
         label="ID chủ phòng"
         name="owner"
-        hidden={!isRoleAdmin(user?.role.title)}
+        hidden={!isRoleAdmin(user?.role?.title)}
       >
         <Input />
       </Form.Item>

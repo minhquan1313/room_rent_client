@@ -6,12 +6,14 @@ import SelectRole from "@/Components/SelectRole";
 import { UserContext } from "@/Contexts/UserProvider";
 import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner, isRoleTopAdmin } from "@/constants/roleType";
+import { noWhiteSpace } from "@/rules/noWhiteSpace";
 import { phoneRule } from "@/rules/phoneRule";
-import { fetcher } from "@/services/fetcher";
+import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
-import { pageTitle } from "@/utils/pageTitle";
-import { Form, Input, Modal, Switch } from "antd";
-import { useContext, useRef, useState } from "react";
+import { notificationResponseError } from "@/utils/notificationResponseError";
+import { Form, Input, Modal, Space, Switch, notification } from "antd";
+import QueryString from "qs";
+import { useContext, useEffect, useRef, useState } from "react";
 
 const EditUser = ({
   user,
@@ -22,16 +24,17 @@ const EditUser = ({
   handleCancel(): void;
   onSaveSuccess(): void;
 }) => {
-  console.log(`🚀 ~ user:`, user);
-
-  pageTitle("Chỉnh sửa - Người dùng - Quản trị");
+  // pageTitle("Chỉnh sửa - Người dùng - Quản trị");
   const { user: me } = useContext(UserContext);
+
+  const [notifyApi, contextHolder] = notification.useNotification();
+
+  const [form] = Form.useForm();
+
   const [saving, setSaving] = useState(false);
+
   const avatarRef = useRef<FilesUploadRef>(null);
   const bannerRef = useRef<FilesUploadRef>(null);
-  // const [form] = Form.useForm();
-
-  function handleOk(): void {}
 
   async function handleFinish(values: IUser): Promise<void> {
     if (!user?._id) return;
@@ -54,46 +57,46 @@ const EditUser = ({
     }
     body.email_verify = email?.verified;
 
-    body.gender = gender.title;
-    body.role = role.title;
+    body.gender = gender?.title;
+    body.role = role?.title;
 
     try {
-      avatarRef;
-      console.log(`🚀 ~ handleFinish ~ avatarRef:`, avatarRef);
       if (avatarRef.current?.files.length) {
-        await fetcher.patchForm(`/users/${user._id}`, {
+        await UserService.update(user._id, {
           file_to: "avatar",
           file: avatarRef.current.files[0],
         });
       }
 
-      bannerRef;
-      console.log(`🚀 ~ handleFinish ~ bannerRef:`, bannerRef);
       if (bannerRef.current?.files.length) {
-        await fetcher.patchForm(`/users/${user._id}`, {
+        await UserService.update(user._id, {
           file_to: "banner",
           file: bannerRef.current.files[0],
         });
       }
 
-      const d = await fetcher.patch(`/users/${user._id}`, body);
+      const payload = QueryString.parse(QueryString.stringify(body));
+      console.log(`🚀 ~ handleFinish ~ payload:`, payload);
+
+      const d = await UserService.update(user._id, payload);
       console.log(`🚀 ~ handleFinish ~ d:`, d);
       onSaveSuccess();
     } catch (error) {
       console.log(`🚀 ~ handleFinish ~ error:`, error);
-      //
+      notificationResponseError({
+        error,
+        message: "Lỗi gửi mã",
+        notification: notifyApi,
+      });
     }
     setSaving(false);
   }
 
-  // useEffect(() => {
-  // form.setFieldsuser);
-  // form.resetFields();
-  // return () => {
-  //   form.resetFields();
-  // };
-  // if (user?._id) return;
-  // }, [user?._id]);
+  useEffect(() => {
+    setTimeout(() => {
+      user?._id && form.resetFields();
+    }, 100);
+  }, [user?._id]);
 
   return (
     <Modal
@@ -107,16 +110,17 @@ const EditUser = ({
       cancelButtonProps={{
         hidden: true,
       }}
-      onCancel={handleCancel}
-      okText="Lưu"
+      onCancel={() => {
+        handleCancel();
+      }}
       confirmLoading={saving}
-      // maskClosable={false}
     >
+      {contextHolder}
       {user && (
         <Form<IUser>
           initialValues={user}
           key={user._id + user.updatedAt}
-          // form={form}
+          form={form}
           onFinish={handleFinish}
         >
           <Form.Item<IUser> label="Ảnh">
@@ -127,7 +131,7 @@ const EditUser = ({
               accept="image/*"
             />
           </Form.Item>
-          {isRoleOwner(user.role.title) && (
+          {isRoleOwner(user.role?.title) && (
             <Form.Item<IUser> label="Bìa">
               <FilesUpload
                 ref={bannerRef}
@@ -141,7 +145,11 @@ const EditUser = ({
           {/* <Form.Item<IUser> name={"username"} label="Username">
             <Input disabled />
           </Form.Item> */}
-          <Form.Item<IUser> name={"first_name"} label="Tên">
+          <Form.Item<IUser>
+            name={"first_name"}
+            label="Tên"
+            rules={noWhiteSpace}
+          >
             <Input />
           </Form.Item>
           <Form.Item<IUser> name={"last_name"} label="Họ">
@@ -154,7 +162,10 @@ const EditUser = ({
           <Form.Item<IUser> name={["role", "title"]} label="Vai trò">
             <SelectRole
               disableRoles={
-                (!isRoleTopAdmin(me?.role.title) && ["admin", "admin_lvl_2"]) ||
+                (!isRoleTopAdmin(me?.role?.title) && [
+                  "admin",
+                  "admin_lvl_2",
+                ]) ||
                 undefined
               }
             />
@@ -193,11 +204,12 @@ const EditUser = ({
             <Switch disabled={!user.email} />
           </Form.Item>
 
-          <div className="flex justify-end">
+          <Space className="flex justify-end">
+            <MyButton onClick={() => form.resetFields()}>Reset</MyButton>
             <MyButton htmlType="submit" type="primary">
               Lưu
             </MyButton>
-          </div>
+          </Space>
         </Form>
       )}
     </Modal>

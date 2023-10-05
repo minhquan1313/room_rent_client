@@ -32,7 +32,6 @@ const UserDetail = () => {
 
   const { data: user_ } = useSWR<IUser>(`/users/${userId}`, fetcher);
 
-  // const user = location.state?.user as IUser | undefined;
   const user = user_ || (location.state?.user as IUser | undefined);
   console.log(`🚀 ~ UserDetail ~ user:`, user);
 
@@ -52,7 +51,7 @@ const UserDetail = () => {
 
   return (
     <div>
-      {user && isRoleOwner(user.role.title) && (
+      {user && isRoleOwner(user.role?.title) && (
         <div className="-mb-10">
           <div
             className={classNames(
@@ -111,11 +110,15 @@ const UserDetail = () => {
                       level={2}
                     >
                       {toStringUserName(user)}{" "}
-                      <Badge color="cyan" count={user.role.display_name} />
+                      <Badge
+                        color="cyan"
+                        count={user.role?.display_name}
+                        showZero={false}
+                      />
                     </Typography.Title>
 
                     <Typography.Paragraph className="!m-0">
-                      {user.gender.display_name}
+                      {user.gender?.display_name}
                     </Typography.Paragraph>
                   </div>
                 </Space>
@@ -145,7 +148,7 @@ const UserDetail = () => {
           </div>
         )}
 
-        {user && isRoleOwner(user.role.title) && (
+        {user && isRoleOwner(user.role?.title) && (
           <MyContainer className="mt-10">
             <Divider orientation="left">
               <Typography.Title level={3}>Các tin đang đăng</Typography.Title>

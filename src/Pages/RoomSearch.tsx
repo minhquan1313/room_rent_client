@@ -136,14 +136,16 @@ const RoomSearch = () => {
 
         let fields: Fields = {};
         if (e.search_close_to) {
-          // form.setFieldValue("ward", undefined);
-
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { district, province, ward, ...rest } = e;
           fields = rest;
         } else {
           const {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             search_close_to,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             search_close_to_lat,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             search_close_to_long,
             ...rest
           } = e;
@@ -175,7 +177,7 @@ const RoomSearch = () => {
 
         document.documentElement.scrollTop = 0;
       }}
-      onValuesChange={(e, v) => {
+      onValuesChange={(e) => {
         if ("page" in e) {
           return form.submit();
         }
@@ -340,7 +342,7 @@ const SearchFilter = ({
   isSearchCloseTo,
   setIsSearchCloseTo,
 }: SearchFilterProps) => {
-  const [query, setQuery] = useSearchParams();
+  const [query] = useSearchParams();
 
   const { locationDenied } = useContext(UserLocationContext);
   const [provinceCode, setProvinceCode] = useState<string>();
