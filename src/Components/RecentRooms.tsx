@@ -1,16 +1,13 @@
 import { MyFlickity } from "@/Components/MyFlickity";
 import { RoomCard } from "@/Components/RoomCard";
-import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import useSWR from "swr";
 
 export const RecentRooms = () => {
-  const { getUser } = useContext(InteractedUserProviderContext);
-
   const { data: roomsRecent } = useSWR<IRoom[]>(
-    "/rooms?sort_field=createdAt&sort=-1&limit=4&disabled=false&is_visible=true&saved",
+    "/rooms?sort_field=createdAt&sort=-1&limit=4&disabled=false&is_visible=true&verified=true&saved",
     fetcher,
   );
   // console.log(`🚀 ~ RecentRooms ~ roomsRecent:`, roomsRecent);

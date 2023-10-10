@@ -62,12 +62,12 @@ const UserDashBoard = () => {
               width: 200,
               fixed: "right",
               render: (_, record) => {
-                const disabled =
-                  isRoleTopAdmin(record.role?.title) ||
+                const allowed =
+                  isRoleTopAdmin(user.role?.title) ||
                   record._id === user?._id ||
-                  roleOrder(record.role?.title) >= roleOrder(user?.role?.title);
+                  roleOrder(user?.role?.title) > roleOrder(record.role?.title);
 
-                if (disabled) return null;
+                if (!allowed) return null;
 
                 const popDeleteTitle = isRoleOwner(record.role?.title) ? (
                   <>
@@ -98,7 +98,12 @@ const UserDashBoard = () => {
                       okText="Xoá"
                       okType="danger"
                     >
-                      <MyButton danger>Xoá</MyButton>
+                      <MyButton
+                        danger
+                        disabled={!isRoleTopAdmin(user.role?.title)}
+                      >
+                        Xoá
+                      </MyButton>
                     </Popconfirm>
                   </Space>
                 );

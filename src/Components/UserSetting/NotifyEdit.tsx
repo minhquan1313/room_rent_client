@@ -68,32 +68,12 @@ const NotifyEdit = () => {
         </Space>
       </Form.Item>
 
-      <Form.Item>
+      {/* <Form.Item>
         <Space>
           <Switch
             disabled={true}
-            // disabled={denied}
-            // checked={enabling}
-            // loading={loading}
             onChange={async (e) => {
               console.log(`🚀 ~ onFinish={ ~ e:`, e);
-              // setLoading(true);
-              // if (e) {
-              //   if (await register()) {
-              //     messageApi.open({
-              //       type: "success",
-              //       content: "Bật thông báo thành công!",
-              //     });
-              //   } else {
-              //     messageApi.open({
-              //       type: "error",
-              //       content: "Bật thông báo thất bại!",
-              //     });
-              //   }
-              // } else {
-              //   await unRegister();
-              // }
-              // setLoading(false);
             }}
           />
 
@@ -101,7 +81,7 @@ const NotifyEdit = () => {
             Thông báo khi phòng đã lưu thay đổi
           </Typography.Text>
         </Space>
-      </Form.Item>
+      </Form.Item> */}
 
       {/* <Form.Item>
         <Space>

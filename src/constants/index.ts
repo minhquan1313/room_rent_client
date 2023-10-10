@@ -1,1 +1,1 @@
-export const proximityThreshold = 5000; // mét
+export const proximityThreshold = 10000; // mét

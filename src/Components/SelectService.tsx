@@ -1,7 +1,8 @@
 import NotFoundContent from "@/Components/NotFoundContent";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
+import { roomServiceIcon } from "@/utils/roomServiceIcon";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
-import { Select, SelectProps } from "antd";
+import { Select, SelectProps, Space } from "antd";
 import { memo, useContext } from "react";
 
 interface Props extends SelectProps {}
@@ -31,7 +32,9 @@ const SelectService = memo(({ ...rest }: Props) => {
             >
               {services.map(({ display_name, title }) => (
                 <Select.Option value={title} key={title} label={display_name}>
-                  {display_name}
+                  <Space>
+                    {roomServiceIcon(title)} {display_name}
+                  </Space>
                 </Select.Option>
               ))}
             </Select.OptGroup>

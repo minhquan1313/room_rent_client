@@ -1,12 +1,9 @@
 import { TRole } from "@/types/IRole";
 
-export const TOP_ADMIN_ROLES: (TRole | undefined)[] = ["admin"];
-export const ADMIN_ROLES: (TRole | undefined)[] = [
-  ...TOP_ADMIN_ROLES,
-  "admin_lvl_2",
-];
-export const OWNER_ROLES: (TRole | undefined)[] = [...ADMIN_ROLES, "owner"];
-export const USER_ROLES: (TRole | undefined)[] = [...OWNER_ROLES, "user"];
+export const TOP_ADMIN_ROLES: TRole[] = ["admin"];
+export const ADMIN_ROLES: TRole[] = [...TOP_ADMIN_ROLES, "admin_lvl_2"];
+export const OWNER_ROLES: TRole[] = [...ADMIN_ROLES, "owner"];
+export const USER_ROLES: TRole[] = [...OWNER_ROLES, "user"];
 
 export const USER_ROLES_REVERSE = [...USER_ROLES].reverse();
 

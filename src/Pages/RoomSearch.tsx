@@ -40,6 +40,8 @@ import {
   Switch,
   Tooltip,
 } from "antd";
+import convert from "convert";
+import QueryString from "qs";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
@@ -69,7 +71,10 @@ const RoomSearch = () => {
   const [searchPayload, setSearchPayload] = useState<string>();
   const { data: rooms, isLoading } = useSWR<IDataWithCount<IRoom>>(
     // `/rooms`,
-    searchPayload ? `/rooms?${searchPayload}&count&saved` : undefined,
+    searchPayload
+      ? // ? `/rooms?${searchPayload}&count&saved`
+        `/rooms?${searchPayload}&is_visible=true&verified=true&count&saved`
+      : undefined,
     fetcher,
   );
   // const [changed, setChanged] = useState(false);
@@ -162,16 +167,26 @@ const RoomSearch = () => {
         }
 
         const objFormatted = formatObject(fields);
+        console.log(`🚀 ~ RoomSearch ~ fields:`, fields);
+
+        const objFormatted2 = QueryString.stringify(fields, {});
+        console.log(
+          `🚀 ~ RoomSearch ~ objFormatted:`,
+          objFormatted,
+          objFormatted2,
+        );
+
         const query = new URLSearchParams(objFormatted as any).toString();
         const payload = objectToPayloadParams(objFormatted);
+        console.log(`🚀 ~ RoomSearch ~ payload:`, payload);
 
         setQuery(query);
 
-        console.log(`🚀 ~ AllRoom ~ query:`, query);
-        console.log(
-          `🚀 ~ AllRoom ~ payload:`,
-          decodeURIComponent(payload.toString()),
-        );
+        // console.log(`🚀 ~ AllRoom ~ query:`, query);
+        // console.log(
+        //   `🚀 ~ AllRoom ~ payload:`,
+        //   decodeURIComponent(payload.toString()),
+        // );
 
         setSearchPayload(payload.toString());
 
@@ -392,7 +407,11 @@ const SearchFilter = ({
       <Form.Item>
         <Card
           extra={
-            <Tooltip title={`Sẽ tìm trong bán kính ${proximityThreshold}m`}>
+            <Tooltip
+              title={`Sẽ tìm trong bán kính ${convert(proximityThreshold, "m")
+                .to("best")
+                .toString()}`}
+            >
               <div>
                 <Form.Item<Fields>
                   name="search_close_to"

@@ -7,7 +7,7 @@ import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { isRoleAdmin, isRoleOwner } from "@/constants/roleType";
+import { isRoleAdmin } from "@/constants/roleType";
 import { routeRoomEdit, routeUserDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
@@ -46,7 +46,7 @@ const RoomDetail = () => {
   // const navigate = useNavigate();
   const location = useLocation();
 
-  const { addUser, getUser } = useContext(InteractedUserProviderContext);
+  const { getUser } = useContext(InteractedUserProviderContext);
   const { loadMapTo, addMarker, addUserMarker } = useContext(GoogleMapContext);
   const { user } = useContext(UserContext);
   const { locationDenied, coords } = useContext(UserLocationContext);

@@ -5,7 +5,7 @@ import { ReactNode, createContext, useState } from "react";
 interface IUserLocationContext {
   coords: Coords | undefined;
   locationDenied: boolean | undefined;
-  refreshCoords: () => Promise<Coords | null>;
+  refreshCoords: () => Promise<Coords | null | undefined>;
 }
 interface IProps {
   children: ReactNode;
@@ -23,8 +23,10 @@ export default function UserLocationProvider({ children }: IProps) {
     if (locationDenied) return null;
 
     const coord = await getUserCoords();
+    console.log(`🚀 ~ refreshCoords ~ coord:`, coord);
+
     if (!coord) {
-      setLocationDenied(true);
+      if (coord === null) setLocationDenied(true);
     } else {
       setCoords(coord);
     }

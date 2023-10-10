@@ -5,9 +5,9 @@ export function actionAllowance(
   role?: IUser["role"],
   otherRole?: IUser["role"],
 ) {
-  const disabled =
+  const allowed =
     isRoleTopAdmin(otherRole?.title) ||
-    roleOrder(otherRole?.title) >= roleOrder(role?.title);
+    roleOrder(role?.title) > roleOrder(otherRole?.title);
 
-  return !disabled;
+  return allowed;
 }

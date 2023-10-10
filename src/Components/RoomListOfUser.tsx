@@ -1,9 +1,10 @@
 import NotFoundContent from "@/Components/NotFoundContent";
 import RoomListItem from "@/Components/RoomListItem";
+import { UserContext } from "@/Contexts/UserProvider";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
 import { Divider, List, Skeleton } from "antd";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useContext, useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
 
 const LIMIT = 5;
 function RoomListOfUser_({ userId }: Props) {
+  const { user } = useContext(UserContext);
+
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -91,7 +94,14 @@ function RoomListOfUser_({ userId }: Props) {
       // scrollableTarget="scrollableDiv"
     >
       <List
-        renderItem={(room) => <RoomListItem room={room} key={room._id} />}
+        renderItem={(room) => {
+          console.log(`🚀 ~ room:`, room);
+          if (!room.verified || !room.is_visible || room.disabled) {
+            if (user?._id !== room.owner) return null;
+          }
+
+          return <RoomListItem room={room} key={room._id} />;
+        }}
         locale={{
           emptyText: <NotFoundContent />,
         }}

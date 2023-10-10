@@ -105,7 +105,7 @@ export default function NotificationProvider({ children }: Props) {
       }
 
       if (permission !== false && location.pathname === "/") {
-        // setIsModalOpen(true);
+        setIsModalOpen(true);
       }
     });
   }, [user?._id, location.pathname]);

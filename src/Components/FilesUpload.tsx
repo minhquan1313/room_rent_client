@@ -346,7 +346,10 @@ const SortableItem = ({
 
   return (
     <Col
-      span={spanFull ? 24 : 6}
+      xs={24}
+      sm={spanFull ? 24 : 12}
+      md={spanFull ? 24 : 8}
+      xl={spanFull ? 24 : 6}
       className={classNames("select-none overflow-visible", {
         "transition-all duration-300": isSorting || isDragging,
         // "opacity-75 grayscale": isSorting && !isDragging,

@@ -160,11 +160,10 @@ export function user(
       ],
 
       render: (value, record) => {
-        const disabled =
-          !actionAllowance(user.role, record.role) || record._id === user?._id;
+        const allowed =
+          actionAllowance(user.role, record.role) || record._id === user?._id;
 
-        if (disabled) return null;
-        console.log(`🚀 ~ allowance:`, disabled);
+        if (!allowed) return null;
 
         return (
           <Switch

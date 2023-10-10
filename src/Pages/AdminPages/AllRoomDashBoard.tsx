@@ -5,7 +5,6 @@ import MyImage from "@/Components/MyImage";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { RoomService } from "@/services/RoomService";
-import { UserService } from "@/services/UserService";
 import { fetcher } from "@/services/fetcher";
 import { IDataWithCount, IRoom } from "@/types/IRoom";
 import { TCommonQuery } from "@/types/TCommonQuery";
@@ -205,7 +204,7 @@ const AllRoomDashBoard = () => {
 
   const deleteRoom = async (id: string) => {
     try {
-      await UserService.delete(id);
+      await RoomService.delete(id);
       await fetchData();
     } catch (error) {
       console.log(`🚀 ~ deleteUser ~ error:`, error);

@@ -10,7 +10,6 @@ function VerifiedRoomCountStat() {
   const { data: all, isLoading: isLoadingAll } = useSWR<TCountData[]>(() => {
     return `/stats/count-room`;
   }, fetcher);
-  console.log(`🚀 ~ VerifiedRoomCountStat ~ data:`, data, all);
 
   const percent =
     data?.[0] && all?.[0]
@@ -22,9 +21,7 @@ function VerifiedRoomCountStat() {
       <Space className="w-full">
         <Tooltip
           title={
-            data?.[0] &&
-            all?.[0] &&
-            `Còn ${data[0].count}/${all[0].count} phòng chờ duyệt`
+            data?.[0] && all?.[0] && `Còn ${data[0].count} phòng chờ duyệt`
           }
         >
           <Progress type="circle" percent={percent} />

@@ -1,2 +1,2 @@
-export const isProduction = import.meta.env.MODE === "production";
-// export const isProduction = true;
+// export const isProduction = import.meta.env.MODE === "production";
+export const isProduction = true;

@@ -1,5 +1,6 @@
 import { ChatMessage } from "@/Components/Chat/ChatMessage";
 import { SideChatItem } from "@/Components/Chat/SideChatItem";
+import MyAvatar from "@/Components/MyAvatar";
 import MyButton from "@/Components/MyButton";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
@@ -18,6 +19,7 @@ import {
   Input,
   InputRef,
   Row,
+  Select,
   Space,
   Typography,
 } from "antd";
@@ -215,10 +217,10 @@ function Chat() {
       {!isFetchingMessage ? (
         <Row className="h-full">
           {/* Side bên */}
-          {/* <Col className="h-full w-full max-w-[12rem] overflow-y-auto overflow-x-hidden md:max-w-xs "> */}
+
           <Col className="h-full max-w-xs overflow-y-auto overflow-x-hidden sm:w-full">
             {/* ChatHeads */}
-            {/* {!isProduction && (
+            {!isProduction && (
               <div>
                 <MyButton
                   onClick={() => {
@@ -262,7 +264,7 @@ function Chat() {
                   }}
                 />
               </div>
-            )} */}
+            )}
 
             {chatList.map((c) => (
               <SideChatItem
@@ -378,14 +380,34 @@ function Chat() {
                 className="flex-1 space-y-5 overflow-y-scroll p-2 sm:p-5"
                 ref={messageBoxRef}
               >
-                {query.get("to") && (
-                  <Typography.Title
-                    className="!m-0 flex h-full items-center justify-center text-center"
-                    level={3}
+                {query.get("to") && getUser(query.get("to")) && (
+                  <Space
+                    className="h-full items-center justify-center"
+                    direction="vertical"
                   >
-                    Bắt đầu cuộc trò chuyện mới với{" "}
-                    {toStringUserName(getUser(query.get("to")))}
-                  </Typography.Title>
+                    <Link
+                      to={routeUserDetail + "/" + getUser(query.get("to"))?._id}
+                      target="_blank"
+                    >
+                      <MyAvatar
+                        src={getUser(query.get("to"))?.image}
+                        addServer
+                        size={80}
+                      />
+                    </Link>
+                    <Typography.Title className="!m-0 text-center" level={3}>
+                      Bắt đầu cuộc trò chuyện mới với{" "}
+                      <Link
+                        to={
+                          routeUserDetail + "/" + getUser(query.get("to"))?._id
+                        }
+                        target="_blank"
+                      >
+                        {toStringUserName(getUser(query.get("to")))}
+                      </Link>
+                      {/* {toStringUserName(getUser(query.get("to")))} */}
+                    </Typography.Title>
+                  </Space>
                 )}
                 {room?.messages.map(
                   ({ sender, message, createdAt, _id, seen }) => (

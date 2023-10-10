@@ -67,9 +67,13 @@ export function room(arg: Props): ColumnsType<IRoom> {
       ...filterCustom({ placeholder: "Tìm ID chủ phòng" }),
       render(value) {
         return (
-          <Link to={`${routeUserDetail}/${value}`}>
-            <Typography.Link copyable>{value}</Typography.Link>
-          </Link>
+          <Typography.Text
+            copyable={{
+              text: value,
+            }}
+          >
+            <Link to={`${routeUserDetail}/${value}`}>{value} </Link>
+          </Typography.Text>
         );
       },
     },
@@ -90,6 +94,7 @@ export function room(arg: Props): ColumnsType<IRoom> {
             /> */}
             {value.map(({ image }, i) => (
               <MyImage
+                key={image}
                 src={image}
                 addServer
                 width={100}
