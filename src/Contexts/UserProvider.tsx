@@ -1,6 +1,8 @@
 import { fetcher } from "@/services/fetcher";
 import { IUser, UserLoginPayload, UserRegisterPayload } from "@/types/IUser";
 import { getUserLocalStorage } from "@/utils/getUserLocalStorage";
+import { toStringUserName } from "@/utils/toString";
+import { Modal } from "antd";
 import {
   ReactNode,
   createContext,
@@ -171,7 +173,28 @@ export default function UserProvider({ children }: IProps) {
     }),
     [isLogging, login, loginTokenBackground, refresh, register, user],
   );
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={value}>
+      <Modal
+        title="Bị chặn gòi"
+        open={Boolean(user && user?.disabled === true)}
+        closable={false}
+        okText="Đăng xuất"
+        okType="primary"
+        onOk={logout}
+        cancelButtonProps={{
+          hidden: true,
+        }}
+        maskClosable={false}
+      >
+        <p>
+          Bạn đã bị chặn rùi {toStringUserName(user)} ơi :{">"}
+        </p>
+      </Modal>
+
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 function clearData() {

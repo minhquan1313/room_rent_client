@@ -110,7 +110,7 @@ const UserDashBoard = () => {
               },
             },
           ],
-    [disablingUser, genders, roles, user],
+    [disablingUser, genders, roles, user, disableUser],
   );
   const data = useMemo<DataType[]>(
     () =>

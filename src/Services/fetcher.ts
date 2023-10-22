@@ -17,8 +17,8 @@ export const fetcher = (() => {
 
   i.interceptors.request.use(
     function (config) {
-      if (config.url?.startsWith("/chat"))
-        console.log(`🚀 ~ fetcher ~ config:`, config);
+      // if (config.url?.startsWith("/chat"))
+      //   console.log(`🚀 ~ fetcher ~ config:`, config);
 
       return config;
     },

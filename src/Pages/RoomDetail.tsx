@@ -311,7 +311,7 @@ const RoomDetail = () => {
                       <MyAvatar
                         src={owner.image}
                         addServer
-                        alt={owner.first_name[0]}
+                        name={owner.first_name}
                         size={"large"}
                       />
                     </Link>

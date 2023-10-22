@@ -93,7 +93,7 @@ const UserHeader = () => {
         })}
         src={user.image}
         addServer
-        alt={user.first_name[0]}
+        name={user.first_name}
         size="large"
       />
     </Dropdown>

@@ -10,7 +10,7 @@ console.log(
 // };
 
 self.addEventListener("push", (event) => {
-  console.log(`🚀 ~ e:`, event);
+  console.log(`🚀 ~ This push event:`, event);
   if (event.data) {
     // console.log("This push event has data: ", event.data.text());
     console.log("This push event has data: ", event.data.json());
@@ -24,6 +24,7 @@ self.addEventListener("push", (event) => {
 
   const options = {
     tag: title,
+    title: title,
     body,
     icon: "/vite.svg",
     data: {

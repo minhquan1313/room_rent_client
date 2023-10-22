@@ -89,7 +89,7 @@ const UserDetail = () => {
                     src={user.image}
                     addServer
                     preview
-                    alt={user.first_name[0]}
+                    name={user.first_name}
                     size={100}
                     className="border-2"
                     style={{

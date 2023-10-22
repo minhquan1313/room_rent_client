@@ -124,13 +124,19 @@ export default function NotificationProvider({ children }: Props) {
     setIsModalOpen(false);
     setStorage(false);
   }
-
   const value = { enabling, denied, unRegister, register };
+  console.log(
+    `🚀 ~ NotificationProvider ~ user?.disabled:`,
+    user?.disabled,
+    isModalOpen,
+    user?.disabled !== true,
+  );
+
   return (
     <NotificationContext.Provider value={value}>
       <Modal
         title="Bật thông báo"
-        open={isModalOpen}
+        open={isModalOpen && user?.disabled === false}
         onOk={handleOk}
         onCancel={handleCancel}
         okText="Ok nhen"

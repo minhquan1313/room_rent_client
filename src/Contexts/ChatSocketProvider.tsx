@@ -14,7 +14,6 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useLocation } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 import useSWR from "swr";
 
@@ -44,7 +43,6 @@ const LIMIT = 5;
 export default function ChatSocketProvider({ children }: IProps) {
   const { user } = useContext(UserContext);
   const [socket, setSocket] = useState<Socket>();
-  const location = useLocation();
 
   /**
    * Chat room được fetch duy nhất 1 lần từ server, để lấy các chat
@@ -121,15 +119,16 @@ export default function ChatSocketProvider({ children }: IProps) {
   };
 
   const switchRoom = (room_?: string) => {
-    console.log(`🚀 ~ switchRoom ~ room_:`, room_);
-
-    if (room_ === room?.room) return;
+    if (room_ === room?.room) {
+      if (room_ !== undefined) return;
+    }
 
     const chat = findChatInRoom(room_);
     console.log(`🚀 ~ switchRoom ~ chat:`, chat);
 
     updateReceiver(chat);
     setRoom(chat);
+    console.log(room, chat);
 
     return chat;
   };
@@ -391,7 +390,7 @@ export default function ChatSocketProvider({ children }: IProps) {
   //   }
   // }, [location.pathname]);
 
-  const value = (() => ({
+  const value = {
     room,
     isFetchingMessage: shouldFetch,
     chatList,
@@ -400,8 +399,8 @@ export default function ChatSocketProvider({ children }: IProps) {
     loadMoreHistoryChat,
     removeChatRoom,
     searchForChatRoom,
-    // sendMessage,
-  }))();
+  };
+
   return (
     <ChatSocketContext.Provider value={value}>
       {children}

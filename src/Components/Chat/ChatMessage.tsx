@@ -43,7 +43,7 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
               src={user?.image}
               size={isMobile() ? "default" : 50}
               addServer
-              alt={user?.first_name[0]}
+              name={user?.first_name}
             />
 
             <Space direction="vertical" size={"small"}>
@@ -76,7 +76,7 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
                   })()}
                   size={"small"}
                   addServer
-                  alt={getUser(r.seen_by)?.first_name[0]}
+                  name={getUser(r.seen_by)?.first_name}
                 />
                 {/* <Avatar
                   src={(() => {

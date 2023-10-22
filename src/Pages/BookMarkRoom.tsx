@@ -6,7 +6,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
 import { pageTitle } from "@/utils/pageTitle";
-import { Divider, List, Skeleton } from "antd";
+import { Divider, List, Skeleton, Typography } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 
@@ -125,6 +125,9 @@ const BookMarkRoom = () => {
 
   return (
     <MyContainer>
+      <Divider orientation="left">
+        <Typography.Title level={3}>Các phòng đã lưu</Typography.Title>
+      </Divider>
       <InfiniteScroll
         dataLength={rooms.length}
         next={loadMoreData}

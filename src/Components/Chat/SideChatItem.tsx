@@ -47,7 +47,7 @@ const SideChatItem_ = ({
               size={isMobile() ? "default" : "large"}
               addServer
               className="flex-shrink-0"
-              alt={user?.first_name[0]}
+              name={user?.first_name}
             />
           </Badge>
 

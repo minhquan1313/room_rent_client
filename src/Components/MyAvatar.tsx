@@ -5,10 +5,11 @@ interface Props extends AvatarProps {
   addServer?: boolean;
   src?: string | null;
   alt?: string;
+  name?: string;
   preview?: boolean;
 }
 
-function MyAvatar({ src, addServer, alt, preview, ...rest }: Props) {
+function MyAvatar({ src, addServer, alt, name, preview, ...rest }: Props) {
   return (
     <Avatar
       src={
@@ -24,7 +25,12 @@ function MyAvatar({ src, addServer, alt, preview, ...rest }: Props) {
       }
       {...rest}
     >
-      {alt}
+      {alt
+        ? //
+          alt
+        : name
+        ? name[0].toUpperCase()
+        : null}
     </Avatar>
   );
 }

@@ -143,7 +143,7 @@ function Chat() {
         switchRoom(undefined);
       }
     })();
-  }, [query, searchForChatRoom, switchRoom, user]);
+  }, [query, user]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -211,6 +211,20 @@ function Chat() {
       });
     }
   });
+
+  useEffect(() => {
+    /**
+     * Thoát khỏi phòng khi component unmount, trường hợp
+     * vẫn còn trong phòng chat, nhưng đã qua page khác,thì user
+     * đó nhắn thì vẫn hiện đã xong, nhưng trong khi chưa xem
+     */
+
+    return () => {
+      console.log(`calling switchroom when unmount`);
+
+      switchRoom(undefined);
+    };
+  }, []);
 
   return (
     <div className="h-full">
@@ -320,12 +334,12 @@ function Chat() {
                     {room.members
                       .filter((e) => e.user !== user?._id)
                       .map((u) => {
-                        console.log(`🚀 ~ .map ~ u:`, u);
-
                         const x = getUser(u.user);
 
+                        if (!x) return null;
+
                         return (
-                          <Link to={routeUserDetail + "/" + x?._id}>
+                          <Link to={routeUserDetail + "/" + x._id} key={x._id}>
                             {toStringUserName(x)}
                           </Link>
                         );
@@ -382,7 +396,7 @@ function Chat() {
               >
                 {query.get("to") && getUser(query.get("to")) && (
                   <Space
-                    className="h-full items-center justify-center"
+                    className="h-full w-full items-center justify-center"
                     direction="vertical"
                   >
                     <Link
@@ -393,6 +407,7 @@ function Chat() {
                         src={getUser(query.get("to"))?.image}
                         addServer
                         size={80}
+                        name={getUser(query.get("to"))?.first_name}
                       />
                     </Link>
                     <Typography.Title className="!m-0 text-center" level={3}>
