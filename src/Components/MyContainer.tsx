@@ -1,41 +1,69 @@
-import { Col, Row, RowProps } from "antd";
-import { ReactNode } from "react";
+import { theme } from "antd";
+import classNames from "classnames";
+import { HTMLAttributes, ReactNode } from "react";
 
-interface IProps extends RowProps {
-  children: ReactNode;
+interface IProps extends HTMLAttributes<HTMLDivElement> {
+  innerClassName?: HTMLAttributes<HTMLDivElement>["className"];
+  noBg?: boolean;
+  children?: ReactNode;
 }
 
-function MyContainer({ children, justify = "center", style, ...rest }: IProps) {
+function MyContainer({
+  children,
+  className,
+  innerClassName,
+  noBg,
+  style,
+  ...rest
+}: IProps) {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
   return (
-    <Row
-      justify={justify}
-      style={{ ...style, padding: "20px" }}
-      {...rest}>
-      <Col
-        xs={{ span: 24 }}
-        xl={{ span: 20 }}
-        // lg={{ span: 24 }}
-        xxl={{ span: 18 }}>
+    <div
+      className={classNames("min-w-full transition", className)}
+      style={{
+        backgroundColor: noBg ? "transparent" : colorBgContainer,
+        ...style,
+      }}
+    >
+      <div
+        {...rest}
+        className={classNames("bg-red-3001 container", innerClassName)}
+      >
         {children}
-      </Col>
-    </Row>
-  );
-}
-
-interface IRowProps extends RowProps {
-  children: ReactNode;
-}
-function MyRow({ children, gutter, ...rest }: IRowProps) {
-  return (
-    <div style={{ overflow: "hidden" }}>
-      <Row
-        gutter={gutter || [20, 20]}
-        {...rest}>
-        {children}
-      </Row>
+      </div>
     </div>
   );
 }
 
-MyContainer["Row"] = MyRow;
+function Center({ children, className, ...rest }: IProps) {
+  return (
+    <MyContainer
+      {...rest}
+      className="flex"
+      innerClassName={classNames("mx-auto my-auto", className)}
+    >
+      {/* <div className="my-auto flex flex-1 flex-col items-center"> */}
+      {children}
+      {/* </div> */}
+    </MyContainer>
+  );
+}
+
+function Raw({ children }: Pick<IProps, "children">) {
+  // useEffect(() => {
+  //   document.documentElement.className = "overflow-x-hidden";
+
+  const root = document.querySelector("#root");
+  root && root.classList.add("flex", "min-h-full", "relative");
+  // }, []);
+
+  return <>{children}</>;
+}
+
+MyContainer["Center"] = Center;
+MyContainer["Raw"] = Raw;
+
 export default MyContainer;

@@ -1,24 +1,19 @@
 import MyButton from "@/Components/MyButton";
+import { pageTitle } from "@/utils/pageTitle";
 import { Result } from "antd";
 
 function NotFound() {
+  pageTitle("404");
+
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}>
+    <div className="mx-auto my-auto h-full">
       <div>
         <Result
           status="404"
           title="404"
           subTitle="Không tồn tại trang này"
           extra={
-            <MyButton
-              type="primary"
-              to="/">
+            <MyButton type="primary" to="/">
               Quay về trang chủ
             </MyButton>
           }

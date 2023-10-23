@@ -1,138 +1,176 @@
 import MyButton from "@/Components/MyButton";
-import { UserContext } from "@/Contexts/UserContext";
-import { Checkbox, Col, Form, Input, Row, Space, Typography } from "antd";
+import MyContainer from "@/Components/MyContainer";
+import { UserContext } from "@/Contexts/UserProvider";
+import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
+
+import { UserLoginPayload } from "@/types/IUser";
+import { isMobile } from "@/utils/isMobile";
+import { pageTitle } from "@/utils/pageTitle";
+import { Alert, Checkbox, Form, Input, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-type TFieldType = {
-  username?: string;
-  password?: string;
-  remember?: string;
+type TUserLoginPayload = UserLoginPayload & {
+  remember: boolean;
 };
 
 function Login() {
+  pageTitle("Đăng nhập");
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { user, store, isLogging, login } = useContext(UserContext);
-  const [loginFail, setLoginFail] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { user, isLogging, login } = useContext(UserContext);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<ErrorJsonResponse>();
 
-  const onFinish = (values: TFieldType) => {
-    setLoginFail(false);
-    const { username, password, remember } = values;
+  const onFinish = (values: TUserLoginPayload) => {
+    setError(undefined);
+    setSubmitting(true);
+    const { remember } = values;
 
-    if (username && password) {
-      const u = {
-        username,
-        password,
-      };
-      setLoading(true);
-      (async () => {
-        const d = await login(u);
+    (async () => {
+      try {
+        await login(values, remember);
+      } catch (error: any) {
+        console.log(`🚀 ~ error:`, error);
 
-        setLoading(false);
-        if (d) {
-          // login success
-          if (remember) {
-            store(u);
-          }
-        } else {
-          setLoginFail(true);
-          //login fail
-        }
-      })();
-    }
-
-    console.log("Success:", values);
+        setError(error.response.data as ErrorJsonResponse);
+      }
+    })();
+    setSubmitting(false);
   };
 
+  // if user already logged in
   useEffect(() => {
     if (!user) return;
 
-    console.log({ location });
+    // if (location.key === "default") navigate("/");
+    // else {
+    //   console.log(`🚀 ~ login`);
 
-    if (location.key != "default") {
-      navigate(-1);
-    } else navigate({ pathname: "/" });
+    //   navigate(-1);
+    // }
+
+    location.state?.previous
+      ? navigate(location.state.previous)
+      : navigate("/");
   });
 
+  // when user press go back but not login
+  useEffect(() => {
+    const f = (e: PopStateEvent): void => {
+      e.preventDefault();
+
+      if (location.key === "default") navigate("/");
+      else navigate(-2);
+    };
+    window.addEventListener("popstate", f);
+
+    return () => {
+      window.removeEventListener("popstate", f);
+    };
+  }, [location.key, navigate]);
+
+  // useEffect(() => {
+  //   error;
+  //   console.log(`🚀 ~ useEffect ~ error:`, error);
+  // });
+
   return (
-    <div style={{ position: "relative" }}>
-      <Row
-        justify={"center"}
-        align={"middle"}
-        style={{ height: "100vh" }}>
-        <Col
-          xs={{ span: 18 }}
-          md={{ span: 12 }}
-          lg={{ span: 10 }}
-          xxl={{ span: 6 }}>
-          <Typography.Title style={{ textAlign: "center" }}>
-            Đăng nhập
-          </Typography.Title>
-          <Form
-            name="basic"
-            labelCol={{ xs: { span: 7 } }}
-            wrapperCol={{ span: 20 }}
-            onChange={() => {
-              setLoginFail(false);
-            }}
-            disabled={loading || isLogging}
-            initialValues={{ remember: true }}
-            onFinish={onFinish}
-            autoComplete="off">
-            <Form.Item<TFieldType>
-              label="Tên đăng nhập"
-              name="username"
-              rules={[
-                { required: true, message: "Tên đăng nhập không bỏ trống" },
-              ]}>
-              <Input />
-            </Form.Item>
+    <MyContainer.Center className="max-w-sm py-5">
+      <Typography.Title>Đăng nhập</Typography.Title>
+      <Form
+        className="w-full"
+        layout="vertical"
+        onChange={() => setError(undefined)}
+        disabled={submitting || isLogging}
+        initialValues={{
+          remember: true,
+          // username: "12321",
+        }}
+        onFinish={onFinish}
+        size={isMobile() ? "large" : undefined}
+      >
+        <Form.Item<TUserLoginPayload>
+          label="Tên đăng nhập"
+          name="username"
+          rules={[
+            {
+              required: true,
+              message: "Tên đăng nhập không bỏ trống",
+            },
+            // {
+            //   min: 6,
+            //   message: "Tên người dùng từ 6 kí tự trở lên",
+            // },
+            {
+              pattern: /^[^\s]*$/,
+              message: "Tên người dùng không chứa khoảng trắng",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
 
-            <Form.Item<TFieldType>
-              label="Mật khẩu"
-              name="password"
-              rules={[{ required: true, message: "Mật khẩu không bỏ trống" }]}>
-              <Input.Password />
-            </Form.Item>
+        <Form.Item<TUserLoginPayload>
+          label="Mật khẩu"
+          name="password"
+          rules={[
+            {
+              required: true,
+              message: "Mật khẩu không bỏ trống",
+            },
+            // {
+            //   min: 6,
+            //   message: "Mật khẩu từ 6 kí tự trở lên",
+            // },
+          ]}
+        >
+          <Input.Password />
+        </Form.Item>
 
-            <Form.Item<TFieldType>
-              name="remember"
-              valuePropName="checked"
-              wrapperCol={{ offset: 8, span: 16 }}>
-              <Checkbox>Ghi nhớ</Checkbox>
-            </Form.Item>
+        <Form.Item>
+          <Form.Item<TUserLoginPayload>
+            name="remember"
+            valuePropName="checked"
+            noStyle
+          >
+            <Checkbox>Ghi nhớ</Checkbox>
+          </Form.Item>
+        </Form.Item>
 
-            <Form.Item wrapperCol={{ offset: 0, span: 0 }}>
-              <Space.Compact block>
-                <MyButton
-                  block
-                  loading={loading || isLogging}
-                  type="primary"
-                  danger={loginFail}
-                  htmlType="submit">
-                  Đăng nhập
-                </MyButton>
-                <MyButton
-                  block
-                  type="default"
-                  to="/register">
-                  Đăng ký
-                </MyButton>
-              </Space.Compact>
-              {loginFail && (
-                <Typography.Paragraph
-                  style={{ width: "100%", textAlign: "center", marginTop: 12 }}>
-                  Đăng nhập thất bại
-                </Typography.Paragraph>
-              )}
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
-    </div>
+        <Form.Item noStyle={!error}>
+          <Space.Compact block>
+            <MyButton
+              block
+              type="primary"
+              loading={submitting || isLogging}
+              danger={!!error}
+              htmlType="submit"
+            >
+              Đăng nhập
+            </MyButton>
+            <MyButton block type="default" to="/register">
+              Đăng ký
+            </MyButton>
+          </Space.Compact>
+        </Form.Item>
+
+        <Form.Item noStyle>
+          {error && (
+            <Alert
+              type="error"
+              message={error.error.map(({ msg }) => (
+                <div key={msg} className="text-center">
+                  <Typography.Text type="danger">{msg}</Typography.Text>
+                </div>
+              ))}
+            />
+          )}
+        </Form.Item>
+      </Form>
+    </MyContainer.Center>
   );
 }
 

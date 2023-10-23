@@ -1,51 +1,58 @@
-const API = import.meta.env.VITE_API;
-export default async function fetcher(url: string) {
-  const res = await fetch(API + url);
+import { VITE_API } from "@/constants/env";
+import axios, { AxiosInstance } from "axios";
 
-  const data = await res.json();
+if (!VITE_API) throw new Error(`Missing API`);
 
-  return data;
+interface MyAxiosInstance extends AxiosInstance {
+  update: (data: { token?: string | null }) => void;
 }
-export function fetcherFake(ms: number) {
-  return function (url: string) {
-    return new Promise((rs) => {
-      setTimeout(() => {
-        rs(url);
-      }, ms);
-    });
+
+export const fetcher = (() => {
+  const i: MyAxiosInstance = axios.create({
+    baseURL: VITE_API,
+    headers: {
+      // "Content-Type": "application/json",
+    },
+  }) as never;
+
+  i.interceptors.request.use(
+    function (config) {
+      // if (config.url?.startsWith("/chat"))
+      //   console.log(`🚀 ~ fetcher ~ config:`, config);
+
+      return config;
+    },
+    function (error) {
+      // throw new Error(error);
+      return Promise.reject(error);
+    },
+  );
+
+  i.interceptors.response.use(
+    function (response) {
+      // console.log(`🚀 ~ fetcher ~ response.data:`, response.data);
+
+      return response.data;
+    },
+    function (error) {
+      // console.log(`🚀 ~ fetcher ~ error:`, error);
+
+      // throw error;
+
+      // if (error?.response?.status !== 304)
+      return Promise.reject(error);
+    },
+  );
+
+  i.update = function ({ token }) {
+    if (token)
+      this.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    else if (token == null)
+      delete this.defaults.headers.common["Authorization"];
   };
-}
-export const fetcherPost = (obj: object) => async (url: string) => {
-  const res = await fetch(API + url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(obj),
-  });
 
-  const data = await res.json();
+  const token = localStorage.getItem("token");
+  if (token) i.update({ token });
 
-  return data;
-};
-export const fetcherPatch = (obj: object) => async (url: string) => {
-  const res = await fetch(API + url, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(obj),
-  });
-  const data = await res.json();
-
-  return data;
-};
-
-export async function fetcherDelete(url: string) {
-  const res = await fetch(API + url, {
-    method: "DELETE",
-  });
-  const data = await res.json();
-
-  return data;
-}
+  return i;
+})();

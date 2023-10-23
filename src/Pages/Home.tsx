@@ -1,19 +1,86 @@
-import TripSearch from "@/Components/TripSearch";
-import { Typography } from "antd";
+import { HomeSearch } from "@/Components/HomeSearch";
+import MyContainer from "@/Components/MyContainer";
+import MyImage from "@/Components/MyImage";
+import { PopularProvinces } from "@/Components/PopularProvinces";
+import { RecentRooms } from "@/Components/RecentRooms";
+import { ThemeContext } from "@/Contexts/ThemeProvider";
+import banner from "@/assets/images/pexels-pixabay-277787.jpg";
+import { pageTitle } from "@/utils/pageTitle";
+import { Divider, Typography } from "antd";
+import classNames from "classnames";
+import { useContext, useEffect } from "react";
 
 function Home() {
+  pageTitle("Trang chủ");
+
+  const { myTheme } = useContext(ThemeContext);
+
+  useEffect(() => {
+    document.documentElement.scrollTop = 0;
+  }, []);
   return (
     <div>
-      <Typography.Title
-        level={2}
-        style={{ textAlign: "center", paddingTop: 20 }}>
-        Chào mừng bạn
-      </Typography.Title>
-      <Typography.Paragraph style={{ textAlign: "center" }}>
-        Tìm và đặt chuyến ngay thoi!
-      </Typography.Paragraph>
+      <div className="relative">
+        <div className="relative">
+          <MyImage
+            // src={
+            // "https://images.pexels.com/photos/463734/pexels-photo-463734.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            // }
+            src={banner}
+            className="max-h-[40rem] object-cover"
+            width={"100%"}
+            height={"40rem"}
+            preview={false}
+          />
+          <div
+            className={classNames("absolute inset-0 block bg-gradient-to-b", {
+              "from-black/50": myTheme === "dark",
+              "from-black/25": myTheme === "light",
+            })}
+          />
+        </div>
 
-      <TripSearch />
+        <MyContainer
+          className="absolute inset-0 flex items-center justify-center"
+          noBg
+        >
+          <Typography.Title
+            level={1}
+            style={{ textAlign: "center", paddingTop: 20 }}
+            className="!text-white"
+          >
+            TRỌ MỚI TOÀN QUỐC
+          </Typography.Title>
+          {/* <HomeSearch /> */}
+        </MyContainer>
+
+        <MyContainer noBg className="absolute bottom-5">
+          <HomeSearch />
+        </MyContainer>
+      </div>
+
+      {/* {!isProduction && (
+        <MyContainer className="mt-10">
+          <Space>
+            [DEV]
+            <MyButton to={routeRoomAdd}>Thêm phòng</MyButton>
+          </Space>
+        </MyContainer>
+      )} */}
+
+      <MyContainer className="mt-10">
+        <Divider orientation="left">
+          <Typography.Title level={3}>Đăng gần đây</Typography.Title>
+        </Divider>
+        <RecentRooms />
+      </MyContainer>
+
+      <MyContainer className="my-10">
+        <Divider orientation="left">
+          <Typography.Title level={3}>Tỉnh/Thành phố nổi bật</Typography.Title>
+        </Divider>
+        <PopularProvinces />
+      </MyContainer>
     </div>
   );
 }
