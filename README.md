@@ -1,8 +1,6 @@
-# React + Vite
+Hướng dẫn các bước chạy dự án (Yêu cầu Server phải chạy trước)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Cài đặt các phần mềm cần thiết
+  Cài NodeJs: truy cập https://nodejs.org/en và chọn cài bản có chữ (Recommend for most user).
+  Mở terminal/cmd ở folder dự án (xxx/yyy/room_rent_client) và gõ đoạn code sau
+  npm run dev
