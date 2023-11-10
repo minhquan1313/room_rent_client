@@ -27,7 +27,7 @@ function NewUserMonthCountStat() {
     <Card loading={isLoading}>
       <Statistic
         title="Người dùng mới tháng này"
-        value={data?.[0].count}
+        value={data?.[0]?.count || 0}
         loading={isLoading}
         valueStyle={{ color: green[5] }}
       />

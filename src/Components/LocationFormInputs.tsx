@@ -248,6 +248,8 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     setResolving(false);
 
     if (geoLocation) {
+      console.log({ geoLocation });
+
       const [district, province, country] = geoLocation.address_components
         .slice(-3)
         .map((e) => e.long_name);
