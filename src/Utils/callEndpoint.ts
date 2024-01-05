@@ -27,7 +27,7 @@ export function callEndpoint<T extends Endpoints["endpoint"]>(
   let z = args[1];
   return { args };
 }
-callEndpoint(Endpoint.USERS);
+callEndpoint(Endpoint.ORDERS);
 // enum Endpoint2 {
 //   USERS = "/users/:userId",
 //   ORDERS = "/orders",

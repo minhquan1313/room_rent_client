@@ -95,7 +95,7 @@ const AvatarEdit = () => {
       className="min-h-full w-full"
     >
       {contextHolder}
-      {isRoleOwner(user.role.title) && (
+      {isRoleOwner(user.role?.title) && (
         <Form.Item<TUserEditFields> label="Chọn banner mới">
           <FilesUpload
             ref={banner}

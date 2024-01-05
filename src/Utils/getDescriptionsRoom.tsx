@@ -24,7 +24,7 @@ export function getDescriptionsRoom(room: IRoom): DescriptionsItemType[] {
     {
       key: "Kiểu phòng",
       label: "Kiểu phòng",
-      children: room.room_type.display_name,
+      children: room.room_type?.display_name ?? "",
       span: 2,
     },
     {
