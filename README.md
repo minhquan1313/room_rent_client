@@ -11,4 +11,5 @@ Hướng dẫn các bước chạy dự án (Yêu cầu Server phải chạy tr�
   "npm run dev"
 
 - Lưu ý
-  Nếu code được clone từ git, hãy lấy key trong file .env đã nộp trong USB và bỏ vào file env của project hiện tại
+  Nếu code được clone từ git, hãy lấy key trong file .env đã nộp trong USB và bỏ vào file env của project hiện tại.
+  Nếu thiết bị test là MacOs, thì xoá folder node_modules rồi mở cmd chạy "npm i" để cài đặt lại

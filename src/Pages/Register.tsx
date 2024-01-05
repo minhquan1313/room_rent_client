@@ -94,8 +94,10 @@ function Register() {
       if (!user || otpSent.current || !user.phone) return;
       if (user.phone.verified) return;
 
+      setSubmitting(true);
       await sendOtp(user.phone?.e164_format);
       otpSent.current = true;
+      setSubmitting(false);
 
       query.set("step", "enter-otp");
       setQuery(query);

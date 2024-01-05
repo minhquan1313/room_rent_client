@@ -18,19 +18,16 @@ type OrdersEndpoint = {
 type Endpoints = UsersEndPoint | OrdersEndpoint;
 
 export function callEndpoint<T extends Endpoints["endpoint"]>(
-  ...args: Extract<
-    Endpoints,
-    {
-      endpoint: T;
-    }
-  > extends { payload: infer PayloadType }
+  ...args: Extract<Endpoints, { endpoint: T }> extends {
+    payload: infer PayloadType;
+  }
     ? [endpoint: T, payload: PayloadType]
     : [endpoint: T]
 ) {
   let z = args[1];
   return { args };
 }
-
+callEndpoint(Endpoint.USERS);
 // enum Endpoint2 {
 //   USERS = "/users/:userId",
 //   ORDERS = "/orders",
