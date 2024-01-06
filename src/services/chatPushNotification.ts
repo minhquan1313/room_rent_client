@@ -112,7 +112,7 @@ export const chatPushNotification = {
   removeServiceWorker() {
     return new Promise<void>((r) => {
       navigator.serviceWorker
-        .getRegistrations()
+        ?.getRegistrations()
         .then(async function (serviceWorkers) {
           for await (const i of serviceWorkers) {
             // console.log(`🚀 ~ registration:`, registration);
