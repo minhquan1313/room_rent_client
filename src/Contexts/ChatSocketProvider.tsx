@@ -97,6 +97,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       ...msg,
       sender: user._id,
     };
+    console.log(`🚀 ~ ChatSocketProvider ~ receiver: emit`);
     socket?.emit(chatSocketAction.C_SEND_MSG, msg_);
   };
 
@@ -115,6 +116,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       members: room.members,
     };
 
+    console.log(`🚀 ~ sendMessageInRoom ~ room: emit`);
     socket?.emit(chatSocketAction.C_SEND_MSG, msg_);
   };
 
