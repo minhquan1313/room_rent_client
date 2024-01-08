@@ -20,6 +20,7 @@ function MyAvatar({ src, addServer, alt, name, preview, ...rest }: Props) {
             preview={preview ?? false}
             width={`100%`}
             height={`100%`}
+            className="object-cover"
           />
         ) : null
       }
