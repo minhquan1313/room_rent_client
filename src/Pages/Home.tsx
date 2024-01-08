@@ -19,7 +19,7 @@ function Home() {
     document.documentElement.scrollTop = 0;
   }, []);
   return (
-    <div>
+    <>
       <div className="relative">
         <div className="relative">
           <MyImage
@@ -68,20 +68,20 @@ function Home() {
         </MyContainer>
       )} */}
 
-      <MyContainer className="mt-10">
+      <MyContainer className="mt-10 overflow-hidden">
         <Divider orientation="left">
           <Typography.Title level={3}>Đăng gần đây</Typography.Title>
         </Divider>
         <RecentRooms />
       </MyContainer>
 
-      <MyContainer className="my-10">
+      <MyContainer className="my-10 overflow-hidden">
         <Divider orientation="left">
           <Typography.Title level={3}>Tỉnh/Thành phố nổi bật</Typography.Title>
         </Divider>
         <PopularProvinces />
       </MyContainer>
-    </div>
+    </>
   );
 }
 
