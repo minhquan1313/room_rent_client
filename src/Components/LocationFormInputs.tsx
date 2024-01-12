@@ -422,8 +422,8 @@ const LocationFormInputs_: ForwardRefRenderFunction<
             {locationDenied == false
               ? "Bạn đã cấm"
               : locationDenied == true
-              ? "Bạn đã cấm"
-              : "Lấy vị trí hiện tại"}
+                ? "Bạn đã cấm"
+                : "Lấy vị trí hiện tại"}
           </MyButton>
         </Space.Compact>
       </Form.Item>

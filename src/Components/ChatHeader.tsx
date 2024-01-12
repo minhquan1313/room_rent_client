@@ -4,11 +4,10 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { routeChat } from "@/constants/route";
 import { Badge } from "antd";
 import { useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ChatHeader = () => {
   const { chatList } = useContext(ChatSocketContext);
-  const location = useLocation();
   const { user: me } = useContext(UserContext);
 
   const count = chatList.reduce((t, r) => {

@@ -1,4 +1,4 @@
-import { ReactComponent as IconSvg } from "@/assets/moon.svg";
+import IconSvg from "@/assets/moon.svg?react";
 import Icon from "@ant-design/icons";
 import { CustomIconComponentProps } from "@ant-design/icons/lib/components/Icon";
 

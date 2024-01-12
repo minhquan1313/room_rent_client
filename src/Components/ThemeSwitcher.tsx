@@ -2,7 +2,7 @@ import MoonIcon from "@/Components/Icons/MoonIcon";
 import SunIcon from "@/Components/Icons/SunIcon";
 import MyButton from "@/Components/MyButton";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
-import { Popover, Space, Tooltip } from "antd";
+import { Popover, Space } from "antd";
 import { useContext } from "react";
 
 export default function ThemeSwitcher() {
@@ -11,65 +11,51 @@ export default function ThemeSwitcher() {
 
   return (
     <Popover
-      // open={true}
-      // color="transparent"
-      // overlayInnerStyle={{ boxShadow: "none" }}
-      trigger="hover"
       content={
         <Space direction="vertical">
-          {/* <Tooltip
-            placement="left"
-            title="Sáng"> */}
           <MyButton
             type={
               myTheme === "light" && themeChangedManually
                 ? "primary"
                 : "default"
             }
-            shape="circle"
-            onClick={() => {
-              switchTheme("light");
-            }}
+            onClick={() => switchTheme("light")}
+            className="text-left"
+            block
             icon={<SunIcon />}
-          />
-          {/* </Tooltip> */}
+          >
+            Sáng
+          </MyButton>
 
-          {/* <Tooltip
-            placement="left"
-            title="Tối"> */}
           <MyButton
             type={
               myTheme === "dark" && themeChangedManually ? "primary" : "default"
             }
-            shape="circle"
-            onClick={() => {
-              switchTheme("dark");
-            }}
+            onClick={() => switchTheme("dark")}
+            className="text-left"
+            block
             icon={<MoonIcon />}
-          />
-          {/* </Tooltip> */}
-
-          <Tooltip
-            placement="left"
-            autoAdjustOverflow={true}
-            title="Theo hệ thống"
           >
-            <MyButton
-              type={!themeChangedManually ? "primary" : "dashed"}
-              shape="circle"
-              onClick={() => {
-                switchTheme("system");
-              }}
-              icon={systemTheme === "dark" ? <MoonIcon /> : <SunIcon />}
-            />
-          </Tooltip>
+            Tối
+          </MyButton>
+
+          <MyButton
+            type={!themeChangedManually ? "primary" : "dashed"}
+            onClick={() => switchTheme("system")}
+            className="text-left"
+            block
+            icon={systemTheme === "dark" ? <MoonIcon /> : <SunIcon />}
+          >
+            Hệ thống
+          </MyButton>
         </Space>
       }
+      placement="bottomRight"
+      trigger="click"
+      arrow={false}
     >
       <MyButton
-        onClick={() => {
-          switchTheme(myTheme === "dark" ? "light" : "dark");
-        }}
+        // onClick={() => setOpen(!isOpen)}
         type={themeChangedManually ? "primary" : "dashed"}
         icon={myTheme === "dark" ? <MoonIcon /> : <SunIcon />}
         shape="circle"

@@ -1,11 +1,11 @@
 // import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
 import ChatHeader from "@/Components/ChatHeader";
+import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import ThemeSwitcher from "@/Components/ThemeSwitcher";
 import UserHeader from "@/Components/UserHeader";
 import { UserContext } from "@/Contexts/UserProvider";
-import { ReactComponent as AppLogoIcon } from "@/assets/appLogo.svg";
 import { Col, Row, Space, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import classNames from "classnames";
@@ -49,7 +49,7 @@ export default function MyHeader() {
         <Row justify="space-between" align="middle">
           <Col>
             <Link to="/" className="flex">
-              <AppLogoIcon width={40} height={40} />
+              <AppLogoIcon style={{ fontSize: "2.5rem" }} />
             </Link>
           </Col>
 
