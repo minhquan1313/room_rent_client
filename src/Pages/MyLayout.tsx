@@ -1,5 +1,5 @@
 import MyFooter from "@/Components/MyFooter";
-import MyHeader from "@/Components/MyHeader";
+import MyHeader from "@/Components/Header/MyHeader";
 import { theme } from "antd";
 import { Content } from "antd/es/layout/layout";
 import { Outlet } from "react-router-dom";

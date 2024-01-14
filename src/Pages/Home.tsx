@@ -9,9 +9,12 @@ import { pageTitle } from "@/utils/pageTitle";
 import { Divider, Typography } from "antd";
 import classNames from "classnames";
 import { useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 function Home() {
-  pageTitle("Trang chủ");
+  const { t } = useTranslation();
+
+  pageTitle(t("page-name.home"));
 
   const { myTheme } = useContext(ThemeContext);
 

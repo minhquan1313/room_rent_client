@@ -11,6 +11,7 @@ import UserProvider from "@/Contexts/UserProvider";
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
 import "@/styles/flickityOverwrite.css";
 import "@/styles/tailwind.css";
+import "@/translations/i18n";
 import { ConfigProvider } from "antd";
 import "antd/dist/reset.css";
 import viVN from "antd/locale/vi_VN";

@@ -39,7 +39,7 @@ export const ChatSocketContext = createContext<IChatSocketContext>(
   null as never,
 );
 
-const LIMIT = 5;
+const LIMIT = 20;
 export default function ChatSocketProvider({ children }: IProps) {
   const { user } = useContext(UserContext);
   const [socket, setSocket] = useState<Socket>();
