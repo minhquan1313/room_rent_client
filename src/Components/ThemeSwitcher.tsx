@@ -2,65 +2,50 @@ import MoonIcon from "@/Components/Icons/MoonIcon";
 import SunIcon from "@/Components/Icons/SunIcon";
 import MyButton from "@/Components/MyButton";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
-import { Popover, Space } from "antd";
+import { Dropdown } from "antd";
 import { useContext } from "react";
 
 export default function ThemeSwitcher() {
-  const { myTheme, systemTheme, themeChangedManually, switchTheme } =
+  const { myTheme, systemTheme, isUsingSystemTheme, switchTheme } =
     useContext(ThemeContext);
 
   return (
-    <Popover
-      content={
-        <Space direction="vertical">
-          <MyButton
-            type={
-              myTheme === "light" && themeChangedManually
-                ? "primary"
-                : "default"
-            }
-            onClick={() => switchTheme("light")}
-            className="text-left"
-            block
-            icon={<SunIcon />}
-          >
-            Sáng
-          </MyButton>
-
-          <MyButton
-            type={
-              myTheme === "dark" && themeChangedManually ? "primary" : "default"
-            }
-            onClick={() => switchTheme("dark")}
-            className="text-left"
-            block
-            icon={<MoonIcon />}
-          >
-            Tối
-          </MyButton>
-
-          <MyButton
-            type={!themeChangedManually ? "primary" : "dashed"}
-            onClick={() => switchTheme("system")}
-            className="text-left"
-            block
-            icon={systemTheme === "dark" ? <MoonIcon /> : <SunIcon />}
-          >
-            Hệ thống
-          </MyButton>
-        </Space>
-      }
+    <Dropdown
+      menu={{
+        items: [
+          {
+            key: "light",
+            onClick: () => switchTheme("light"),
+            label: "Sáng",
+            icon: <SunIcon />,
+          },
+          {
+            key: "dark",
+            onClick: () => switchTheme("dark"),
+            label: "Tối",
+            icon: <MoonIcon />,
+          },
+          {
+            key: "system",
+            onClick: () => switchTheme("system"),
+            label: "Hệ thống",
+            icon: systemTheme === "dark" ? <MoonIcon /> : <SunIcon />,
+          },
+        ],
+        selectable: true,
+        selectedKeys: [isUsingSystemTheme ? "system" : myTheme],
+        defaultSelectedKeys: ["system"],
+      }}
+      arrow
       placement="bottomRight"
-      trigger="click"
-      arrow={false}
+      trigger={["click"]}
     >
       <MyButton
-        // onClick={() => setOpen(!isOpen)}
-        type={themeChangedManually ? "primary" : "dashed"}
+        type={isUsingSystemTheme ? "default" : "primary"}
         icon={myTheme === "dark" ? <MoonIcon /> : <SunIcon />}
         shape="circle"
         size="large"
       />
-    </Popover>
+    </Dropdown>
   );
 }

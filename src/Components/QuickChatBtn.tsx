@@ -1,4 +1,4 @@
-import { ChatBtn } from "@/Components/ChatBtn";
+import ChatBtn from "@/Components/ChatBtn";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { routeChat } from "@/constants/route";
 import { ButtonProps } from "antd";

@@ -82,6 +82,8 @@ const UserHeader = () => {
       className="cursor-pointer"
       arrow
       autoAdjustOverflow
+      trigger={["click"]}
+      placement="bottomRight"
       // trigger={["click"]}
       // open={true}
     >

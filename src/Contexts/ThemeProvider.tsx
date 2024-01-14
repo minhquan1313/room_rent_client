@@ -10,7 +10,7 @@ export type TTheme = "light" | "dark";
 interface IThemeContext {
   myTheme: TTheme;
   systemTheme: TTheme;
-  themeChangedManually: boolean;
+  isUsingSystemTheme: boolean;
   switchTheme: (theme: TTheme | "system") => void;
 }
 
@@ -20,7 +20,7 @@ export const ThemeContext = createContext<IThemeContext>(null as never);
 export default function ThemeProvider({ children }: Props) {
   const [myTheme, setMyTheme] = useState<TTheme>(initTheme.theme);
   const [systemTheme, setSystemTheme] = useState<TTheme>(initTheme.systemTheme);
-  const [themeChangedManually, setThemeChangedManually] = useState(
+  const [isUsingSystemTheme, setIsUsingSystemTheme] = useState(
     initTheme.manual,
   );
 
@@ -29,12 +29,12 @@ export default function ThemeProvider({ children }: Props) {
       localStorage.removeItem("theme");
 
       setMyTheme(getInitTheme().systemTheme);
-      setThemeChangedManually(false);
+      setIsUsingSystemTheme(true);
     } else {
       localStorage.setItem("theme", theme);
 
       setMyTheme(theme);
-      setThemeChangedManually(true);
+      setIsUsingSystemTheme(false);
     }
   }
 
@@ -43,7 +43,7 @@ export default function ThemeProvider({ children }: Props) {
       const colorScheme = event.matches ? "dark" : "light";
 
       setSystemTheme(colorScheme);
-      if (themeChangedManually) return;
+      if (isUsingSystemTheme) return;
 
       setMyTheme(colorScheme);
     };
@@ -53,7 +53,7 @@ export default function ThemeProvider({ children }: Props) {
     return () => {
       mediaQuery.removeEventListener("change", schemeHandler);
     };
-  }, [themeChangedManually]);
+  }, [isUsingSystemTheme]);
 
   useEffect(() => {
     setMetaTheme(
@@ -67,7 +67,7 @@ export default function ThemeProvider({ children }: Props) {
   const value = {
     myTheme,
     systemTheme,
-    themeChangedManually,
+    isUsingSystemTheme,
     switchTheme,
   };
   return (

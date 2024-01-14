@@ -4,7 +4,7 @@ import { MessageFilled, MessageOutlined } from "@ant-design/icons";
 import { ButtonProps } from "antd";
 import { memo, useContext } from "react";
 
-const ChatBtn_ = (rest: ButtonProps) => {
+const ChatBtn = memo((rest: ButtonProps) => {
   const { myTheme } = useContext(ThemeContext);
 
   return (
@@ -14,6 +14,6 @@ const ChatBtn_ = (rest: ButtonProps) => {
       {...rest}
     />
   );
-};
+});
 
-export const ChatBtn = memo(ChatBtn_);
+export default ChatBtn;
