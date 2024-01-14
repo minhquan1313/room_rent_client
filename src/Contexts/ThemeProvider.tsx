@@ -19,10 +19,15 @@ const initTheme = getInitTheme();
 export const ThemeContext = createContext<IThemeContext>(null as never);
 export default function ThemeProvider({ children }: Props) {
   const [myTheme, setMyTheme] = useState<TTheme>(initTheme.theme);
+  console.log(`🚀 ~ ThemeProvider ~ myTheme:`, myTheme);
+
   const [systemTheme, setSystemTheme] = useState<TTheme>(initTheme.systemTheme);
+  console.log(`🚀 ~ ThemeProvider ~ systemTheme:`, systemTheme);
+
   const [isUsingSystemTheme, setIsUsingSystemTheme] = useState(
-    initTheme.manual,
+    !initTheme.manual,
   );
+  console.log(`🚀 ~ ThemeProvider ~ isUsingSystemTheme:`, isUsingSystemTheme);
 
   function switchTheme(theme: TTheme | "system") {
     if (theme === "system") {
@@ -98,6 +103,8 @@ function getInitTheme(): {
     window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
+
+  console.log(`🚀 ~ getInitTheme ~ systemTheme:`, systemTheme);
 
   const themeStr = localStorage.getItem(`theme`);
   if (themeStr && ["light", "dark"].includes(themeStr))
