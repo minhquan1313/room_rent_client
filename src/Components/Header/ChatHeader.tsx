@@ -2,7 +2,7 @@ import ChatBtn from "@/Components/ChatBtn";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeChat } from "@/constants/route";
-import { Badge } from "antd";
+import { Badge, Flex } from "antd";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
@@ -21,11 +21,13 @@ const ChatHeader = () => {
   // const Wrapper = location.pathname.startsWith(routeChat) ?  : Link;
 
   return (
-    <Link to={routeChat}>
-      <Badge count={count}>
-        <ChatBtn size="large" />
-      </Badge>
-    </Link>
+    <Flex>
+      <Link to={routeChat}>
+        <Badge count={count}>
+          <ChatBtn size="large" type="text" />
+        </Badge>
+      </Link>
+    </Flex>
   );
 };
 

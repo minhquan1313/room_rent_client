@@ -3,19 +3,21 @@ import SelectRoomType from "@/Components/SelectRoomType";
 import SelectService from "@/Components/SelectService";
 import { RoomSearchQuery } from "@/types/IRoom";
 import { Col, Form, Input, Row, RowProps } from "antd";
+import { useTranslation } from "react-i18next";
 
 interface Props extends RowProps {
   hasSubmitBtn?: boolean;
 }
 
 const RoomSearchShort = ({ hasSubmitBtn, ...rest }: Props) => {
+  const { t } = useTranslation();
+
   return (
     <Row {...rest} gutter={[8, 8]}>
       <Col xs={24} md={24} xl={hasSubmitBtn ? 10 : 12}>
         <Form.Item<RoomSearchQuery> name="kw" noStyle>
           <Input
-            placeholder="Từ khoá"
-            bordered={true}
+            placeholder={t("home page.Keyword")}
             className="text-ellipsis"
           />
         </Form.Item>
@@ -23,11 +25,7 @@ const RoomSearchShort = ({ hasSubmitBtn, ...rest }: Props) => {
 
       <Col xs={24} md={hasSubmitBtn ? 10 : 12} xl={6}>
         <Form.Item<RoomSearchQuery> name="room_type" noStyle>
-          <SelectRoomType
-            className="w-full text-ellipsis"
-            bordered={true}
-            allowClear
-          />
+          <SelectRoomType className="w-full text-ellipsis" allowClear />
         </Form.Item>
       </Col>
 
@@ -35,12 +33,10 @@ const RoomSearchShort = ({ hasSubmitBtn, ...rest }: Props) => {
         <Form.Item<RoomSearchQuery> name="services" noStyle>
           <SelectService
             className="w-full text-ellipsis"
-            bordered={true}
             allowClear
             maxTagCount={0}
             maxTagPlaceholder={(e) => {
-              // if (e.length === 1) return e[0].label;
-              return `${e.length} tiêu chí`;
+              return `${e.length} ${t("home page.Criteria").toLowerCase()}`;
             }}
           />
         </Form.Item>
@@ -54,7 +50,7 @@ const RoomSearchShort = ({ hasSubmitBtn, ...rest }: Props) => {
             className="min-w-[6rem]"
             block
           >
-            Tìm
+            {t("home page.Find")}
           </MyButton>
         </Col>
       )}

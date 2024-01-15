@@ -86,8 +86,6 @@ const UserHeader = memo(() => {
       autoAdjustOverflow
       trigger={["click"]}
       placement="bottomRight"
-      // trigger={["click"]}
-      // open={true}
     >
       <MyAvatar
         className={classNames("select-none", {

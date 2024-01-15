@@ -1,35 +1,59 @@
-import en from "@/translations/en";
-import vi from "@/translations/vi";
+import API_EN from "@/translations/en/apiCode.json";
+import UI_EN from "@/translations/en/ui.json";
+import API_VI from "@/translations/vi/apiCode.json";
+import UI_VI from "@/translations/vi/ui.json";
+import logger from "@/utils/logger";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+
+export type TAvailableLanguage = keyof typeof languagesLabels;
+export const languagesLabels = {
+  vi: "Tiếng Việt",
+  en: "English",
+};
 
 // the translations
 // (tip move them in a JSON file and import them,
 // or even better, manage them separated from your code: https://react.i18next.com/guides/multiple-translation-files)
-const resources = {
+export const resources = {
   en: {
-    translation: en,
+    ui: UI_EN,
+    api: API_EN,
   },
   vi: {
-    translation: vi,
+    ui: UI_VI,
+    api: API_VI,
   },
 };
+
+export const defaultNS = "ui";
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next
   .init({
     resources,
-    lng: "vi", // language to use, more information here: https://www.i18next.com/overview/configuration-options#languages-namespaces-resources
-    // you can use the i18n.changeLanguage function to change the language manually: https://www.i18next.com/overview/api#changelanguage
-    // if you're using a language detector, do not define the lng option
 
+    lng: readLanguage() || "vi",
     fallbackLng: "vi",
+
+    ns: ["ui", "api"],
+    defaultNS,
 
     interpolation: {
       escapeValue: false, // react already safes from xss
     },
   });
 
-export type TAvailableLanguage = keyof typeof resources;
+export function saveLanguage(language: string) {
+  if (!i18n.isInitialized) logger.error("i18n not initialized");
+
+  localStorage.setItem("language", language);
+}
+
+export function readLanguage() {
+  const lang = localStorage.getItem("language");
+  logger({ lang });
+  return lang;
+}
 
 export default i18n;

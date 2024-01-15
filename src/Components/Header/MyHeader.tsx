@@ -7,7 +7,7 @@ import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
-import { Col, Row, Space, theme } from "antd";
+import { Col, Flex, Row, Space, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import classNames from "classnames";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
@@ -46,7 +46,9 @@ const MyHeader = memo(() => {
 
   return (
     <Header className={headerClassName}>
-      <MyContainer noBg={location.pathname === "/" && isAtTop}>
+      <MyContainer
+      // noBg={location.pathname === "/" && isAtTop}
+      >
         <Row justify="space-between" align="middle">
           <Col>
             <Link to="/" className="flex">

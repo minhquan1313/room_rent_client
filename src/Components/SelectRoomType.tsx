@@ -2,6 +2,7 @@ import NotFoundContent from "@/Components/NotFoundContent";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { Select, SelectProps } from "antd";
 import { memo, useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props extends SelectProps {
   // value?: string[];
@@ -9,12 +10,13 @@ interface Props extends SelectProps {
 }
 
 const SelectRoomType = memo(({ ...rest }: Props) => {
+  const { t } = useTranslation();
   const { roomTypes } = useContext(GlobalDataContext);
 
   return (
     <Select
       notFoundContent={<NotFoundContent />}
-      placeholder="Kiểu phòng"
+      placeholder={t("home page.Room type")}
       {...rest}
     >
       {roomTypes &&

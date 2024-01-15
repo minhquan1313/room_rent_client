@@ -2,35 +2,48 @@ import FlagUSIcon from "@/Components/Icons/FlagUSIcon";
 import FlagVNIcon from "@/Components/Icons/FlagVNIcon";
 import GoogleTranslate from "@/Components/Icons/GoogleTranslate";
 import MyButton from "@/Components/MyButton";
-import { TAvailableLanguage } from "@/translations/i18n";
+import {
+  TAvailableLanguage,
+  languagesLabels,
+  saveLanguage,
+} from "@/translations/i18n";
 import { Dropdown } from "antd";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 
+const langFlagMap = {
+  vi: FlagVNIcon,
+  en: FlagUSIcon,
+};
+
 const LanguageHeader = memo(() => {
   const { i18n } = useTranslation();
 
+  // const SelectedFlag = langFlagMap[i18n.language as TAvailableLanguage];
+
   const changeLanguage = (language: TAvailableLanguage) => {
     i18n.changeLanguage(language);
+    saveLanguage(language);
+  };
+
+  const clickHandle = (e: { key: string }) => {
+    changeLanguage(e.key as TAvailableLanguage);
   };
 
   return (
     <Dropdown
       menu={{
-        items: [
-          {
-            key: "vi",
-            onClick: () => changeLanguage("vi"),
-            label: "Tiếng Việt",
-            icon: <FlagVNIcon className="!text-xl" />,
-          },
-          {
-            key: "en",
-            onClick: () => changeLanguage("en"),
-            label: "English",
-            icon: <FlagUSIcon className="!text-xl" />,
-          },
-        ],
+        items: Object.keys(langFlagMap).map((key) => {
+          const Flag = langFlagMap[key as TAvailableLanguage];
+          const label = languagesLabels[key as TAvailableLanguage];
+
+          return {
+            key,
+            onClick: clickHandle,
+            label,
+            icon: <Flag className="!text-xl" />,
+          };
+        }),
         selectable: true,
         selectedKeys: [i18n.language],
       }}
@@ -38,7 +51,13 @@ const LanguageHeader = memo(() => {
       placement="bottomRight"
       trigger={["click"]}
     >
-      <MyButton icon={<GoogleTranslate />} shape="circle" size="large" />
+      <MyButton
+        icon={<GoogleTranslate />}
+        // icon={<SelectedFlag />}
+        shape="circle"
+        size="large"
+        type="text"
+      />
     </Dropdown>
   );
 });

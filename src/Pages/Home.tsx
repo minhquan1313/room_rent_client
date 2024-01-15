@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 function Home() {
   const { t } = useTranslation();
 
-  pageTitle(t("page-name.home"));
+  pageTitle(t("page name.home"));
 
   const { myTheme } = useContext(ThemeContext);
 
@@ -52,7 +52,7 @@ function Home() {
             style={{ textAlign: "center", paddingTop: 20 }}
             className="!text-white"
           >
-            TRỌ MỚI TOÀN QUỐC
+            {t("home page.New boarding house nationwide")}
           </Typography.Title>
           {/* <HomeSearch /> */}
         </MyContainer>
@@ -73,14 +73,18 @@ function Home() {
 
       <MyContainer className="mt-10 overflow-hidden">
         <Divider orientation="left">
-          <Typography.Title level={3}>Đăng gần đây</Typography.Title>
+          <Typography.Title level={3}>
+            {t("home page.Recently posted")}
+          </Typography.Title>
         </Divider>
         <RecentRooms />
       </MyContainer>
 
       <MyContainer className="my-10 overflow-hidden">
         <Divider orientation="left">
-          <Typography.Title level={3}>Tỉnh/Thành phố nổi bật</Typography.Title>
+          <Typography.Title level={3}>
+            {t("home page.Featured Province/City")}
+          </Typography.Title>
         </Divider>
         <PopularProvinces />
       </MyContainer>

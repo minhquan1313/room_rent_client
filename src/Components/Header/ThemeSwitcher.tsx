@@ -4,10 +4,12 @@ import MyButton from "@/Components/MyButton";
 import { ThemeContext } from "@/Contexts/ThemeProvider";
 import { Dropdown } from "antd";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function ThemeSwitcher() {
   const { myTheme, systemTheme, isUsingSystemTheme, switchTheme } =
     useContext(ThemeContext);
+  const { t } = useTranslation();
 
   return (
     <Dropdown
@@ -16,19 +18,19 @@ export default function ThemeSwitcher() {
           {
             key: "light",
             onClick: () => switchTheme("light"),
-            label: "Sáng",
+            label: t("Theme.Light"),
             icon: <SunIcon />,
           },
           {
             key: "dark",
             onClick: () => switchTheme("dark"),
-            label: "Tối",
+            label: t("Theme.Dark"),
             icon: <MoonIcon />,
           },
           {
             key: "system",
             onClick: () => switchTheme("system"),
-            label: "Hệ thống",
+            label: t("Theme.System"),
             icon: systemTheme === "dark" ? <MoonIcon /> : <SunIcon />,
           },
         ],

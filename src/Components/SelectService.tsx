@@ -4,10 +4,12 @@ import { roomServiceIcon } from "@/utils/roomServiceIcon";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import { Select, SelectProps, Space } from "antd";
 import { memo, useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props extends SelectProps {}
 
 const SelectService = memo(({ ...rest }: Props) => {
+  const { t } = useTranslation();
   const { roomServicesConverted } = useContext(GlobalDataContext);
 
   return (
@@ -16,7 +18,7 @@ const SelectService = memo(({ ...rest }: Props) => {
       notFoundContent={<NotFoundContent />}
       mode="multiple"
       showSearch={true}
-      placeholder="Dịch vụ phòng"
+      placeholder={t("home page.Room service")}
       {...rest}
     >
       {
