@@ -1,5 +1,6 @@
 // import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
 import ChatHeader from "@/Components/Header/ChatHeader";
+import LanguageHeader from "@/Components/Header/LanguageHeader";
 import ThemeSwitcher from "@/Components/Header/ThemeSwitcher";
 import UserHeader from "@/Components/Header/UserHeader";
 import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
@@ -56,6 +57,8 @@ const MyHeader = memo(() => {
           <Col>
             <Space>
               <ThemeSwitcher />
+
+              <LanguageHeader />
 
               {user ? (
                 <>

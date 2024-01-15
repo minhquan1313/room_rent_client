@@ -1,12 +1,12 @@
 import en from "@/translations/en";
 import vi from "@/translations/vi";
-import i18n, { InitOptions } from "i18next";
+import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 // the translations
 // (tip move them in a JSON file and import them,
 // or even better, manage them separated from your code: https://react.i18next.com/guides/multiple-translation-files)
-const resources: InitOptions["resources"] = {
+const resources = {
   en: {
     translation: en,
   },
@@ -29,5 +29,7 @@ i18n
       escapeValue: false, // react already safes from xss
     },
   });
+
+export type TAvailableLanguage = keyof typeof resources;
 
 export default i18n;

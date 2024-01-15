@@ -14,7 +14,9 @@ import classNames from "classnames";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
-const UserHeader = () => {
+import { memo } from "react";
+
+const UserHeader = memo(() => {
   const { user, logout } = useContext(UserContext);
 
   if (!user) return null;
@@ -100,6 +102,6 @@ const UserHeader = () => {
       />
     </Dropdown>
   );
-};
+});
 
 export default UserHeader;

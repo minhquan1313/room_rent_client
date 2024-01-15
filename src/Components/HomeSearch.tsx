@@ -17,8 +17,7 @@ export const HomeSearch = () => {
       <Form
         onFinish={(e: SearchFields) => {
           const query = new URLSearchParams(formatObject(e) as any).toString();
-          // const query2 = objectToPayloadParams(formatObject(e)).toString();
-          // console.log(`🚀 ~ HomeSearch ~ query2:`, query2);
+
           console.log(`🚀 ~ HomeSearch ~ query:`, query);
 
           navigate(`${routeRoomSearch}${query ? `?${query}` : ""}`);

@@ -34,7 +34,6 @@ export default function ThemeSwitcher() {
         ],
         selectable: true,
         selectedKeys: [isUsingSystemTheme ? "system" : myTheme],
-        defaultSelectedKeys: ["system"],
       }}
       arrow
       placement="bottomRight"

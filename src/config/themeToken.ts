@@ -9,8 +9,12 @@ export const darkToken: ThemeConfig["token"] = {
   // colorBgElevated: "#aaa",
   // colorBgMask: "#aaa",
   // colorBgContainerDisabled: "#aaa",
+
+  colorText: "#f1f2f6",
 };
 
 export const lightToken: ThemeConfig["token"] = {
   colorBgBase: "#ffffff",
+
+  colorText: "#2f3542",
 };
