@@ -2,6 +2,7 @@ import MyButton from "@/Components/MyButton";
 import MyImage from "@/Components/MyImage";
 import fileImg from "@/assets/file.svg";
 import { IRoomImage } from "@/types/IRoomImage";
+import logger from "@/utils/logger";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   DndContext,
@@ -116,11 +117,11 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
     const accept_ = !accept
       ? ""
       : accept.includes("*")
-      ? accept.slice(0, -1)
-      : accept;
+        ? accept.slice(0, -1)
+        : accept;
 
     if (!file.type.includes(accept_)) {
-      console.log(`yes`);
+      logger(`yes`);
 
       messageApi.open({
         type: "error",

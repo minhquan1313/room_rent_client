@@ -1,5 +1,6 @@
 import { UserContext } from "@/Contexts/UserProvider";
 import { chatPushNotification } from "@/services/chatPushNotification";
+import logger from "@/utils/logger";
 import { toStringUserName } from "@/utils/toString";
 import { Modal } from "antd";
 import {
@@ -53,7 +54,7 @@ export default function NotificationProvider({ children }: Props) {
       }
       return false;
     } catch (error) {
-      console.log(`🚀 ~ //.then ~ error:`, error);
+      logger(`🚀 ~ //.then ~ error:`, error);
       unRegister();
       setDenied(true);
 
@@ -63,7 +64,7 @@ export default function NotificationProvider({ children }: Props) {
 
   useEffect(() => {
     if (!user?._id) {
-      console.log(`Không có user`);
+      logger(`Không có user`);
 
       /**
        * User logout hoặc đổi user
@@ -78,14 +79,14 @@ export default function NotificationProvider({ children }: Props) {
      * thì lần này không hiện
      */
     if (getStorage() === false) {
-      console.log(`User đã từ chối`);
+      logger(`User đã từ chối`);
 
       setEnabling(false);
       return;
     }
 
     chatPushNotification.checkSubscribe().then(async (sub) => {
-      console.log(
+      logger(
         `🚀 ~ chatPushNotification.subscribe ~ sub:`,
         sub,
         JSON.parse(JSON.stringify(sub)),
@@ -125,7 +126,7 @@ export default function NotificationProvider({ children }: Props) {
     setStorage(false);
   }
   const value = { enabling, denied, unRegister, register };
-  console.log(
+  logger(
     `🚀 ~ NotificationProvider ~ user?.disabled:`,
     user?.disabled,
     isModalOpen,

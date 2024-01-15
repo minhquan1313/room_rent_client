@@ -9,6 +9,7 @@ import { fetcher } from "@/services/fetcher";
 import { IDataWithCount, IRoom } from "@/types/IRoom";
 import { TCommonQuery } from "@/types/TCommonQuery";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Divider, Image, Popconfirm, Space, Typography } from "antd";
 import Table, { ColumnsType, TableProps } from "antd/es/table";
@@ -45,8 +46,8 @@ const AllRoomDashBoard = () => {
 
   const fetchData = useCallback(async () => {
     const queryPayload = QueryString.stringify(queries);
-    console.log(`🚀 ~ fetchData ~ queries:`, queries);
-    console.log(`🚀 ~ fetchData ~ queryPayload:`, queryPayload);
+    logger(`🚀 ~ fetchData ~ queries:`, queries);
+    logger(`🚀 ~ fetchData ~ queryPayload:`, queryPayload);
 
     setLoadingData(true);
 
@@ -55,7 +56,7 @@ const AllRoomDashBoard = () => {
         `/rooms?${queryPayload}&count`,
       );
 
-      console.log(`🚀 ~ fetchData ~ d:`, d);
+      logger(`🚀 ~ fetchData ~ d:`, d);
 
       setData(d.data);
       setTotal(d.count);
@@ -93,7 +94,7 @@ const AllRoomDashBoard = () => {
                   });
                   await fetchData();
                 } catch (error) {
-                  console.log(`🚀 ~ AllRoomDashBoard ~ error:`, error);
+                  logger(`🚀 ~ AllRoomDashBoard ~ error:`, error);
                 }
 
                 setVisibleLoading(undefined);
@@ -110,7 +111,7 @@ const AllRoomDashBoard = () => {
                   });
                   await fetchData();
                 } catch (error) {
-                  console.log(`🚀 ~ AllRoomDashBoard ~ error:`, error);
+                  logger(`🚀 ~ AllRoomDashBoard ~ error:`, error);
                 }
 
                 setDisabledLoading(undefined);
@@ -127,7 +128,7 @@ const AllRoomDashBoard = () => {
                   });
                   await fetchData();
                 } catch (error) {
-                  console.log(`🚀 ~ AllRoomDashBoard ~ error:`, error);
+                  logger(`🚀 ~ AllRoomDashBoard ~ error:`, error);
                 }
 
                 setVerifiedRealLoading(undefined);
@@ -144,7 +145,7 @@ const AllRoomDashBoard = () => {
                   });
                   await fetchData();
                 } catch (error) {
-                  console.log(`🚀 ~ AllRoomDashBoard ~ error:`, error);
+                  logger(`🚀 ~ AllRoomDashBoard ~ error:`, error);
                 }
 
                 setVerifiedLoading(undefined);
@@ -207,7 +208,7 @@ const AllRoomDashBoard = () => {
       await RoomService.delete(id);
       await fetchData();
     } catch (error) {
-      console.log(`🚀 ~ deleteUser ~ error:`, error);
+      logger(`🚀 ~ deleteUser ~ error:`, error);
     }
   };
 
@@ -216,7 +217,7 @@ const AllRoomDashBoard = () => {
     filters,
     sorter,
   ) => {
-    console.log(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
+    logger(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
 
     const newQ: TCommonQuery = {
       page: pagination.current,
@@ -285,7 +286,7 @@ const AllRoomDashBoard = () => {
         <Table
           expandable={{
             expandedRowRender: (record) => {
-              console.log(`🚀 ~ AllRoomDashBoard ~ record:`, record);
+              logger(`🚀 ~ AllRoomDashBoard ~ record:`, record);
 
               return (
                 <Typography.Paragraph style={{ margin: 0 }}>

@@ -13,6 +13,7 @@ import { sendOtp } from "@/services/sendOtp";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { UserRegisterPayload } from "@/types/IUser";
 import { isMobile } from "@/utils/isMobile";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import {
   Alert,
@@ -46,7 +47,7 @@ function Register() {
   const otpSent = useRef(false);
 
   const onFinish = async (values: UserRegisterPayload) => {
-    console.log(`🚀 ~ onFinish ~ values:`, values);
+    logger(`🚀 ~ onFinish ~ values:`, values);
 
     setError(undefined);
     setSubmitting(true);
@@ -54,7 +55,7 @@ function Register() {
     try {
       await register(values, true);
     } catch (error: any) {
-      console.log(`🚀 ~ error:`, error);
+      logger(`🚀 ~ error:`, error);
 
       setError(error.response.data as ErrorJsonResponse);
     }
@@ -121,11 +122,11 @@ function Register() {
 
   // useEffect(() => {
   // genders;
-  // console.log(`🚀 ~ file: Register.tsx:62 ~ useEffect ~ genders:`, genders);
+  // logger(`🚀 ~ file: Register.tsx:62 ~ useEffect ~ genders:`, genders);
   // role;
-  // console.log(`🚀 ~ file: Register.tsx:67 ~ useEffect ~ role:`, role);
+  // logger(`🚀 ~ file: Register.tsx:67 ~ useEffect ~ role:`, role);
   // roles;
-  // console.log(`🚀 ~ file: Register.tsx:79 ~ useEffect ~ roles:`, roles);
+  // logger(`🚀 ~ file: Register.tsx:79 ~ useEffect ~ roles:`, roles);
   // });
 
   return (

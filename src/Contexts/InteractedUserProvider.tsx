@@ -1,5 +1,6 @@
 import { fetcher } from "@/services/fetcher";
 import { IUser } from "@/types/IUser";
+import logger from "@/utils/logger";
 import { ReactNode, createContext, useCallback, useRef, useState } from "react";
 
 interface IInteractedUserProviderContext {
@@ -76,14 +77,14 @@ export default function InteractedUserProviderProvider({ children }: IProps) {
         }, 50);
 
         // Promise.all(promises).then(() => {
-        //   console.log(`oks`);
+        //   logger(`oks`);
 
         //   rs();
         // });
       } else {
         if (users.current[id]) return;
         fetchUser(id).then(() => {
-          console.log(`ok`);
+          logger(`ok`);
 
           rs();
         });
@@ -95,13 +96,13 @@ export default function InteractedUserProviderProvider({ children }: IProps) {
   }, []);
 
   function getUser(id?: string | null): IUser | null {
-    // console.log(`🚀 ~ getUser ~ id:`, id);
+    // logger(`🚀 ~ getUser ~ id:`, id);
 
     if (!id) return null;
     // if (!id) throw new Error("Missing ID");
 
     const u = users.current[id];
-    // console.log(`🚀 ~ getUser ~ u:`, u);
+    // logger(`🚀 ~ getUser ~ u:`, u);
 
     if (u) return u;
 

@@ -10,6 +10,7 @@ import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Form, Space, Switch, Typography, message } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -36,9 +37,9 @@ function AddRoom({ onSaveSuccess }: Props) {
   // const [files, setFiles] = useState<MyFile[]>();
 
   const onFinish = (values: RoomPayload) => {
-    console.log(`🚀 ~ onFinish ~ files:`, files);
-    console.log(`🚀 ~ onFinish ~ location:`, location);
-    console.log(`🚀 ~ onFinish ~ values:`, values);
+    logger(`🚀 ~ onFinish ~ files:`, files);
+    logger(`🚀 ~ onFinish ~ location:`, location);
+    logger(`🚀 ~ onFinish ~ values:`, values);
 
     if (!location.current) {
       messageApi.open({
@@ -99,7 +100,7 @@ function AddRoom({ onSaveSuccess }: Props) {
         const r = await fetcher.postForm<any, IRoom>("/rooms", payload);
 
         setSubmitting(false);
-        console.log(`🚀 ~ r:`, r);
+        logger(`🚀 ~ r:`, r);
 
         messageApi.open({
           type: "success",

@@ -5,6 +5,7 @@ import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 
 import { UserLoginPayload } from "@/types/IUser";
 import { isMobile } from "@/utils/isMobile";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Checkbox, Form, Input, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
@@ -33,7 +34,7 @@ function Login() {
       try {
         await login(values, remember);
       } catch (error: any) {
-        console.log(`🚀 ~ error:`, error);
+        logger(`🚀 ~ error:`, error);
 
         setError(error.response.data as ErrorJsonResponse);
       }
@@ -47,7 +48,7 @@ function Login() {
 
     // if (location.key === "default") navigate("/");
     // else {
-    //   console.log(`🚀 ~ login`);
+    //   logger(`🚀 ~ login`);
 
     //   navigate(-1);
     // }
@@ -74,7 +75,7 @@ function Login() {
 
   // useEffect(() => {
   //   error;
-  //   console.log(`🚀 ~ useEffect ~ error:`, error);
+  //   logger(`🚀 ~ useEffect ~ error:`, error);
   // });
 
   return (

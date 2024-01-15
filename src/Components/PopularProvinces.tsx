@@ -3,34 +3,21 @@ import MyImage from "@/Components/MyImage";
 import { routeRoomSearch } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { TCountData } from "@/types/IRoom";
+import logger from "@/utils/logger";
 import { Typography } from "antd";
-import { useEffect, useRef } from "react";
-import Flickity from "react-flickity-component";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import useSWR from "swr";
 
 export const PopularProvinces = () => {
-  const ref = useRef<HTMLDivElement>(null);
-
   const { data: roomCounts } = useSWR<TCountData[]>(
     "/stats/count-room?limit=4&province",
     fetcher,
   );
 
   useEffect(() => {
-    if (!ref.current || !roomCounts) return;
-    console.log(`🚀 ~ useEffect ~ roomCounts:`, roomCounts);
-
-    const f = new Flickity(ref.current, {
-      imagesLoaded: true,
-      contain: true,
-      cellAlign: "left",
-      prevNextButtons: false,
-      draggable: true,
-      groupCells: true,
-    });
-
-    return () => f.destroy();
+    if (!roomCounts) return;
+    logger(`🚀 ~ useEffect ~ roomCounts:`, roomCounts);
   }, [roomCounts]);
 
   return (

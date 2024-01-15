@@ -6,6 +6,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { RoomTypeService } from "@/services/RoomTypeService";
 import { IRoomType } from "@/types/IRoomType";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { pageTitle } from "@/utils/pageTitle";
 import { Popconfirm, Space, Typography, notification } from "antd";
@@ -104,7 +105,7 @@ const RoomTypesDashBoard = () => {
       });
       await mutateRoomTypes();
     } catch (error) {
-      console.log(`🚀 ~ deleteItem ~ error:`, error);
+      logger(`🚀 ~ deleteItem ~ error:`, error);
       notificationResponseError({
         error,
         notification: notifyApi,
@@ -117,7 +118,7 @@ const RoomTypesDashBoard = () => {
     filters,
     sorter,
   ) => {
-    console.log(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
+    logger(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
   };
 
   const handleAdd = useCallback(() => {

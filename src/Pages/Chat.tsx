@@ -9,6 +9,7 @@ import { routeChat, routeUserDetail } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IUser } from "@/types/IUser";
 import { isProduction } from "@/utils/isProduction";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { toStringUserName } from "@/utils/toString";
 import { SendOutlined } from "@ant-design/icons";
@@ -91,22 +92,17 @@ function Chat() {
 
   useEffect(() => {
     if (roomId === room?.room || isFetchingMessage) return;
-    console.log(`calling switchRoom effect`);
+    logger(`calling switchRoom effect`);
 
-    console.log(
-      `🚀 ~ useEffect ~ room?.room:`,
-      room?.room,
-      roomId,
-      query.get("to"),
-    );
+    logger(`🚀 ~ useEffect ~ room?.room:`, room?.room, roomId, query.get("to"));
 
     if (!roomId) {
       if (room?.room) {
         if (query.get("to")) {
           // switchRoom(undefined);
-          // console.log("navigate(`${routeChat}/${room?.room}`)");
+          // logger("navigate(`${routeChat}/${room?.room}`)");
         } else {
-          // console.log("switchRoom(room?.room)");
+          // logger("switchRoom(room?.room)");
           navigate(`${routeChat}/${room?.room}`);
           // switchRoom(room?.room);
         }
@@ -114,10 +110,10 @@ function Chat() {
       return;
     }
 
-    console.log(`roomId !== room?.room`);
+    logger(`roomId !== room?.room`);
     if (roomId !== room?.room) {
       if (!switchRoom(roomId)) {
-        console.log("navigate(`${routeChat}`)");
+        logger("navigate(`${routeChat}`)");
         navigate(`${routeChat}`);
       }
     }
@@ -131,10 +127,10 @@ function Chat() {
         .filter((id) => id !== user?._id);
 
       if (!to || !to.length || !user) return;
-      console.log(`🚀 ~ to:`, to);
+      logger(`🚀 ~ to:`, to);
 
       const chatRoom = await searchForChatRoom([...to, user._id]);
-      console.log(`🚀 ~ chatRoom:`, chatRoom);
+      logger(`🚀 ~ chatRoom:`, chatRoom);
 
       if (chatRoom.length) {
         switchRoom(chatRoom[0].room);
@@ -151,9 +147,9 @@ function Chat() {
 
   useEffect(
     () => {
-      // console.log(`🚀 ~ chatLoaded.current:`, chatLoaded.current);
+      // logger(`🚀 ~ chatLoaded.current:`, chatLoaded.current);
       if (chatLoaded.current) {
-        // console.log(
+        // logger(
         //   `🚀 ~ chatLoadedByScroll.current:`,
         //   chatLoadedByScroll.current,
         // );
@@ -162,12 +158,12 @@ function Chat() {
            * Cuộn xuống cuối cùng, để xem tin nhắn mới nhất
            */
 
-          // console.log(
+          // logger(
           //   `🚀 ~ messageBoxRef.current?.lastElementChild?.scrollIntoView():`,
           // );
           if (messageBoxRef.current) {
             const { scrollHeight } = messageBoxRef.current;
-            // console.log(`🚀 ~ scrollHeight:`, scrollHeight);
+            // logger(`🚀 ~ scrollHeight:`, scrollHeight);
 
             messageBoxRef.current.scrollTop = scrollHeight;
           }
@@ -175,7 +171,7 @@ function Chat() {
         } else {
           if (messageBoxRef.current?.scrollTop === 0) {
             firstMsgBeforeLoaded.current?.scrollIntoView();
-            // console.log(`🚀 ~ firstMsgBeforeLoaded.current?.scrollIntoView():`);
+            // logger(`🚀 ~ firstMsgBeforeLoaded.current?.scrollIntoView():`);
           }
 
           chatLoadedByScroll.current = false;
@@ -203,7 +199,7 @@ function Chat() {
       chatLoadedByScroll.current = false;
       forceLoadChatByCode.current = true;
       loadMoreHistoryChat().then(() => {
-        console.log(
+        logger(
           `🚀 ~ loadMoreHistoryChat ~ chatLoaded.current:`,
           chatLoaded.current,
         );
@@ -220,7 +216,7 @@ function Chat() {
      */
 
     return () => {
-      console.log(`calling switchroom when unmount`);
+      logger(`calling switchroom when unmount`);
 
       switchRoom(undefined);
     };
@@ -244,7 +240,7 @@ function Chat() {
                     ) {
                       messageBoxRef.current.scrollTop = 1;
                     }
-                    console.log(`loadMoreHistoryChat onClick`);
+                    logger(`loadMoreHistoryChat onClick`);
                     loadMoreHistoryChat();
                   }}
                   disabled={!room?.canFetchMoreMessage}
@@ -377,7 +373,7 @@ function Chat() {
 
                     chatLoaded.current = false;
 
-                    console.log(`loadMoreHistoryChat onScroll`);
+                    logger(`loadMoreHistoryChat onScroll`);
 
                     forceLoadChatByCode.current = false;
                     chatLoadedByScroll.current = true;

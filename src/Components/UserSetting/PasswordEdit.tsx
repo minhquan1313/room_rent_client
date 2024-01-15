@@ -3,6 +3,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
 import { passwordRule } from "@/rules/passwordRule";
 import { fetcher } from "@/services/fetcher";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { Form, Input, message, notification } from "antd";
 import { useContext } from "react";
@@ -22,9 +23,9 @@ const PasswordEdit = () => {
       onFinish={async (e: TUserEditFields) => {
         try {
           const d = await fetcher.patch(`/users/${user._id}`, e);
-          console.log(`🚀 ~ PasswordEdit ~ d:`, d);
+          logger(`🚀 ~ PasswordEdit ~ d:`, d);
 
-          console.log(`🚀 ~ NormalInfoEdit ~ e:`, e);
+          logger(`🚀 ~ NormalInfoEdit ~ e:`, e);
           messageApi.open({
             type: "success",
             content: "Cập nhật mật khẩu thành công!",
@@ -32,7 +33,7 @@ const PasswordEdit = () => {
           refresh();
           form.resetFields();
         } catch (error: any) {
-          console.log(`🚀 ~ error:`, error);
+          logger(`🚀 ~ error:`, error);
           notificationResponseError({
             error,
             message: "Cập nhật thất bại!",

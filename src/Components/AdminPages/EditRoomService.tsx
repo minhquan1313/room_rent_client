@@ -2,6 +2,7 @@ import MyButton from "@/Components/MyButton";
 import SelectServiceCategory from "@/Components/SelectServiceCategory";
 import { RoomSvService } from "@/services/RoomSvService";
 import { IRoomService } from "@/types/IRoomService";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
 import { Form, Input, Modal, Space, notification } from "antd";
@@ -37,7 +38,7 @@ const EditRoomService = ({
         duration: 30,
       });
     } catch (error) {
-      console.log(`🚀 ~ handleFinish ~ error:`, error);
+      logger(`🚀 ~ handleFinish ~ error:`, error);
       notificationResponseError({
         error,
         message: "Lỗi gửi mã",

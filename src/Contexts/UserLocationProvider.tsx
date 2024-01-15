@@ -1,4 +1,5 @@
 import { getUserCoords } from "@/utils/getUserCoords";
+import logger from "@/utils/logger";
 import { Coords } from "google-map-react";
 import { ReactNode, createContext, useState } from "react";
 
@@ -23,7 +24,7 @@ export default function UserLocationProvider({ children }: IProps) {
     if (locationDenied) return null;
 
     const coord = await getUserCoords();
-    console.log(`🚀 ~ refreshCoords ~ coord:`, coord);
+    logger(`🚀 ~ refreshCoords ~ coord:`, coord);
 
     if (!coord) {
       if (coord === null) setLocationDenied(true);

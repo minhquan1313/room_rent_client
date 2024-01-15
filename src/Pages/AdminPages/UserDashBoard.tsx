@@ -10,6 +10,7 @@ import { IDataWithCount } from "@/types/IRoom";
 import { IUser } from "@/types/IUser";
 import { TCommonQuery } from "@/types/TCommonQuery";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Popconfirm, Space, Typography } from "antd";
 import Table, { ColumnsType, TableProps } from "antd/es/table";
@@ -131,7 +132,7 @@ const UserDashBoard = () => {
       });
       await fetchData();
     } catch (error) {
-      console.log(`🚀 ~ disableUser ~ error:`, error);
+      logger(`🚀 ~ disableUser ~ error:`, error);
     }
     setDisablingUser(undefined);
   }
@@ -140,14 +141,14 @@ const UserDashBoard = () => {
       await UserService.delete(id);
       await fetchData();
     } catch (error) {
-      console.log(`🚀 ~ deleteUser ~ error:`, error);
+      logger(`🚀 ~ deleteUser ~ error:`, error);
     }
   };
 
   const fetchData = useCallback(async () => {
     const queryPayload = QueryString.stringify(queries);
-    console.log(`🚀 ~ fetchData ~ queries:`, queries);
-    console.log(`🚀 ~ fetchData ~ queryPayload:`, queryPayload);
+    logger(`🚀 ~ fetchData ~ queries:`, queries);
+    logger(`🚀 ~ fetchData ~ queryPayload:`, queryPayload);
 
     setLoading(true);
 
@@ -157,7 +158,7 @@ const UserDashBoard = () => {
       );
 
       //   setData(results);
-      console.log(`🚀 ~ fetchData ~ d:`, d);
+      logger(`🚀 ~ fetchData ~ d:`, d);
 
       setAllUsers(d.data);
       setTotal(d.count);
@@ -172,7 +173,7 @@ const UserDashBoard = () => {
     filters,
     sorter,
   ) => {
-    console.log(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
+    logger(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
 
     const newQ: TCommonQuery = {
       page: pagination.current,

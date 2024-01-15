@@ -1,5 +1,7 @@
+import logger from "./logger";
+
 export function trimObjectValues<T extends object>(o: T) {
-  console.log(`🚀 ~ o:`, o);
+  logger(`🚀 ~ o:`, o);
 
   const obj: any = {};
 
@@ -12,7 +14,7 @@ export function trimObjectValues<T extends object>(o: T) {
     }
 
     if (typeof v === "object" && !Array.isArray(v)) {
-      console.log(`🚀 ~ Object.keys ~ v:`, v);
+      logger(`🚀 ~ Object.keys ~ v:`, v);
 
       obj[key] = trimObjectValues(v);
       return;

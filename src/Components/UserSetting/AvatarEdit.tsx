@@ -5,6 +5,7 @@ import { TUserEditFields } from "@/Pages/UserInfo";
 import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner } from "@/constants/roleType";
 import { fetcher } from "@/services/fetcher";
+import logger from "@/utils/logger";
 import { Form, message } from "antd";
 import { useContext, useRef, useState } from "react";
 
@@ -23,9 +24,9 @@ const AvatarEdit = () => {
   return (
     <Form
       onFinish={async (e: TUserEditFields) => {
-        console.log(`🚀 ~ AvatarEdit ~ e:`, e);
+        logger(`🚀 ~ AvatarEdit ~ e:`, e);
         avatar;
-        console.log(`🚀 ~ AvatarEdit ~ avatar:`, avatar);
+        logger(`🚀 ~ AvatarEdit ~ avatar:`, avatar);
 
         if (!avatar.current?.files.length && !banner.current?.files.length)
           return;
@@ -40,7 +41,7 @@ const AvatarEdit = () => {
               file_to: "avatar",
               file: avatar.current.files[0],
             };
-            console.log(`🚀 ~ AvatarEdit ~ payload:`, payload);
+            logger(`🚀 ~ AvatarEdit ~ payload:`, payload);
 
             await fetcher.patchForm(`/users/${user._id}`, payload);
 
@@ -64,7 +65,7 @@ const AvatarEdit = () => {
               file_to: "banner",
               file: banner.current.files[0],
             };
-            console.log(`🚀 ~ AvatarEdit ~ payload:`, payload);
+            logger(`🚀 ~ AvatarEdit ~ payload:`, payload);
 
             await fetcher.patchForm(`/users/${user._id}`, payload);
 
@@ -75,7 +76,7 @@ const AvatarEdit = () => {
               content: "Cập nhật banner thành công!",
             });
           } catch (error) {
-            console.log(`🚀 ~ onFinish={ ~ error:`, error);
+            logger(`🚀 ~ onFinish={ ~ error:`, error);
 
             messageApi.open({
               type: "error",
@@ -88,7 +89,7 @@ const AvatarEdit = () => {
         setUploading(false);
 
         banner;
-        console.log(`🚀 ~ AvatarEdit ~ banner:`, banner);
+        logger(`🚀 ~ AvatarEdit ~ banner:`, banner);
       }}
       initialValues={user}
       layout="vertical"

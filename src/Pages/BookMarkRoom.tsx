@@ -5,6 +5,7 @@ import { SavedContext } from "@/Contexts/SavedProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Divider, List, Skeleton, Typography } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -24,20 +25,20 @@ const BookMarkRoom = () => {
   // const [hasMore, setHasMore] = useState(saved.length === 0);
 
   const fetched = useRef(rooms.length !== 0);
-  console.log(`🚀 ~ BookMarkRoom ~ page:`, page);
+  logger(`🚀 ~ BookMarkRoom ~ page:`, page);
 
-  console.log(`🚀 ~ BookMarkRoom ~ fetched:`, fetched);
+  logger(`🚀 ~ BookMarkRoom ~ fetched:`, fetched);
 
   // const [f, setF] = useState(true);
   // const { data } = useSWR<IRoom[]>(
   //   f ? `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved` : null,
   //   fetcher,
   // );
-  // console.log(`🚀 ~ data:`, data);
+  // logger(`🚀 ~ data:`, data);
 
   async function loadMoreData() {
     fetched.current = true;
-    console.log(`🚀 ~ loadMoreData`);
+    logger(`🚀 ~ loadMoreData`);
 
     if (loading || !hasMore || !user) return;
 
@@ -46,7 +47,7 @@ const BookMarkRoom = () => {
       const d = await fetcher<any, IRoom[]>(
         `/saved?user=${user!._id}&limit=${LIMIT}&page=${page}&to_room&saved`,
       );
-      console.log(`🚀 ~ loadMoreData ~ d:`, d);
+      logger(`🚀 ~ loadMoreData ~ d:`, d);
 
       const newData = rooms.concat(d);
       newData.forEach((r) => {
@@ -61,14 +62,14 @@ const BookMarkRoom = () => {
       setPage(page + 1);
       if (d.length < LIMIT) setHasMore(false);
     } catch (error) {
-      console.log(`🚀 ~ loadMoreData ~ error:`, error);
+      logger(`🚀 ~ loadMoreData ~ error:`, error);
     }
     setLoading(false);
   }
 
   // useEffect(() => {
-  //   console.log(`🚀 ~ loadMoreData ~ hasMore:`, hasMore);
-  //   console.log(`🚀 ~ loadMoreData ~ loading:`, loading);
+  //   logger(`🚀 ~ loadMoreData ~ hasMore:`, hasMore);
+  //   logger(`🚀 ~ loadMoreData ~ loading:`, loading);
   // });
 
   // useEffect(() => {
@@ -77,7 +78,7 @@ const BookMarkRoom = () => {
    */
 
   // return () => {
-  //   console.log(`🚀 ~ return ~ user:`, user);
+  //   logger(`🚀 ~ return ~ user:`, user);
   //   if (user) return;
 
   //   reset();
@@ -98,12 +99,12 @@ const BookMarkRoom = () => {
   }, []);
 
   // useEffect(() => {
-  //   console.log("asd");
+  //   logger("asd");
 
   //   setRooms(data || rooms);
-  //   console.log(`🚀 ~ useEffect ~ rooms:`, rooms);
+  //   logger(`🚀 ~ useEffect ~ rooms:`, rooms);
 
-  //   console.log(`🚀 ~ useEffect ~ data:`, data);
+  //   logger(`🚀 ~ useEffect ~ data:`, data);
 
   //   if (!data) return;
 
@@ -113,7 +114,7 @@ const BookMarkRoom = () => {
   // }, [data]);
 
   // useEffect(() => {
-  //   console.log(`🚀 ~ useEffect ~ userId:`, userId);
+  //   logger(`🚀 ~ useEffect ~ userId:`, userId);
 
   //   if (data) return;
 

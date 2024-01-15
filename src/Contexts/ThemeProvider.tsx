@@ -1,4 +1,5 @@
 import { darkToken, lightToken } from "@/config/themeToken";
+import logger from "@/utils/logger";
 import { setMetaTheme } from "@/utils/setMeta";
 import { ConfigProvider, theme } from "antd";
 import { ReactNode, createContext, useEffect, useState } from "react";
@@ -19,15 +20,15 @@ const initTheme = getInitTheme();
 export const ThemeContext = createContext<IThemeContext>(null as never);
 export default function ThemeProvider({ children }: Props) {
   const [myTheme, setMyTheme] = useState<TTheme>(initTheme.theme);
-  console.log(`🚀 ~ ThemeProvider ~ myTheme:`, myTheme);
+  logger(`🚀 ~ ThemeProvider ~ myTheme:`, myTheme);
 
   const [systemTheme, setSystemTheme] = useState<TTheme>(initTheme.systemTheme);
-  console.log(`🚀 ~ ThemeProvider ~ systemTheme:`, systemTheme);
+  logger(`🚀 ~ ThemeProvider ~ systemTheme:`, systemTheme);
 
   const [isUsingSystemTheme, setIsUsingSystemTheme] = useState(
     !initTheme.manual,
   );
-  console.log(`🚀 ~ ThemeProvider ~ isUsingSystemTheme:`, isUsingSystemTheme);
+  logger(`🚀 ~ ThemeProvider ~ isUsingSystemTheme:`, isUsingSystemTheme);
 
   function switchTheme(theme: TTheme | "system") {
     if (theme === "system") {
@@ -104,7 +105,7 @@ function getInitTheme(): {
       ? "dark"
       : "light";
 
-  console.log(`🚀 ~ getInitTheme ~ systemTheme:`, systemTheme);
+  logger(`🚀 ~ getInitTheme ~ systemTheme:`, systemTheme);
 
   const themeStr = localStorage.getItem(`theme`);
   if (themeStr && ["light", "dark"].includes(themeStr))

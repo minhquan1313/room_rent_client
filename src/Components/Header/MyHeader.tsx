@@ -34,7 +34,7 @@ const MyHeader = memo(() => {
 
   useEffect(() => {
     const f = () => {
-      // console.log(`scroll`);
+      // logger(`scroll`);
 
       setIsAtTop(window.scrollY === 0);
     };

@@ -1,3 +1,5 @@
+import logger from "@/utils/logger";
+
 /* eslint-disable  */
 const valueFromGeocoderDotGeocode = [
   {
@@ -650,4 +652,4 @@ let x =
     .split(", ")
     .slice(0, -3);
 
-console.log({ z, x });
+logger({ z, x });

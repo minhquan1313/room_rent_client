@@ -9,6 +9,7 @@ import { fetcher } from "@/services/fetcher";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
+import logger from "@/utils/logger";
 import { formatObject } from "@/utils/objectToPayloadParams";
 import { pageTitle } from "@/utils/pageTitle";
 import { Affix, Alert, Form, Space, Switch, Typography, message } from "antd";
@@ -52,10 +53,10 @@ const RoomEdit = ({ onSaveSuccess, room: roomPassed }: Props) => {
           <Typography.Title>Chỉnh sửa phòng</Typography.Title>
           <Form
             onFinish={async (values: RoomPayload) => {
-              console.log(`🚀 ~ onFinish={ ~ values:`, values);
+              logger(`🚀 ~ onFinish={ ~ values:`, values);
 
-              console.log(`🚀 ~ RoomEdit ~ files.current:`, files.current);
-              console.log(`🚀 ~ onFinish ~ location:`, locationRef.current);
+              logger(`🚀 ~ RoomEdit ~ files.current:`, files.current);
+              logger(`🚀 ~ onFinish ~ location:`, locationRef.current);
               if (!locationRef.current) {
                 messageApi.open({
                   type: "error",
@@ -113,7 +114,7 @@ const RoomEdit = ({ onSaveSuccess, room: roomPassed }: Props) => {
               }
               const json = JSON.stringify(obj);
               payload.json = json;
-              console.log(`🚀 ~ obj:`, obj);
+              logger(`🚀 ~ obj:`, obj);
 
               setSubmitting(true);
               setError(undefined);

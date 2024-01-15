@@ -1,6 +1,7 @@
 import MyButton from "@/Components/MyButton";
 import { RoomTypeService } from "@/services/RoomTypeService";
 import { IRoomType } from "@/types/IRoomType";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
 import { Form, Input, Modal, Space, notification } from "antd";
@@ -36,7 +37,7 @@ const EditRoomType = ({
         duration: 30,
       });
     } catch (error) {
-      console.log(`🚀 ~ handleFinish ~ error:`, error);
+      logger(`🚀 ~ handleFinish ~ error:`, error);
       notificationResponseError({
         error,
         message: "Lỗi gửi mã",

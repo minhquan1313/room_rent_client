@@ -3,6 +3,7 @@ import SelectServiceCategory from "@/Components/SelectServiceCategory";
 import { RoomSvService } from "@/services/RoomSvService";
 import { IRoomService } from "@/types/IRoomService";
 import { autoTitle } from "@/utils/autoTitle";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
 import { Form, Input, Modal, Space, notification } from "antd";
@@ -31,7 +32,7 @@ const AddRoomService = ({
       const payload = trimObjectValues(
         QueryString.parse(QueryString.stringify(body, { encode: false })),
       );
-      console.log(`🚀 ~ handleFinish ~ payload:`, payload);
+      logger(`🚀 ~ handleFinish ~ payload:`, payload);
 
       await RoomSvService.create(payload);
 
@@ -44,7 +45,7 @@ const AddRoomService = ({
 
       form.resetFields();
     } catch (error) {
-      console.log(`🚀 ~ handleFinish ~ error:`, error);
+      logger(`🚀 ~ handleFinish ~ error:`, error);
       notificationResponseError({
         error,
         notification: notifyApi,

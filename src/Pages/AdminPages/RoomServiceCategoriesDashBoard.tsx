@@ -6,6 +6,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { RoomSvCateService } from "@/services/RoomSvCateService";
 import { IRoomServiceCategory } from "@/types/IRoomServiceCategory";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { pageTitle } from "@/utils/pageTitle";
 import { Popconfirm, Space, Typography, notification } from "antd";
@@ -102,7 +103,7 @@ const RoomServiceCategoriesDashBoard = () => {
       });
       fetchData();
     } catch (error) {
-      console.log(`🚀 ~ deleteItem ~ error:`, error);
+      logger(`🚀 ~ deleteItem ~ error:`, error);
       notificationResponseError({
         error,
         notification: notifyApi,
@@ -115,7 +116,7 @@ const RoomServiceCategoriesDashBoard = () => {
     filters,
     sorter,
   ) => {
-    console.log(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
+    logger(`🚀 ~ Object.keys ~ filters:`, { pagination, filters, sorter });
   };
 
   const handleAdd = useCallback(() => {

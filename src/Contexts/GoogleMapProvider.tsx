@@ -1,6 +1,7 @@
 import { proximityThreshold } from "@/constants";
 import { VITE_GOOGLE_MAP_API_KEY } from "@/constants/env";
 import { calculateDistance } from "@/utils/calculateDistance";
+import logger from "@/utils/logger";
 import { Coords } from "google-map-react";
 import { ReactNode, createContext, useEffect, useRef, useState } from "react";
 
@@ -62,25 +63,25 @@ export default function GoogleMapProvider({ children }: Props) {
       geocoder.geocode({ location: latLng }, function (results, status) {
         if (status === "OK") {
           if (results && results[0]) {
-            console.log(`🚀 ~ results:`, results);
+            logger(`🚀 ~ results:`, results);
 
             const res = results.sort(
               (a, b) =>
                 b.address_components.length - a.address_components.length,
             )[0];
-            console.log(`🚀 ~ res:`, res);
+            logger(`🚀 ~ res:`, res);
 
             const address = res.formatted_address;
-            console.log(`🚀 ~ address:`, address);
+            logger(`🚀 ~ address:`, address);
 
             return r(res);
           } else {
-            console.log("Không tìm thấy địa chỉ");
+            logger("Không tìm thấy địa chỉ");
             return r(null);
           }
         }
 
-        console.log("Lỗi khi lấy địa chỉ: " + status);
+        logger("Lỗi khi lấy địa chỉ: " + status);
         return rj(status);
       });
     });
@@ -89,14 +90,14 @@ export default function GoogleMapProvider({ children }: Props) {
     return new Promise<google.maps.LatLng | null>((r, rj) => {
       if (!geocoder) return r(null);
 
-      console.log(`🚀 ~ getCoordsFromAddress ~ address:`, address);
+      logger(`🚀 ~ getCoordsFromAddress ~ address:`, address);
       geocoder.geocode({ address: address }, function (results, status) {
-        console.log(`🚀 ~ status:`, status);
+        logger(`🚀 ~ status:`, status);
         if (status === "OK") {
           if (results && results[0]) {
             const location = results[0].geometry.location;
-            console.log(`🚀 ~ results:`, results);
-            console.log(`🚀 ~ location:`, location);
+            logger(`🚀 ~ results:`, results);
+            logger(`🚀 ~ location:`, location);
 
             // const latitude = location.lat();
             // const longitude = location.lng();
@@ -108,7 +109,7 @@ export default function GoogleMapProvider({ children }: Props) {
           }
         }
 
-        console.log(`Có lỗi khi lấy thông tin '${address}'`);
+        logger(`Có lỗi khi lấy thông tin '${address}'`);
 
         return rj(status);
       });
@@ -125,10 +126,10 @@ export default function GoogleMapProvider({ children }: Props) {
       };
     };
   }) {
-    console.log(`calling`);
+    logger(`calling`);
 
     if (!isReady) await waitForMapToBeLoaded();
-    console.log(`calling ok`);
+    logger(`calling ok`);
 
     const { coords, ref, extra } = detail;
 
@@ -164,13 +165,13 @@ export default function GoogleMapProvider({ children }: Props) {
         autocomplete.addListener("place_changed", () => {
           const place = autocomplete.getPlace();
           place.address_components;
-          console.log(
+          logger(
             `🚀 ~ autocomplete.addListener ~ place.address_components:`,
             place.address_components,
           );
 
           place.geometry;
-          console.log(
+          logger(
             `🚀 ~ autocomplete.addListener ~ place.geometry:`,
             place.geometry,
           );
@@ -182,7 +183,7 @@ export default function GoogleMapProvider({ children }: Props) {
           // }
 
           // Handle the selected place (e.g., display its details on the map)
-          // console.log(
+          // logger(
           //   "Selected Place:",
           //   place.formatted_address,
           //   place.geometry.location,
@@ -212,7 +213,7 @@ export default function GoogleMapProvider({ children }: Props) {
       place.textSearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
           if (results && results[0]) {
-            console.log(`🚀 ~ place.textSearch ~ results:`, results);
+            logger(`🚀 ~ place.textSearch ~ results:`, results);
 
             return r(results);
           } else {
@@ -288,7 +289,7 @@ export default function GoogleMapProvider({ children }: Props) {
 
     // function startSignalAnimation() {
     //   animationInterval = setInterval(function () {
-    //     console.log(`animation`);
+    //     logger(`animation`);
 
     //     if (isSignalOn) {
     //       // Turn off the signal (change the marker's color to blue)
@@ -346,7 +347,7 @@ export default function GoogleMapProvider({ children }: Props) {
 
     // const [lang, region] = navigator.languages[0].split("-");
     const [lang, region] = ["vi", "VN"];
-    // console.log(`🚀 ~ useEffect ~ [lang, region]:`, [lang, region]);
+    // logger(`🚀 ~ useEffect ~ [lang, region]:`, [lang, region]);
 
     script.src = `https://maps.googleapis.com/maps/api/js?key=${
       VITE_GOOGLE_MAP_API_KEY ?? ""

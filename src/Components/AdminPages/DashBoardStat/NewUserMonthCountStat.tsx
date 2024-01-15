@@ -1,16 +1,17 @@
 import { fetcher } from "@/services/fetcher";
 import { TCountData } from "@/types/IRoom";
 import { dateFormat } from "@/utils/dateFormat";
+import logger from "@/utils/logger";
 import { green } from "@ant-design/colors";
 import { Card, Statistic } from "antd";
 import QueryString from "qs";
 import useSWR from "swr";
 
 const from = dateFormat().startOf("M").toDate();
-console.log(`🚀 ~ from:`, from);
+logger(`🚀 ~ from:`, from);
 
 const to = dateFormat().endOf("M").toDate();
-console.log(`🚀 ~ to:`, to);
+logger(`🚀 ~ to:`, to);
 
 function NewUserMonthCountStat() {
   const { data, isLoading } = useSWR<TCountData[]>(() => {

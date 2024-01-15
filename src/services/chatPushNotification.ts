@@ -1,5 +1,6 @@
 import { VITE_PUBLIC_PUSH_NOTI_KEY } from "@/constants/env";
 import { fetcher } from "@/services/fetcher";
+import logger from "@/utils/logger";
 
 export const chatPushNotification = {
   async subscribe(): Promise<PushSubscription | undefined> {
@@ -20,9 +21,9 @@ export const chatPushNotification = {
               }
 
               if (serviceWorker) {
-                console.log("sw current state", serviceWorker.state);
+                logger("sw current state", serviceWorker.state);
                 if (serviceWorker.state == "activated") {
-                  console.log(`🚀 ~ .then ~ registration:`, registration);
+                  logger(`🚀 ~ .then ~ registration:`, registration);
 
                   r2(registration);
                 }
@@ -30,10 +31,10 @@ export const chatPushNotification = {
                 serviceWorker.addEventListener(
                   "statechange",
                   function (e: any) {
-                    console.log("sw statechange : ", e.target?.state);
+                    logger("sw statechange : ", e.target?.state);
                     if (e.target?.state == "activated") {
                       // use pushManger for subscribing here.
-                      console.log(
+                      logger(
                         "Just now activated. now we can subscribe for push notification",
                       );
 
@@ -60,7 +61,7 @@ export const chatPushNotification = {
   checkSubscribe() {
     return new Promise<PushSubscription | null>((r) => {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
-        // console.log(
+        // logger(
         //   `🚀 ~ navigator.serviceWorker.getRegistrations ~ registrations:`,
         //   registrations,
         // );
@@ -68,7 +69,7 @@ export const chatPushNotification = {
         if (!registrations.length) return r(null);
 
         navigator.serviceWorker.ready.then((reg) => {
-          console.log(`ready`);
+          logger(`ready`);
 
           reg.pushManager.getSubscription().then((sub) => {
             if (!sub) {
@@ -89,7 +90,7 @@ export const chatPushNotification = {
       navigator.permissions
         .query({ name: "notifications" })
         .then((r) => {
-          console.log(`🚀 ~ .then ~ r:`, r);
+          logger(`🚀 ~ .then ~ r:`, r);
 
           if (r.state == "granted") {
             rs(true);
@@ -103,7 +104,7 @@ export const chatPushNotification = {
           }
         })
         .catch((e) => {
-          console.log(`🚀 ~ checkPermission ~ e:`, e);
+          logger(`🚀 ~ checkPermission ~ e:`, e);
           rs(null);
         });
     });
@@ -115,10 +116,10 @@ export const chatPushNotification = {
         ?.getRegistrations()
         .then(async function (serviceWorkers) {
           for await (const i of serviceWorkers) {
-            // console.log(`🚀 ~ registration:`, registration);
+            // logger(`🚀 ~ registration:`, registration);
 
             await i.unregister();
-            console.log(`🚀 ~ forawait ~ i:`, i);
+            logger(`🚀 ~ forawait ~ i:`, i);
           }
           r();
         });

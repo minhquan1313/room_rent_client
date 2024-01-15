@@ -9,6 +9,7 @@ import { passwordRule } from "@/rules/passwordRule";
 import { phoneRule } from "@/rules/phoneRule";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { Form, Input, Modal, Space, Switch, notification } from "antd";
 import QueryString from "qs";
@@ -35,7 +36,7 @@ const AddUser = ({
   const [saving, setSaving] = useState(false);
 
   async function handleFinish(values: IUser): Promise<void> {
-    console.log(`🚀 ~ handleFinish ~ values:`, values);
+    logger(`🚀 ~ handleFinish ~ values:`, values);
 
     setSaving(true);
     // const { phone, email, gender, role, ...rest } = values;
@@ -53,23 +54,23 @@ const AddUser = ({
     body.gender = gender?.title;
     body.role = role?.title;
 
-    console.log(`🚀 ~ handleFinish ~ body:`, body);
+    logger(`🚀 ~ handleFinish ~ body:`, body);
 
     try {
       const payload = QueryString.parse(QueryString.stringify(body));
-      console.log(
+      logger(
         `🚀 ~ handleFinish ~ QueryString.stringify(body):`,
         QueryString.stringify(body),
       );
 
-      console.log(`🚀 ~ handleFinish ~ payload:`, payload);
+      logger(`🚀 ~ handleFinish ~ payload:`, payload);
 
       const d = await UserService.create(payload);
 
       onSaveSuccess();
       form.resetFields();
     } catch (error) {
-      console.log(`🚀 ~ handleFinish ~ error:`, error);
+      logger(`🚀 ~ handleFinish ~ error:`, error);
       notificationResponseError({
         error,
         message: "Lỗi gửi mã",

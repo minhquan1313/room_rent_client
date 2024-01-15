@@ -37,10 +37,10 @@ export const RoomCard = ({ room, showState }: RoomCardProps) => {
   //     onClick={async () => {
   //       if (!user || !saved) return;
 
-  //       console.log(room._id, saved);
+  //       logger(room._id, saved);
 
   //       const isSaved = saved.find((r) => r.user === user._id);
-  //       console.log(`🚀 ~ onClick={ ~ isSaved:`, isSaved);
+  //       logger(`🚀 ~ onClick={ ~ isSaved:`, isSaved);
   //       if (isSaved) {
   //         // unSave
   //         await deleteSaved(isSaved._id);

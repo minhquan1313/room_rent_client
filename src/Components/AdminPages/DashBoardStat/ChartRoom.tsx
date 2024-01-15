@@ -66,7 +66,7 @@ function ChartRoom() {
     const from = query.from.toISOString();
     const to = query.to.toISOString();
 
-    // console.log(`🚀 ~ ChartRoom ~ query:`, query);
+    // logger(`🚀 ~ ChartRoom ~ query:`, query);
     const q = QueryString.stringify({
       ...query,
 
@@ -115,12 +115,12 @@ function ChartRoom() {
         .map((_, i) => {
           return [firstValue(i), 0];
         });
-      // console.log(`🚀 ~ z ~ z:`, z);
+      // logger(`🚀 ~ z ~ z:`, z);
 
       const d: [string, number][] = data.map((d) => {
         return [dateFormat(d.label).format(format), d.count];
       });
-      // console.log(`🚀 ~ d ~ d:`, d);
+      // logger(`🚀 ~ d ~ d:`, d);
 
       d.forEach((dx) => {
         z[z.findIndex((zx) => zx[0] === dx[0])] = dx;
@@ -187,7 +187,7 @@ function ChartRoom() {
     tooltip: {
       trigger: "axis",
       // formatter: (params) => {
-      //   console.log(`🚀 ~ ChartRoom ~ params:`, params);
+      //   logger(`🚀 ~ ChartRoom ~ params:`, params);
       //   return `
       //             Tooltip: <br />
       //             ${params[0].seriesName}: ${params[0].value}<br />

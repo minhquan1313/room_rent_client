@@ -4,6 +4,7 @@ import { isRoleAdmin } from "@/constants/roleType";
 import { routeRoomEdit } from "@/constants/route";
 import { deleteSaved, saveRoom } from "@/services/saveRoom";
 import { IRoom } from "@/types/IRoom";
+import logger from "@/utils/logger";
 import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { Space, Tooltip } from "antd";
 import { ReactNode, useContext, useState } from "react";
@@ -32,11 +33,11 @@ const ActionRoomCard = ({ room }: Props): ReactNode[] => {
       {room.saved?.[0] && room.saved.length}
       <SavedComponent
         onClick={async () => {
-          console.log(_id, saved);
+          logger(_id, saved);
           if (!user || !saved) return;
 
           const isSaved = saved.find((r) => r.user === user._id);
-          console.log(`🚀 ~ onClick={ ~ isSaved:`, isSaved);
+          logger(`🚀 ~ onClick={ ~ isSaved:`, isSaved);
 
           try {
             if (isSaved) {
@@ -52,7 +53,7 @@ const ActionRoomCard = ({ room }: Props): ReactNode[] => {
             }
             update();
           } catch (error) {
-            console.log(`🚀 ~ error:`, error);
+            logger(`🚀 ~ error:`, error);
 
             //
           }

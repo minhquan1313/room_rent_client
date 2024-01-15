@@ -1,7 +1,8 @@
 import { NotificationContext } from "@/Contexts/NotificationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
+import logger from "@/utils/logger";
 import { Alert, Form, Space, Switch, Typography, message } from "antd";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 
 const NotifyEdit = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -13,11 +14,7 @@ const NotifyEdit = () => {
   const [loading, setLoading] = useState(false);
 
   const [form] = Form.useForm();
-  console.log(`🚀 ~ loading:`, loading);
-
-  useEffect(() => {
-    //
-  }, []);
+  logger(`🚀 ~ loading:`, loading);
 
   if (!user) return null;
   return (
@@ -31,7 +28,7 @@ const NotifyEdit = () => {
               checked={enabling}
               loading={loading}
               onChange={async (e) => {
-                console.log(`🚀 ~ onFinish={ ~ e:`, e);
+                logger(`🚀 ~ onFinish={ ~ e:`, e);
                 setLoading(true);
                 if (e) {
                   if (await register()) {
@@ -73,7 +70,7 @@ const NotifyEdit = () => {
           <Switch
             disabled={true}
             onChange={async (e) => {
-              console.log(`🚀 ~ onFinish={ ~ e:`, e);
+              logger(`🚀 ~ onFinish={ ~ e:`, e);
             }}
           />
 
@@ -90,7 +87,7 @@ const NotifyEdit = () => {
             checked={enabling}
             loading={loading}
             onChange={async (e) => {
-              console.log(`🚀 ~ onFinish={ ~ e:`, e);
+              logger(`🚀 ~ onFinish={ ~ e:`, e);
               // setLoading(true);
               // if (e) {
               //   if (await register()) {

@@ -14,6 +14,7 @@ import { IRoom } from "@/types/IRoom";
 import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
 import { getDescriptionsRoom } from "@/utils/getDescriptionsRoom";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { roomServiceIcon } from "@/utils/roomServiceIcon";
 import { toStringUserName } from "@/utils/toString";
@@ -77,18 +78,18 @@ const RoomDetail = () => {
   }
 
   // useEffect(() => {
-  // console.log(`🚀 ~ useEffect ~ currentRoom:`, currentRoom);
-  // console.log(`🚀 ~ useEffect ~ room_:`, room_);
-  // console.log(`🚀 ~ useEffect ~ room:`, room);
-  // console.log(`🚀 ~ useEffect ~ id:`, id);
-  // console.log(`🚀 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`);
+  // logger(`🚀 ~ useEffect ~ currentRoom:`, currentRoom);
+  // logger(`🚀 ~ useEffect ~ room_:`, room_);
+  // logger(`🚀 ~ useEffect ~ room:`, room);
+  // logger(`🚀 ~ useEffect ~ id:`, id);
+  // logger(`🚀 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`);
   // });
   useLayoutEffect(() => {
     /**
      * Kiểm tra nhà có disable không
      */
     if (!room) return;
-    console.log(`🚀 ~ useLayoutEffect ~ room:`, room);
+    logger(`🚀 ~ useLayoutEffect ~ room:`, room);
 
     // if (room.disabled || !room.is_visible || !room.verified) {
 

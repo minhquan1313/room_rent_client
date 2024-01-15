@@ -1,6 +1,7 @@
 import ChatBtn from "@/Components/ChatBtn";
 import { ChatSocketContext } from "@/Contexts/ChatSocketProvider";
 import { routeChat } from "@/constants/route";
+import logger from "@/utils/logger";
 import { ButtonProps } from "antd";
 import { memo, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +26,7 @@ const QuickChatBtn_ = ({ fromUserId, toUserId, ...rest }: Props) => {
          */
         try {
           const chatRoom = await searchForChatRoom([toUserId, fromUserId]);
-          console.log(`🚀 ~ onClick={ ~ chatRoom:`, chatRoom);
+          logger(`🚀 ~ onClick={ ~ chatRoom:`, chatRoom);
 
           if (chatRoom.length) {
             // Chat cũ

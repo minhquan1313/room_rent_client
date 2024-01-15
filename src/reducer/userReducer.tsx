@@ -1,8 +1,14 @@
 // TRASH :))))) NO USE
 import { fetcher } from "@/services/fetcher";
 import { IUser, UserLoginPayload, UserRegisterPayload } from "@/types/IUser";
+import logger from "@/utils/logger";
 
-export type ActionType = "LOGIN" | "LOGIN_TOKEN" | "REGISTER" | "LOGOUT" | "REFRESH";
+export type ActionType =
+  | "LOGIN"
+  | "LOGIN_TOKEN"
+  | "REGISTER"
+  | "LOGOUT"
+  | "REFRESH";
 
 // type UserActionLOGIN = {
 //   type: "LOGIN";
@@ -86,7 +92,10 @@ export const initUserReducer: UserState = (() => {
   }
 })();
 
-export default async function userReducer<T extends ActionType>(state: UserState, action: UserAction3<T>): Promise<UserState> {
+export default async function userReducer<T extends ActionType>(
+  state: UserState,
+  action: UserAction3<T>,
+): Promise<UserState> {
   try {
     switch (action.type) {
       case "LOGIN": {
@@ -134,7 +143,7 @@ export default async function userReducer<T extends ActionType>(state: UserState
 
     throw new Error();
   } catch (error) {
-    console.log(`🚀 ~ file: userReducer.tsx:131 ~ error:`, error);
+    logger(`🚀 ~ file: userReducer.tsx:131 ~ error:`, error);
 
     clearData();
     return null;

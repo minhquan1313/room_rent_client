@@ -53,7 +53,7 @@ export default function SavedProvider({ children }: Props) {
   useEffect(() => {
     if (user) return;
     reset();
-    // console.log(`🚀 ~ SavedProvider ~ savedRooms:`, savedRooms);
+    // logger(`🚀 ~ SavedProvider ~ savedRooms:`, savedRooms);
   }, [user]);
 
   const value = useMemo(

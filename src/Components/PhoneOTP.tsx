@@ -3,6 +3,7 @@ import MyOtpInput from "@/Components/MyOtpInput";
 import { resendInterval } from "@/constants/resendInterval";
 import { sendOtp, verifyOtp } from "@/services/sendOtp";
 import { dateFormat } from "@/utils/dateFormat";
+import logger from "@/utils/logger";
 import { Space, message } from "antd";
 import { memo, useEffect, useMemo, useState } from "react";
 import Countdown from "react-countdown";
@@ -48,7 +49,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
         setError(true);
       }
     } catch (error: any) {
-      console.log(`🚀 ~ onVerify ~ error:`, error);
+      logger(`🚀 ~ onVerify ~ error:`, error);
 
       messageApi.open({
         type: "error",
@@ -66,7 +67,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
       const d = await sendOtp(e164_format);
 
       const now = new Date();
-      console.log(`🚀 ~ onResendCode ~ now:`, now);
+      logger(`🚀 ~ onResendCode ~ now:`, now);
 
       setOtpSentAt(now);
       localStorage.setItem("otpSentAt", String(now.getTime()));
@@ -89,7 +90,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
   useEffect(() => {
     try {
       const sent = localStorage.getItem("otpSentAt");
-      console.log(`🚀 ~ useEffect ~ sent:`, sent);
+      logger(`🚀 ~ useEffect ~ sent:`, sent);
 
       if (!sent) return;
 

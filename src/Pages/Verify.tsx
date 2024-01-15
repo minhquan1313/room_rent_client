@@ -1,5 +1,6 @@
 import MyButton from "@/Components/MyButton";
 import { emailVerify } from "@/services/sendEmailVerify";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Result, Spin } from "antd";
 import classNames from "classnames";
@@ -18,10 +19,10 @@ function Verify() {
     try {
       const d = await emailVerify(code);
 
-      console.log(`🚀 ~ verifyEmail ~ d:`, d);
+      logger(`🚀 ~ verifyEmail ~ d:`, d);
       setSuccess(true);
     } catch (error: any) {
-      console.log(`🚀 ~ verifyEmail ~ error:`, error);
+      logger(`🚀 ~ verifyEmail ~ error:`, error);
 
       setError(error?.response?.data?.error?.[0]?.msg);
 

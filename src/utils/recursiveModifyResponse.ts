@@ -1,3 +1,5 @@
+import logger from "./logger";
+
 type ValueCallback = (value: string) => string;
 
 export function recursiveModifyResponse<T>(
@@ -46,4 +48,4 @@ export const modifiedData = recursiveModifyResponse(
   targetKeys,
   newValueCallback,
 );
-console.log(`🚀 ~ modifiedData:`, modifiedData);
+logger(`🚀 ~ modifiedData:`, modifiedData);

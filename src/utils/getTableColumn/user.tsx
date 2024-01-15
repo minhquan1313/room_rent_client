@@ -11,6 +11,7 @@ import { filterCustom } from "@/utils/getTableColumn/filterCustom";
 import { Space, Switch, Table, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { Link } from "react-router-dom";
+import logger from "../logger";
 
 export function user(
   roles: IRole[] | undefined,
@@ -171,7 +172,7 @@ export function user(
             loading={disablingUser?._id === record._id}
             onChange={async (e) => {
               setDisablingUser(record);
-              console.log(e, record._id);
+              logger(e, record._id);
               await disableUser(record._id, !e);
             }}
           />

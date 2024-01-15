@@ -13,7 +13,7 @@ export interface SelectLocation extends SelectProps {
 
 export const SelectProvince = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
-    // console.log(`🚀 ~ SelectProvince ~ code:`, code);
+    // logger(`🚀 ~ SelectProvince ~ code:`, code);
 
     const { data, isLoading } = useSWR<Location3rd[]>(
       `/location/provinces-all${code ? `?country=${code}` : ""}`,
@@ -53,7 +53,7 @@ export const SelectDistrict = memo(
       fetcher,
     );
 
-    // console.log(`🚀 ~ data:`, data, isLoading);
+    // logger(`🚀 ~ data:`, data, isLoading);
     return (
       <Select
         filterOption={searchFilterTextHasLabel}

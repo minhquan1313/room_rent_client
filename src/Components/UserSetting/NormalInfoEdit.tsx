@@ -12,6 +12,7 @@ import { sendEmailVerify } from "@/services/sendEmailVerify";
 import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
 import { isMobile } from "@/utils/isMobile";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import {
   CheckCircleFilled,
@@ -55,7 +56,7 @@ const NormalInfoEdit = () => {
     <Form
       onFinish={async (e: TUserEditFields) => {
         const { first_name, last_name, phone, gender, email } = e;
-        console.log(`🚀 ~ NormalInfoEdit ~ e:`, e);
+        logger(`🚀 ~ NormalInfoEdit ~ e:`, e);
 
         const payload: { [key: string]: any } = {};
         if (phone?.national_number !== user.phone?.national_number) {
@@ -75,14 +76,14 @@ const NormalInfoEdit = () => {
         if (last_name !== user.last_name) {
           payload.last_name = last_name;
         }
-        console.log(`🚀 ~ payload:`, payload);
+        logger(`🚀 ~ payload:`, payload);
 
         if (Object.keys(payload).length === 0) return;
 
         try {
           const d = await fetcher.patch(`/users/${user._id}`, payload);
 
-          console.log(`🚀 ~ onFinish={ ~ d:`, d);
+          logger(`🚀 ~ onFinish={ ~ d:`, d);
 
           messageApi.open({
             type: "success",
@@ -97,7 +98,7 @@ const NormalInfoEdit = () => {
           //   }
           refresh();
         } catch (error: any) {
-          console.log(`🚀 ~ error:`, error);
+          logger(`🚀 ~ error:`, error);
 
           // const e = error.response.data as ErrorJsonResponse;
           notificationResponseError({
@@ -251,7 +252,7 @@ const PhoneEdit = ({ user, refresh }: { user: IUser; refresh(): void }) => {
                         `/misc/make-verify-tel`,
                         payload,
                       );
-                      console.log(`🚀 ~ onClick={ ~ d:`, d);
+                      logger(`🚀 ~ onClick={ ~ d:`, d);
 
                       messageApi.open({
                         type: "info",
@@ -263,7 +264,7 @@ const PhoneEdit = ({ user, refresh }: { user: IUser; refresh(): void }) => {
                       query.set("step", "enter-otp");
                       setQuery(query);
                     } catch (error) {
-                      console.log(`🚀 ~ error:`, error);
+                      logger(`🚀 ~ error:`, error);
                       messageApi.open({
                         type: "error",
                         content: "Có lỗi khi gửi mã!",
@@ -321,7 +322,7 @@ const EmailEdit = ({ user, email }: { user: IUser; email: IUser["email"] }) => {
     setMailCodeSending(true);
     try {
       await sendEmailVerify(mail);
-      console.log(`mailCodeSend`);
+      logger(`mailCodeSend`);
 
       notiApi.open({
         type: "success",
@@ -343,7 +344,7 @@ const EmailEdit = ({ user, email }: { user: IUser; email: IUser["email"] }) => {
       setMailCodeSentAt(d);
       localStorage.setItem("emailTokenSentAt", String(d.getTime()));
     } catch (error) {
-      console.log(`🚀 ~ error:`, error);
+      logger(`🚀 ~ error:`, error);
 
       notificationResponseError({
         error,
@@ -369,7 +370,7 @@ const EmailEdit = ({ user, email }: { user: IUser; email: IUser["email"] }) => {
       const now = dateFormat();
 
       const diff = now.diff(date, "s");
-      console.log(`🚀 ~ useEffect ~ diff:`, diff);
+      logger(`🚀 ~ useEffect ~ diff:`, diff);
 
       if (diff > resendInterval) {
         setMailCodeSent(false);
@@ -388,8 +389,8 @@ const EmailEdit = ({ user, email }: { user: IUser; email: IUser["email"] }) => {
      * token verify
      */
 
-    console.log(`🚀 ~ useEffect ~ oldMail.current:`, oldMail.current);
-    console.log(`🚀 ~ useEffect ~ email:`, email);
+    logger(`🚀 ~ useEffect ~ oldMail.current:`, oldMail.current);
+    logger(`🚀 ~ useEffect ~ email:`, email);
     if (oldMail.current?.email === email?.email) return;
 
     oldMail.current = email;
@@ -470,7 +471,7 @@ const EmailEdit = ({ user, email }: { user: IUser; email: IUser["email"] }) => {
                     date={countDownDate}
                     onComplete={() => {
                       setMailCodeSent(false);
-                      console.log(`🚀 ~ onComplete ~ setMailCodeSent(false):`);
+                      logger(`🚀 ~ onComplete ~ setMailCodeSent(false):`);
                     }}
                     renderer={(props) =>
                       dateFormat

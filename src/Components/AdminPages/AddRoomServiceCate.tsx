@@ -2,6 +2,7 @@ import MyButton from "@/Components/MyButton";
 import { RoomSvCateService } from "@/services/RoomSvCateService";
 import { IRoomServiceCategory } from "@/types/IRoomServiceCategory";
 import { autoTitle } from "@/utils/autoTitle";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
 import { Form, Input, Modal, Space, notification } from "antd";
@@ -30,7 +31,7 @@ const AddRoomServiceCate = ({
       const payload = trimObjectValues(
         QueryString.parse(QueryString.stringify(body, { encode: false })),
       );
-      console.log(`🚀 ~ handleFinish ~ payload:`, payload);
+      logger(`🚀 ~ handleFinish ~ payload:`, payload);
 
       await RoomSvCateService.create(payload);
 
@@ -43,7 +44,7 @@ const AddRoomServiceCate = ({
 
       form.resetFields();
     } catch (error) {
-      console.log(`🚀 ~ handleFinish ~ error:`, error);
+      logger(`🚀 ~ handleFinish ~ error:`, error);
       notificationResponseError({
         error,
         notification: notifyApi,

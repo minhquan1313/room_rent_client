@@ -1,6 +1,7 @@
 import { fetcher } from "@/services/fetcher";
 import { IUser, UserLoginPayload, UserRegisterPayload } from "@/types/IUser";
 import { getUserLocalStorage } from "@/utils/getUserLocalStorage";
+import logger from "@/utils/logger";
 import { toStringUserName } from "@/utils/toString";
 import { Modal } from "antd";
 import {
@@ -41,7 +42,7 @@ export default function UserProvider({ children }: IProps) {
       const url = `/users/login`;
 
       const user = await fetcher.post<never, IUser>(url, u);
-      console.log(`🚀 ~ login ~ user:`, user);
+      logger(`🚀 ~ login ~ user:`, user);
 
       setIsLogging(false);
 
@@ -89,7 +90,7 @@ export default function UserProvider({ children }: IProps) {
   );
 
   const logout = () => {
-    console.log(`calling logout`);
+    logger(`calling logout`);
 
     clearData();
     setUser(null);
@@ -101,13 +102,13 @@ export default function UserProvider({ children }: IProps) {
   ) {
     try {
       const user = await fetcher.post<never, IUser>(`/users`, u);
-      console.log(`🚀 ~ UserProvider ~ user:`, user);
+      logger(`🚀 ~ UserProvider ~ user:`, user);
 
       saveData(user, remember);
       setUser(() => user);
       return user;
     } catch (error) {
-      console.log(`🚀 ~ UserProvider ~ error:`, error);
+      logger(`🚀 ~ UserProvider ~ error:`, error);
 
       logout();
 
@@ -149,7 +150,7 @@ export default function UserProvider({ children }: IProps) {
         return response;
       },
       function (error) {
-        console.log(`🚀 ~ useEffect ~ error:`, error);
+        logger(`🚀 ~ useEffect ~ error:`, error);
 
         error.response.status === 401 && logout();
         return Promise.reject(error);

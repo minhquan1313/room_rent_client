@@ -10,6 +10,7 @@ import { noWhiteSpace } from "@/rules/noWhiteSpace";
 import { phoneRule } from "@/rules/phoneRule";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
+import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { Form, Input, Modal, Space, Switch, notification } from "antd";
 import QueryString from "qs";
@@ -39,12 +40,12 @@ const EditUser = ({
   async function handleFinish(values: IUser): Promise<void> {
     if (!user?._id) return;
     setSaving(true);
-    console.log(`🚀 ~ handleFinish ~ values:`, values);
+    logger(`🚀 ~ handleFinish ~ values:`, values);
     const { phone, email, gender, role, ...rest } = values;
 
     const body: any = rest;
 
-    console.log(`🚀 ~ handleFinish ~ body:`, body);
+    logger(`🚀 ~ handleFinish ~ body:`, body);
 
     if (phone?.national_number !== user.phone?.national_number) {
       body.tell = phone?.national_number;
@@ -76,13 +77,13 @@ const EditUser = ({
       }
 
       const payload = QueryString.parse(QueryString.stringify(body));
-      console.log(`🚀 ~ handleFinish ~ payload:`, payload);
+      logger(`🚀 ~ handleFinish ~ payload:`, payload);
 
       const d = await UserService.update(user._id, payload);
-      console.log(`🚀 ~ handleFinish ~ d:`, d);
+      logger(`🚀 ~ handleFinish ~ d:`, d);
       onSaveSuccess();
     } catch (error) {
-      console.log(`🚀 ~ handleFinish ~ error:`, error);
+      logger(`🚀 ~ handleFinish ~ error:`, error);
       notificationResponseError({
         error,
         message: "Lỗi gửi mã",

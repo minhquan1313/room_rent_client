@@ -1,6 +1,7 @@
 import { ThemeContext } from "@/Contexts/ThemeProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { routeAdmin } from "@/constants/route";
+import logger from "@/utils/logger";
 import { Layout, Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import {
@@ -27,7 +28,7 @@ const LayoutAdmin = () => {
   );
 
   const menuClick: MenuProps["onClick"] = (e) => {
-    console.log(`🚀 ~ LayoutAdmin ~ e:`, e);
+    logger(`🚀 ~ LayoutAdmin ~ e:`, e);
     navigate(`${[...e.keyPath].reverse().join("/")}`);
   };
   const items = useMemo<MenuProps["items"]>(

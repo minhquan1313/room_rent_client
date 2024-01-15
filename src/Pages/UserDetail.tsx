@@ -11,6 +11,7 @@ import { isRoleOwner } from "@/constants/roleType";
 import { routeUpdate } from "@/constants/route";
 import { fetcher } from "@/services/fetcher";
 import { IUser } from "@/types/IUser";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { toStringUserName } from "@/utils/toString";
 import { Badge, Divider, Space, Typography, theme } from "antd";
@@ -33,7 +34,7 @@ const UserDetail = () => {
   const { data: user_ } = useSWR<IUser>(`/users/${userId}`, fetcher);
 
   const user = user_ || (location.state?.user as IUser | undefined);
-  console.log(`🚀 ~ UserDetail ~ user:`, user);
+  logger(`🚀 ~ UserDetail ~ user:`, user);
 
   pageTitle(toStringUserName(user) || "Đang tải");
 
@@ -102,7 +103,7 @@ const UserDetail = () => {
                       //   editable={
                       //     user._id === me?._id && {
                       //       onChange(value) {
-                      //         console.log(`🚀 ~ onChange ~ value:`, value);
+                      //         logger(`🚀 ~ onChange ~ value:`, value);
                       //       },
                       //     }
                       //   }

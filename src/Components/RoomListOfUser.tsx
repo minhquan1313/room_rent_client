@@ -3,6 +3,7 @@ import RoomListItem from "@/Components/RoomListItem";
 import { UserContext } from "@/Contexts/UserProvider";
 import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
+import logger from "@/utils/logger";
 import { Divider, List, Skeleton } from "antd";
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -27,13 +28,13 @@ function RoomListOfUser_({ userId }: Props) {
   //   f ? `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved` : null,
   //   fetcher,
   // );
-  // console.log(`🚀 ~ data:`, data);
+  // logger(`🚀 ~ data:`, data);
 
   async function loadMoreData() {
     fetched.current = true;
-    console.log(`🚀 ~ loadMoreData`);
-    console.log(`🚀 ~ loadMoreData ~ hasMore:`, hasMore);
-    console.log(`🚀 ~ loadMoreData ~ loading:`, loading);
+    logger(`🚀 ~ loadMoreData`);
+    logger(`🚀 ~ loadMoreData ~ hasMore:`, hasMore);
+    logger(`🚀 ~ loadMoreData ~ loading:`, loading);
     if (loading || !hasMore) return;
 
     setLoading(true);
@@ -41,14 +42,14 @@ function RoomListOfUser_({ userId }: Props) {
       const d = await fetcher<any, IRoom[]>(
         `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved`,
       );
-      console.log(`🚀 ~ loadMoreData ~ d:`, d);
+      logger(`🚀 ~ loadMoreData ~ d:`, d);
 
       setRooms(rooms.concat(d));
 
       setPage(page + 1);
       if (d.length < LIMIT) setHasMore(false);
     } catch (error) {
-      console.log(`🚀 ~ loadMoreData ~ error:`, error);
+      logger(`🚀 ~ loadMoreData ~ error:`, error);
     }
     setLoading(false);
   }
@@ -59,12 +60,12 @@ function RoomListOfUser_({ userId }: Props) {
     loadMoreData();
   }, []);
   // useEffect(() => {
-  //   console.log("asd");
+  //   logger("asd");
 
   //   setRooms(data || rooms);
-  //   console.log(`🚀 ~ useEffect ~ rooms:`, rooms);
+  //   logger(`🚀 ~ useEffect ~ rooms:`, rooms);
 
-  //   console.log(`🚀 ~ useEffect ~ data:`, data);
+  //   logger(`🚀 ~ useEffect ~ data:`, data);
 
   //   if (!data) return;
 
@@ -74,7 +75,7 @@ function RoomListOfUser_({ userId }: Props) {
   // }, [data]);
 
   // useEffect(() => {
-  //   console.log(`🚀 ~ useEffect ~ userId:`, userId);
+  //   logger(`🚀 ~ useEffect ~ userId:`, userId);
 
   //   if (data) return;
 
@@ -95,7 +96,7 @@ function RoomListOfUser_({ userId }: Props) {
     >
       <List
         renderItem={(room) => {
-          console.log(`🚀 ~ room:`, room);
+          logger(`🚀 ~ room:`, room);
           if (!room.verified || !room.is_visible || room.disabled) {
             if (user?._id !== room.owner) return null;
           }

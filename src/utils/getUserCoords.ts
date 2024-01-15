@@ -1,11 +1,12 @@
 import { Coords } from "google-map-react";
+import logger from "./logger";
 
 export function getUserCoords() {
   // d: {
   //   watch?: (newCoords: Coords) => void;
   // } = {},
   return new Promise<Coords | null | undefined>((r) => {
-    console.log(`getting coords`);
+    logger(`getting coords`);
 
     const to = setTimeout(() => {
       r(undefined);
@@ -25,14 +26,14 @@ export function getUserCoords() {
         //       d.watch && d.watch({ lat: latitude, lng: longitude });
         //     },
         //     (err) => {
-        //       console.log(`🚀 ~ getUserCoords~watch ~ err:`, err);
+        //       logger(`🚀 ~ getUserCoords~watch ~ err:`, err);
 
         //       navigator.geolocation.clearWatch(watchId);
         //     },
         //   );
         // }
 
-        console.log(`🚀 ~ getUserCoords ~ obj:`, obj);
+        logger(`🚀 ~ getUserCoords ~ obj:`, obj);
       },
       (error) => {
         if (error.code === 1) r(null);

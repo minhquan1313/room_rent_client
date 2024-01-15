@@ -30,7 +30,7 @@ function RoomListItem_({ room, showState }: RoomCardProps) {
   //   <SavedComponent
   //     onClick={(e) => {
   //       e.preventDefault();
-  //       console.log(room._id);
+  //       logger(room._id);
 
   //       onSave && onSave(!!saved);
   //     }}

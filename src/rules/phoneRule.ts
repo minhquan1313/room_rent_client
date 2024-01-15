@@ -1,5 +1,6 @@
 import { noWhiteSpace } from "@/rules/noWhiteSpace";
 import { isValidPhone } from "@/utils/isValidPhoneNumber";
+import logger from "@/utils/logger";
 import { Rule } from "antd/es/form";
 
 export const phoneRule: Rule[] = [
@@ -11,7 +12,7 @@ export const phoneRule: Rule[] = [
   ({ getFieldValue }) => ({
     message: "Số điện thoại không hợp lệ",
     validator(_, value) {
-      console.log(`🚀 ~ validator ~ value:`, value);
+      logger(`🚀 ~ validator ~ value:`, value);
 
       if (value === "" || value === undefined) return Promise.resolve();
       const rc =

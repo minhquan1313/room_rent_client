@@ -18,7 +18,7 @@ export const fetcher = (() => {
   i.interceptors.request.use(
     function (config) {
       // if (config.url?.startsWith("/chat"))
-      //   console.log(`🚀 ~ fetcher ~ config:`, config);
+      //   logger(`🚀 ~ fetcher ~ config:`, config);
 
       return config;
     },
@@ -30,12 +30,12 @@ export const fetcher = (() => {
 
   i.interceptors.response.use(
     function (response) {
-      // console.log(`🚀 ~ fetcher ~ response.data:`, response.data);
+      // logger(`🚀 ~ fetcher ~ response.data:`, response.data);
 
       return response.data;
     },
     function (error) {
-      // console.log(`🚀 ~ fetcher ~ error:`, error);
+      // logger(`🚀 ~ fetcher ~ error:`, error);
 
       // throw error;
 

@@ -5,6 +5,7 @@ import { fetcher } from "@/services/fetcher";
 import { IChatMessagePayload } from "@/types/IChatMessage";
 import { IChatMessageWithSeen, TChatList } from "@/types/IChatRoom";
 import { IChatSeen } from "@/types/IChatSeen";
+import logger from "@/utils/logger";
 import { objectToPayloadParams } from "@/utils/objectToPayloadParams";
 import { arrayMoveImmutable } from "array-move";
 import {
@@ -90,23 +91,23 @@ export default function ChatSocketProvider({ children }: IProps) {
     message: string;
     receiver: string[];
   }) => {
-    console.log(`🚀 ~ ChatSocketProvider ~ receiver:`, receiver, user);
+    logger(`🚀 ~ ChatSocketProvider ~ receiver:`, receiver, user);
     if (!user?._id || !msg.receiver.length) return;
 
     const msg_: IChatMessagePayload = {
       ...msg,
       sender: user._id,
     };
-    console.log(`🚀 ~ ChatSocketProvider ~ receiver: emit`);
+    logger(`🚀 ~ ChatSocketProvider ~ receiver: emit`);
     socket?.emit(chatSocketAction.C_SEND_MSG, msg_);
   };
 
   const sendMessageInRoom = (msg: { message: string; room?: string }) => {
-    console.log(`🚀 ~ sendMessageInRoom ~ user?._id:`, user?._id);
-    console.log(`🚀 ~ sendMessageInRoom ~ room:`, room);
+    logger(`🚀 ~ sendMessageInRoom ~ user?._id:`, user?._id);
+    logger(`🚀 ~ sendMessageInRoom ~ room:`, room);
     if (!room || !user?._id || !receiver) return;
 
-    console.log(`send in room`);
+    logger(`send in room`);
 
     const msg_: IChatMessagePayload = {
       ...msg,
@@ -116,7 +117,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       members: room.members,
     };
 
-    console.log(`🚀 ~ sendMessageInRoom ~ room: emit`);
+    logger(`🚀 ~ sendMessageInRoom ~ room: emit`);
     socket?.emit(chatSocketAction.C_SEND_MSG, msg_);
   };
 
@@ -126,17 +127,17 @@ export default function ChatSocketProvider({ children }: IProps) {
     }
 
     const chat = findChatInRoom(room_);
-    console.log(`🚀 ~ switchRoom ~ chat:`, chat);
+    logger(`🚀 ~ switchRoom ~ chat:`, chat);
 
     updateReceiver(chat);
     setRoom(chat);
-    console.log(room, chat);
+    logger(room, chat);
 
     return chat;
   };
 
   const receiveNewMessage = (msg: TChatList) => {
-    console.log(`🚀 ~ receiveNewMessage ~ msg:`, msg);
+    logger(`🚀 ~ receiveNewMessage ~ msg:`, msg);
     if (!user) return;
 
     newMessageToRoom(msg.room, msg);
@@ -159,7 +160,7 @@ export default function ChatSocketProvider({ children }: IProps) {
     }
   };
   const onMessageSeen = (seen: IChatSeen) => {
-    console.log(`🚀 ~ onMessageSeen ~ seen:`, seen);
+    logger(`🚀 ~ onMessageSeen ~ seen:`, seen);
 
     const chat = findChatInRoom(seen.room);
     if (!chat) return;
@@ -176,7 +177,7 @@ export default function ChatSocketProvider({ children }: IProps) {
   function newMessageToRoom(room_: string, msg: TChatList) {
     const chat = findChatInRoom(room_);
     if (chat) {
-      console.log(`has chat`);
+      logger(`has chat`);
 
       chat.messages.push(msg.messages[0]);
 
@@ -185,7 +186,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       setChatList(arrayMoveImmutable(chatList, chatList.indexOf(chat), 0));
       // setChatList([...chatList]);
     } else {
-      console.log(`no chat`);
+      logger(`no chat`);
       const newChat: TChatList = msg;
 
       setChatList([newChat, ...chatList]);
@@ -235,7 +236,7 @@ export default function ChatSocketProvider({ children }: IProps) {
     const receivers_ = receivers;
 
     const chatLocal = findChatByReceivers(receivers_);
-    console.log(`🚀 ~ searchForChatRoom ~ chatLocal:`, chatLocal);
+    logger(`🚀 ~ searchForChatRoom ~ chatLocal:`, chatLocal);
 
     if (chatLocal.length) return chatLocal;
 
@@ -245,7 +246,7 @@ export default function ChatSocketProvider({ children }: IProps) {
     const chatRoom = await fetcher.get<any, TChatList[]>(
       `/chat/room/search-by-receiver?${o.toString()}`,
     );
-    console.log(`🚀 ~ searchForChatRoom ~ chatRoom:`, chatRoom);
+    logger(`🚀 ~ searchForChatRoom ~ chatRoom:`, chatRoom);
 
     return chatRoom;
   };
@@ -254,13 +255,13 @@ export default function ChatSocketProvider({ children }: IProps) {
       // tải lịch sử tin nhắn
       if (!room || !room.canFetchMoreMessage) return;
 
-      console.log(`tải lịch sử tin nhắn`);
+      logger(`tải lịch sử tin nhắn`);
 
       const param = new URLSearchParams({
         limit: String(LIMIT),
         from_date_to_previous: room.messages[0].createdAt.toString(),
       });
-      console.log(
+      logger(
         `🚀 ~ loadMoreHistoryChat ~ param:`,
         decodeURIComponent(String(param)),
       );
@@ -268,7 +269,7 @@ export default function ChatSocketProvider({ children }: IProps) {
       fetcher
         .get<any, IChatMessageWithSeen[]>(`/chat/room/${room.room}?${param}`)
         .then((d) => {
-          console.log(`🚀 ~ d ~ d:`, d);
+          logger(`🚀 ~ d ~ d:`, d);
 
           if (!d.length || d.length < LIMIT) {
             room.canFetchMoreMessage = false;
@@ -296,7 +297,7 @@ export default function ChatSocketProvider({ children }: IProps) {
     chat.members = chat.members.filter((m) => m.user !== user?._id);
 
     socket?.emit(chatSocketAction.C_DELETE_ROOM, chat);
-    console.log(`🚀 ~ removeChatRoom ~ chat:`, chat);
+    logger(`🚀 ~ removeChatRoom ~ chat:`, chat);
 
     setChatList((list) => {
       list.splice(chatList.indexOf(chat), 1);
@@ -348,7 +349,7 @@ export default function ChatSocketProvider({ children }: IProps) {
     chatListInit.forEach((r) => (r.canFetchMoreMessage = true));
     setChatList(chatListInit);
 
-    console.log(`🚀 ~ useEffect ~ chatListInit:`, chatListInit);
+    logger(`🚀 ~ useEffect ~ chatListInit:`, chatListInit);
   }, [chatListInit]);
 
   useEffect(() => {

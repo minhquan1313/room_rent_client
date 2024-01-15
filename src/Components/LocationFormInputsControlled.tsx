@@ -12,6 +12,7 @@ import { locationResolve } from "@/services/locationResolve";
 import { GoogleClickEvent } from "@/types/GoogleClickEvent";
 import { RoomLocationPayload } from "@/types/IRoom";
 import { isProduction } from "@/utils/isProduction";
+import logger from "@/utils/logger";
 import { StopOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Skeleton, Space, Switch, message } from "antd";
 import { Coords } from "google-map-react";
@@ -174,13 +175,13 @@ export const LocationFormInputsControlled: FC<{
     district: string | undefined,
     ward: string | undefined,
   ) => {
-    console.log(`resolveLocationFromGG`);
+    logger(`resolveLocationFromGG`);
 
     setResolving(true);
     const data = await locationResolve("Viet nam", province, district, ward);
-    console.log(`🚀 ~ onCoordChange ~ data:`, data);
+    logger(`🚀 ~ onCoordChange ~ data:`, data);
     Object.keys(data).length;
-    console.log(`🚀 ~ Object.keys(data).length:`, Object.keys(data).length);
+    logger(`🚀 ~ Object.keys(data).length:`, Object.keys(data).length);
 
     if (!Object.keys(data).length) {
       //
@@ -230,7 +231,7 @@ export const LocationFormInputsControlled: FC<{
     try {
       geoLocation = await getAddressFromMarker(coord);
     } catch (error) {
-      console.log(`🚀 ~ onCoordChange ~ error:`, error);
+      logger(`🚀 ~ onCoordChange ~ error:`, error);
 
       messageApi.open({
         type: "error",
@@ -280,7 +281,7 @@ export const LocationFormInputsControlled: FC<{
         //   autocomplete: {
         //     ref: detailRef.current!.input!,
         //     onChange(places) {
-        //       console.log(`🚀 ~ onChange ~ places:`, places);
+        //       logger(`🚀 ~ onChange ~ places:`, places);
         //     },
         //   },
         // },
@@ -291,7 +292,7 @@ export const LocationFormInputsControlled: FC<{
   }, [loadMapTo]);
 
   useEffect(() => {
-    console.log(`🚀 ~ useEffect ~ map:`, map);
+    logger(`🚀 ~ useEffect ~ map:`, map);
     if (!map) return;
 
     map.addListener("click", (env: GoogleClickEvent) => {
@@ -301,7 +302,7 @@ export const LocationFormInputsControlled: FC<{
       });
     });
 
-    console.log(`🚀 ~ useEffect ~ value:`, value);
+    logger(`🚀 ~ useEffect ~ value:`, value);
     if (value) {
       resolveLocationFromGG(
         "Viet nam",
@@ -363,8 +364,8 @@ export const LocationFormInputsControlled: FC<{
             {locationDenied == false
               ? "Bạn đã cấm"
               : locationDenied == true
-              ? "Bạn đã cấm"
-              : "Lấy vị trí hiện tại"}
+                ? "Bạn đã cấm"
+                : "Lấy vị trí hiện tại"}
           </MyButton>
         </Space.Compact>
       </Form.Item>

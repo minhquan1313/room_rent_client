@@ -16,6 +16,7 @@ import { locationResolve } from "@/services/locationResolve";
 import { IDataWithCount, IRoom, RoomSearchQuery } from "@/types/IRoom";
 import { isMobile } from "@/utils/isMobile";
 import { isProduction } from "@/utils/isProduction";
+import logger from "@/utils/logger";
 import { numberFormat, numberParser } from "@/utils/numberFormat";
 import {
   formatObject,
@@ -87,38 +88,38 @@ const RoomSearch = () => {
 
   useEffect(() => {
     // rooms;
-    console.log(`🚀 ~ useEffect ~ rooms:`, rooms);
+    logger(`🚀 ~ useEffect ~ rooms:`, rooms);
     //   provinceCode;
-    //   console.log(`🚀 ~ useEffect ~ provinceCode:`, provinceCode);
+    //   logger(`🚀 ~ useEffect ~ provinceCode:`, provinceCode);
     // }, [provinceCode]);
     // useEffect(() => {
     //   districtCode;
-    //   console.log(`🚀 ~ useEffect ~ districtCode:`, districtCode);
+    //   logger(`🚀 ~ useEffect ~ districtCode:`, districtCode);
     // }, [districtCode]);
     // useEffect(() => {
     // searchParams.get("kw");
-    // console.log(
+    // logger(
     //   `🚀 ~ useEffect ~ searchParams.get("kw"):`,
     //   searchParams.get("kw"),
     // );
     // searchParams.get("services");
-    // console.log(
+    // logger(
     //   `🚀 ~ useEffect ~ searchParams.get("services"):`,
     //   searchParams.get("services")?.split(","),
     // );
-    // console.log(
+    // logger(
     //   `🚀 ~ useEffect ~ room:`,
     //   decodeURIComponent(searchParams.toString()),
     // );
     // ref.current;
-    // console.log(`🚀 ~ useEffect ~ ref.current:`, ref.current);
+    // logger(`🚀 ~ useEffect ~ ref.current:`, ref.current);
   });
   useEffect(() => {
     if (!isSearchCloseTo) return;
 
     (async () => {
       const coord = await refreshCoords();
-      console.log(`🚀 ~ coord:`, coord);
+      logger(`🚀 ~ coord:`, coord);
 
       if (!coord) {
         setIsSearchCloseTo(false);
@@ -137,7 +138,7 @@ const RoomSearch = () => {
   return (
     <Form
       onFinish={(e: Fields) => {
-        console.log(`🚀 ~ RoomSearch ~ e:`, e);
+        logger(`🚀 ~ RoomSearch ~ e:`, e);
 
         let fields: Fields = {};
         if (e.search_close_to) {
@@ -167,23 +168,19 @@ const RoomSearch = () => {
         }
 
         const objFormatted = formatObject(fields);
-        console.log(`🚀 ~ RoomSearch ~ fields:`, fields);
+        logger(`🚀 ~ RoomSearch ~ fields:`, fields);
 
         const objFormatted2 = QueryString.stringify(fields, {});
-        console.log(
-          `🚀 ~ RoomSearch ~ objFormatted:`,
-          objFormatted,
-          objFormatted2,
-        );
+        logger(`🚀 ~ RoomSearch ~ objFormatted:`, objFormatted, objFormatted2);
 
         const query = new URLSearchParams(objFormatted as any).toString();
         const payload = objectToPayloadParams(objFormatted);
-        console.log(`🚀 ~ RoomSearch ~ payload:`, payload);
+        logger(`🚀 ~ RoomSearch ~ payload:`, payload);
 
         setQuery(query);
 
-        // console.log(`🚀 ~ AllRoom ~ query:`, query);
-        // console.log(
+        // logger(`🚀 ~ AllRoom ~ query:`, query);
+        // logger(
         //   `🚀 ~ AllRoom ~ payload:`,
         //   decodeURIComponent(payload.toString()),
         // );
@@ -369,7 +366,7 @@ const SearchFilter = ({
     if (province) {
       (async () => {
         const r = await locationResolve("Việt Nam", province);
-        // console.log(`🚀 ~ province:`, r);
+        // logger(`🚀 ~ province:`, r);
 
         const c = r.province?.code;
         c && setProvinceCode(c);
@@ -380,7 +377,7 @@ const SearchFilter = ({
     if (district) {
       (async () => {
         const r = await locationResolve("Việt Nam", undefined, district);
-        // console.log(`🚀 ~ district:`, r);
+        // logger(`🚀 ~ district:`, r);
 
         const c = r.district?.code;
 

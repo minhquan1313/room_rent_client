@@ -5,6 +5,7 @@ import NotifyEdit from "@/Components/UserSetting/NotifyEdit";
 import PasswordEdit from "@/Components/UserSetting/PasswordEdit";
 import { UserContext } from "@/Contexts/UserProvider";
 import { IUser } from "@/types/IUser";
+import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Grid, Tabs } from "antd";
 import { useContext, useEffect } from "react";
@@ -26,7 +27,7 @@ const UserInfo = () => {
 
   useEffect(() => {
     screens;
-    console.log(`🚀 ~ useEffect ~ screens:`, screens);
+    logger(`🚀 ~ useEffect ~ screens:`, screens);
 
     // if (!query.get("tab")) setQuery(`tab=avatar`);
   }, [screens]);

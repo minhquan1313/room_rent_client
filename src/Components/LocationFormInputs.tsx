@@ -14,6 +14,7 @@ import { RoomLocationPayload } from "@/types/IRoom";
 import { IRoomLocation } from "@/types/IRoomLocation";
 import { Location3rd } from "@/types/Location3rd";
 import { isProduction } from "@/utils/isProduction";
+import logger from "@/utils/logger";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import { StopOutlined } from "@ant-design/icons";
 import {
@@ -183,13 +184,13 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     district: string | undefined,
     ward: string | undefined,
   ) => {
-    console.log(`resolveLocationFromGG`);
+    logger(`resolveLocationFromGG`);
 
     setResolving(true);
     const data = await locationResolve("Viet nam", province, district, ward);
-    console.log(`🚀 ~ onCoordChange ~ data:`, data);
+    logger(`🚀 ~ onCoordChange ~ data:`, data);
     Object.keys(data).length;
-    console.log(`🚀 ~ Object.keys(data).length:`, Object.keys(data).length);
+    logger(`🚀 ~ Object.keys(data).length:`, Object.keys(data).length);
 
     if (!Object.keys(data).length) {
       //
@@ -233,7 +234,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     try {
       geoLocation = await getAddressFromMarker(coord);
     } catch (error) {
-      console.log(`🚀 ~ onCoordChange ~ error:`, error);
+      logger(`🚀 ~ onCoordChange ~ error:`, error);
 
       messageApi.open({
         type: "error",
@@ -248,7 +249,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
     setResolving(false);
 
     if (geoLocation) {
-      console.log({ geoLocation });
+      logger({ geoLocation });
 
       const [district, province, country] = geoLocation.address_components
         .slice(-3)
@@ -283,7 +284,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
 
       await resolveLocationFromGG("Viet nam", province, district, ward);
       // const data = await locationResolve("Viet nam", province, district, ward);
-      // console.log(`🚀 ~ onCoordChange ~ data:`, data);
+      // logger(`🚀 ~ onCoordChange ~ data:`, data);
 
       // if (!Object.keys(data).length) {
       //   //
@@ -306,7 +307,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
       // }
 
       // resolveLocationFromGG(country, province, district, ward);
-      // console.log(`🚀 ~ onCoordChange ~ country, province, district, ward:`, {
+      // logger(`🚀 ~ onCoordChange ~ country, province, district, ward:`, {
       //   country,
       //   province,
       //   district,
@@ -326,7 +327,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
         //   autocomplete: {
         //     ref: detailRef.current!.input!,
         //     onChange(places) {
-        //       console.log(`🚀 ~ onChange ~ places:`, places);
+        //       logger(`🚀 ~ onChange ~ places:`, places);
         //     },
         //   },
         // },
@@ -337,7 +338,7 @@ const LocationFormInputs_: ForwardRefRenderFunction<
   }, [loadMapTo]);
 
   useEffect(() => {
-    console.log(`🚀 ~ useEffect ~ map:`, map);
+    logger(`🚀 ~ useEffect ~ map:`, map);
     if (!map) return;
 
     map.addListener("click", (env: GoogleClickEvent) => {
