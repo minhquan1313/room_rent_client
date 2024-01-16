@@ -1,3 +1,52 @@
 {
-  "1": "Không thể xác thực!"
+  "error code": {
+    "1": "Không thể xác thực!"
+  },
+  "data code": {
+    "room type": {
+      "cc": "Căn hộ chung cư",
+      "nr": "Nhà riêng",
+      "nt": "Nhà trọ",
+      "ktx": "Ký túc xá",
+      "ccm": "Chung cư mini",
+      "ttncc": "Trọ trong nhà chung chủ"
+    },
+    "room service": {
+      "tc": "Trà chanh",
+      "td": "Trà đá",
+      "c": "Chợ",
+      "st": "Siêu thị",
+      "bv": "Bệnh viện",
+      "th": "Trường học",
+      "cv": "Công viên",
+      "bxb": "Bến xe Bus",
+      "tttdtt": "Trung tâm thể dục thể thao",
+      "wifi": "Wifi",
+      "mt": "Mặt tiền",
+      "tttp": "Trung tâm thành phố",
+      "nth": "Nhà trong hẻm",
+      "anc": "An ninh cao",
+      "hgx": "Hầm gửi xe",
+      "og": "Ở ghép",
+      "gl": "Gác lửng",
+      "bnl": "Bình nóng lạnh",
+      "kb": "Kệ bếp",
+      "mg": "Máy giặt",
+      "dh": "Điều hòa",
+      "tl": "Tủ lạnh",
+      "gn": "Giường nệm",
+      "taq": "Tủ áo quần",
+      "bct": "Ban công/sân thượng",
+      "bdxr": "Bãi để xe riêng",
+      "can": "Camera an ninh",
+      "hb": "Hồ bơi",
+      "sv": "Sân vườn"
+    },
+    "room service cate": {
+      "tn": "Tiện nghi",
+      "mt": "Xung quanh",
+      "kb": "Hihi huhu",
+      "unknown": "Chưa phân loại"
+    }
+  }
 }

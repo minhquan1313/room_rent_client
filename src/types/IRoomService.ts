@@ -31,7 +31,7 @@ export type TRoomService =
 export interface IRoomService {
   _id: string;
 
-  title: string;
+  title: TRoomService;
   display_name: string | null;
   category: IRoomServiceCategory | null;
 

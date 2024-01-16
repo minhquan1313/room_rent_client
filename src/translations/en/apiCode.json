@@ -1,3 +1,52 @@
 {
-  "1": "You are not authorized!"
+  "error code": {
+    "1": "You are not authorized!"
+  },
+  "data code": {
+    "room type": {
+      "cc": "Apartment",
+      "nr": "Private home",
+      "nt": "Hostel",
+      "ktx": "Dorm",
+      "ccm": "Mini apartment",
+      "ttncc": "Living in a shared house"
+    },
+    "room service": {
+      "tc": "Lemon tea",
+      "td": "Iced tea",
+      "c": "Market",
+      "st": "Supermarket",
+      "bv": "Hospital",
+      "th": "School",
+      "cv": "Park",
+      "bxb": "Bus station",
+      "tttdtt": "Sports center",
+      "wifi": "Wifi",
+      "mt": "Facade",
+      "tttp": "City center",
+      "nth": "House in the alley",
+      "anc": "High security",
+      "hgx": "Parking garage",
+      "og": "Shared accommodation",
+      "gl": "Mezzanine",
+      "bnl": "Water heater",
+      "kb": "Kitchen shelf",
+      "mg": "Washing machine",
+      "dh": "Air conditioner",
+      "tl": "Refrigerator",
+      "gn": "Bed mattress",
+      "taq": "Wardrobe",
+      "bct": "Balcony/terrace",
+      "bdxr": "Private parking lot",
+      "can": "Security camera",
+      "hb": "Swimming pool",
+      "sv": "Garden"
+    },
+    "room service cate": {
+      "tn": "Facilities",
+      "mt": "Around",
+      "kb": "Hihi huhu",
+      "unknown": "Uncategorized"
+    }
+  }
 }

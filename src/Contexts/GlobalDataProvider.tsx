@@ -31,13 +31,13 @@ interface IContext {
   districtsAvailable?: string[];
   roomServiceCategories?: IRoomServiceCategory[];
 
-  mutateRoles(): Promise<void>;
-  mutateGenders(): Promise<void>;
-  mutateRoomServices(): Promise<void>;
-  mutateProvincesAvailable(): Promise<void>;
-  mutateDistrictsAvailable(): Promise<void>;
-  mutateRoomTypes(): Promise<void>;
-  mutateRoomServiceCategories(): Promise<void>;
+  mutateRoles(): Promise<unknown>;
+  mutateGenders(): Promise<unknown>;
+  mutateRoomServices(): Promise<unknown>;
+  mutateProvincesAvailable(): Promise<unknown>;
+  mutateDistrictsAvailable(): Promise<unknown>;
+  mutateRoomTypes(): Promise<unknown>;
+  mutateRoomServiceCategories(): Promise<unknown>;
 }
 export const GlobalDataContext = createContext<IContext>(null as never);
 export default function GlobalDataProvider({ children }: Props) {
