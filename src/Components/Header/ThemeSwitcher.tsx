@@ -42,7 +42,8 @@ export default function ThemeSwitcher() {
       trigger={["click"]}
     >
       <MyButton
-        type={isUsingSystemTheme ? "default" : "primary"}
+        type="text"
+        // type={isUsingSystemTheme ? "default" : "text"}
         icon={myTheme === "dark" ? <MoonIcon /> : <SunIcon />}
         shape="circle"
         size="large"

@@ -7,6 +7,7 @@ import AppLogoIcon from "@/Components/Icons/AppLogoIcon";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
+import logger from "@/utils/logger";
 import { Col, Row, Space, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import classNames from "classnames";
@@ -37,6 +38,12 @@ const MyHeader = memo(() => {
       // logger(`scroll`);
 
       setIsAtTop(window.scrollY === 0);
+      logger(
+        `🚀 ~ f ~ window.scrollY:`,
+        window.scrollY,
+        window.scrollY === 0,
+        location.pathname,
+      );
     };
 
     location.pathname === "/" && window.addEventListener("scroll", f);
