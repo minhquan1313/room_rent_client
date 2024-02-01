@@ -1,6 +1,8 @@
 {
   "page name": {
-    "home": "Trang chủ"
+    "home": "Trang chủ",
+    "Find": "Tìm kiếm",
+    "Chat": "Trò chuyện"
   },
   "home page": {
     "New boarding house nationwide": "Trọ mới toàn quốc",
@@ -13,6 +15,42 @@
     "Featured Province/City": "Tỉnh/Thành phố nổi bật",
     "Project to build a website to find accommodation": "Đồ án xây dựng website tìm nhà trọ"
   },
+
+  "Search page": {
+    "Finding in radius": "Sẽ tìm trong bán kính",
+    "Near": "Gần đây",
+    "Location": "Vị trí",
+    "Sort": "Sắp xếp",
+    "Cost": "Giá thuê",
+    "Date submitted": "Ngày đăng",
+    "Usable area": "Diện tích sử dụng",
+    "Province": "Tỉnh/Thành phố",
+    "District": "Quận/Huyện",
+    "Ward": "Xã/Phường",
+    "From": "Từ",
+    "To": "Đến",
+    "Number of floors": "Số tầng",
+    "Ground floor not included": "Không tính tầng trệt",
+    "Cost per month": "Tiền thuê mỗi tháng",
+    "Number of bedrooms": "Số phòng ngủ",
+    "Number of bathrooms": "Số phòng tắm",
+    "Number of living rooms": "Số phòng khách"
+  },
+
+  "Chat": {
+    "Start a new conversation with": "Bắt đầu cuộc trò chuyện mới với",
+    "Message": "Tin nhắn"
+  },
+
+  "Permission": {
+    "Denied": "Bị cấm"
+  },
+
+  "State": {
+    "Loading": "Đang tải",
+    "Loaded": "Đã tải"
+  },
+
   "Theme": {
     "Light": "Sáng",
     "Dark": "Tối",

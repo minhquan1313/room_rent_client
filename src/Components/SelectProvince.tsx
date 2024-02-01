@@ -4,6 +4,7 @@ import { Location3rd } from "@/types/Location3rd";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import { Select, SelectProps } from "antd";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 
 export interface SelectLocation extends SelectProps {
@@ -13,7 +14,7 @@ export interface SelectLocation extends SelectProps {
 
 export const SelectProvince = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
-    // logger(`🚀 ~ SelectProvince ~ code:`, code);
+    const { t } = useTranslation();
 
     const { data, isLoading } = useSWR<Location3rd[]>(
       `/location/provinces-all${code ? `?country=${code}` : ""}`,
@@ -25,7 +26,7 @@ export const SelectProvince = memo(
         filterOption={searchFilterTextHasLabel}
         notFoundContent={<NotFoundContent />}
         showSearch={true}
-        placeholder="Tỉnh/Thành phố"
+        placeholder={t("Search page.Province")}
         onSelect={(_value, o) => {
           const obj: Location3rd = {
             name: String(o.value),
@@ -48,6 +49,8 @@ export const SelectProvince = memo(
 );
 export const SelectDistrict = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
+    const { t } = useTranslation();
+
     const { data, isLoading } = useSWR<Location3rd[]>(
       code ? `/location/districts-all?province=${code}` : undefined,
       fetcher,
@@ -59,7 +62,7 @@ export const SelectDistrict = memo(
         filterOption={searchFilterTextHasLabel}
         notFoundContent={<NotFoundContent />}
         showSearch={true}
-        placeholder="Quận/Huyện"
+        placeholder={t("Search page.District")}
         onSelect={(_value, o) => {
           const obj: Location3rd = {
             name: String(o.value),
@@ -82,6 +85,8 @@ export const SelectDistrict = memo(
 );
 export const SelectWard = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
+    const { t } = useTranslation();
+
     const { data, isLoading } = useSWR<Location3rd[]>(
       code ? `/location/wards-all?district=${code}` : undefined,
       fetcher,
@@ -92,7 +97,7 @@ export const SelectWard = memo(
         filterOption={searchFilterTextHasLabel}
         notFoundContent={<NotFoundContent />}
         showSearch={true}
-        placeholder="Xã/Phường"
+        placeholder={t("Search page.Ward")}
         onSelect={(_value, o) => {
           const obj: Location3rd = {
             name: String(o.value),

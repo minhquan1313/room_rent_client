@@ -1,6 +1,8 @@
 {
   "page name": {
-    "home": "Home"
+    "home": "Home",
+    "Find": "Search",
+    "Chat": "Chat"
   },
   "home page": {
     "New boarding house nationwide": "Accommodation all over country",
@@ -13,6 +15,42 @@
     "Featured Province/City": "Featured Province/City",
     "Project to build a website to find accommodation": "Project to build a website to find accommodation"
   },
+
+  "Search page": {
+    "Find in radius": "Find in radius",
+    "Near": "Near",
+    "Location": "Location",
+    "Sort": "Sort",
+    "Cost": "Cost",
+    "Date submitted": "Date submitted",
+    "Usable area": "Usable area",
+    "Province": "Province",
+    "District": "District",
+    "Ward": "Ward",
+    "From": "From",
+    "To": "To",
+    "Number of floors": "Number of floors",
+    "Ground floor not included": "Ground floor not included",
+    "Cost per month": "Cost per month",
+    "Number of bedrooms": "Number of bedrooms",
+    "Number of bathrooms": "Number of bathrooms",
+    "Number of living rooms": "Number of living rooms"
+  },
+
+  "Chat": {
+    "Start a new conversation with": "Start a new conversation with",
+    "Message": "Message"
+  },
+
+  "Permission": {
+    "Denied": "Denied"
+  },
+
+  "State": {
+    "Loading": "Đang tải",
+    "Loaded": "Đã tải"
+  },
+
   "Theme": {
     "Light": "Light",
     "Dark": "Dark",

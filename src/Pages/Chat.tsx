@@ -25,6 +25,7 @@ import {
   Typography,
 } from "antd";
 import { useCallback, useContext, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Link,
   useNavigate,
@@ -35,7 +36,9 @@ import useSWR from "swr";
 
 const MIN_SCROLL_TOP = 500;
 function Chat() {
-  pageTitle("Chat");
+  const { t } = useTranslation();
+
+  pageTitle(t("page name.Chat"));
 
   const {
     chatList,
@@ -145,41 +148,27 @@ function Chat() {
     inputRef.current?.focus();
   }, [room?.messages.length]);
 
-  useEffect(
-    () => {
-      // logger(`🚀 ~ chatLoaded.current:`, chatLoaded.current);
-      if (chatLoaded.current) {
-        // logger(
-        //   `🚀 ~ chatLoadedByScroll.current:`,
-        //   chatLoadedByScroll.current,
-        // );
-        if (!chatLoadedByScroll.current) {
-          /**
-           * Cuộn xuống cuối cùng, để xem tin nhắn mới nhất
-           */
+  useEffect(() => {
+    if (chatLoaded.current) {
+      if (!chatLoadedByScroll.current) {
+        /**
+         * Cuộn xuống cuối cùng, để xem tin nhắn mới nhất
+         */
 
-          // logger(
-          //   `🚀 ~ messageBoxRef.current?.lastElementChild?.scrollIntoView():`,
-          // );
-          if (messageBoxRef.current) {
-            const { scrollHeight } = messageBoxRef.current;
-            // logger(`🚀 ~ scrollHeight:`, scrollHeight);
+        if (messageBoxRef.current) {
+          const { scrollHeight } = messageBoxRef.current;
 
-            messageBoxRef.current.scrollTop = scrollHeight;
-          }
-          // messageBoxRef.current?.lastElementChild?.scrollIntoView();
-        } else {
-          if (messageBoxRef.current?.scrollTop === 0) {
-            firstMsgBeforeLoaded.current?.scrollIntoView();
-            // logger(`🚀 ~ firstMsgBeforeLoaded.current?.scrollIntoView():`);
-          }
-
-          chatLoadedByScroll.current = false;
+          messageBoxRef.current.scrollTop = scrollHeight;
         }
+      } else {
+        if (messageBoxRef.current?.scrollTop === 0) {
+          firstMsgBeforeLoaded.current?.scrollIntoView();
+        }
+
+        chatLoadedByScroll.current = false;
       }
-    },
-    // , [room?.messages.length]
-  );
+    }
+  });
   useEffect(() => {
     /**
      * BẮT BUỘC PHẢI CHẠY SAU BƯỚC SCROLL TOP
@@ -212,7 +201,7 @@ function Chat() {
     /**
      * Thoát khỏi phòng khi component unmount, trường hợp
      * vẫn còn trong phòng chat, nhưng đã qua page khác,thì user
-     * đó nhắn thì vẫn hiện đã xong, nhưng trong khi chưa xem
+     * đó nhắn thì vẫn hiện đã xem, nhưng trong khi chưa xem
      */
 
     return () => {
@@ -220,6 +209,7 @@ function Chat() {
 
       switchRoom(undefined);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -324,6 +314,7 @@ function Chat() {
               className="flex h-full flex-col"
               form={form}
             >
+              {/* Chat usernames in room */}
               {room?.room && (
                 <div className="p-5">
                   <Space split={<Divider type="vertical" />}>
@@ -341,16 +332,6 @@ function Chat() {
                         );
                       })}
                   </Space>
-                  {/* {toStringUserName(
-                    (() => {
-                      const u = room.members.find((e) => e.user !== user?._id)
-                        ?.user;
-
-                      const x = getUser(u);
-
-                      return x;
-                    })(),
-                  )} */}
                 </div>
               )}
               <Divider className="m-0" />
@@ -407,7 +388,7 @@ function Chat() {
                       />
                     </Link>
                     <Typography.Title className="!m-0 text-center" level={3}>
-                      Bắt đầu cuộc trò chuyện mới với{" "}
+                      {t("Chat.Start a new conversation with")}{" "}
                       <Link
                         to={
                           routeUserDetail + "/" + getUser(query.get("to"))?._id
@@ -416,7 +397,6 @@ function Chat() {
                       >
                         {toStringUserName(getUser(query.get("to")))}
                       </Link>
-                      {/* {toStringUserName(getUser(query.get("to")))} */}
                     </Typography.Title>
                   </Space>
                 )}
@@ -462,11 +442,10 @@ function Chat() {
                       autoSize={{
                         maxRows: 5,
                       }}
-                      placeholder="Tin nhan"
+                      placeholder={t("Chat.Message")}
                       ref={inputRef}
                       translate="yes"
                       bordered={false}
-                      // className="bg-slate-800"
                       size="large"
                     />
                   </Form.Item>
@@ -487,7 +466,7 @@ function Chat() {
           </Col>
         </Row>
       ) : (
-        <div>Loading</div>
+        <div>{t("State.Loading")}</div>
       )}
     </div>
   );

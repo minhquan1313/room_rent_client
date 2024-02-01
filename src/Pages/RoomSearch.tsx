@@ -44,6 +44,7 @@ import {
 import convert from "convert";
 import QueryString from "qs";
 import { useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 
@@ -55,7 +56,9 @@ type Fields = RoomSearchQuery & {
   search_close_to_long?: string;
 };
 const RoomSearch = () => {
-  pageTitle("Tìm kiếm");
+  const { t } = useTranslation();
+
+  pageTitle(t("page name.Find"));
 
   const { refreshCoords } = useContext(UserLocationContext);
 
@@ -248,7 +251,10 @@ const RoomSearch = () => {
         <Row gutter={8} className="mb-5">
           <Col flex={"auto"}>
             <Form.Item<Fields> name="kw" noStyle>
-              <Input placeholder="Từ khoá" className="text-ellipsis" />
+              <Input
+                placeholder={t("home page.Keyword")}
+                className="text-ellipsis"
+              />
             </Form.Item>
           </Col>
 
@@ -267,7 +273,7 @@ const RoomSearch = () => {
               block
               loading={isLoading}
             >
-              Tìm
+              {t("home page.Find")}
             </MyButton>
           </Col>
         </Row>
@@ -304,6 +310,7 @@ const RoomSearch = () => {
                       total={rooms?.count}
                     />
                   </Form.Item>
+
                   {/* </>
                   ) : (
                     <Typography.Paragraph>
@@ -354,6 +361,8 @@ const SearchFilter = ({
   isSearchCloseTo,
   setIsSearchCloseTo,
 }: SearchFilterProps) => {
+  const { t } = useTranslation();
+
   const [query] = useSearchParams();
 
   const { locationDenied } = useContext(UserLocationContext);
@@ -392,20 +401,26 @@ const SearchFilter = ({
       <Form.Item<Fields> name="limit">
         <Segmented options={LIMIT} block />
       </Form.Item>
+
       <Form.Item>
         <Space.Compact block>
           <Form.Item<Fields> name="sort_field" noStyle>
             <SelectSortField />
           </Form.Item>
 
-          {/* <Form.Item<Fields> name="sort" noStyle></Form.Item> */}
+          {/* <Form.Item<Fields> name="sort" noStyle></Form.Item>
+           */}
         </Space.Compact>
       </Form.Item>
+
       <Form.Item>
         <Card
           extra={
             <Tooltip
-              title={`Sẽ tìm trong bán kính ${convert(proximityThreshold, "m")
+              title={`${t("Search page.Find in radius")} ${convert(
+                proximityThreshold,
+                "m",
+              )
                 .to("best")
                 .toString()}`}
             >
@@ -418,30 +433,40 @@ const SearchFilter = ({
                   <Switch
                     disabled={locationDenied}
                     onChange={(e) => setIsSearchCloseTo(e)}
-                    checkedChildren="Gần đây"
-                    unCheckedChildren={locationDenied ? "Bị cấm" : "Gần đây"}
+                    checkedChildren={t("Search page.Near")}
+                    unCheckedChildren={
+                      locationDenied
+                        ? t("Permission.Denied")
+                        : t("Search page.Near")
+                    }
                   />
                 </Form.Item>
               </div>
             </Tooltip>
           }
           size="small"
-          title="Vị trí"
+          title={t("Search page.Location")}
         >
-          <Form.Item<Fields>
-            name="search_close_to_lat"
-            hidden={isProduction}
-            label="[DEV] Vĩ độ"
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item<Fields>
-            name="search_close_to_long"
-            hidden={isProduction}
-            label="[DEV] Kinh độ"
-          >
-            <Input />
-          </Form.Item>
+          {isProduction ? null : (
+            <>
+              <Form.Item<Fields>
+                name="search_close_to_lat"
+                hidden={isProduction}
+                label="[DEV] Vĩ độ"
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item<Fields>
+                name="search_close_to_long"
+                hidden={isProduction}
+                label="[DEV] Kinh độ"
+              >
+                <Input />
+              </Form.Item>
+            </>
+          )}
+
           <Form.Item<Fields> name="province">
             <SelectProvince
               onSelect={(e) => {
@@ -485,49 +510,24 @@ const SearchFilter = ({
               disabled={isSearchCloseTo}
             />
           </Form.Item>
-
-          {/* <Form.Item>
-      <Space
-        onClick={() => {
-          form.setFieldValue("search_close_to", !isSearchCloseTo);
-          setIsSearchCloseTo(!isSearchCloseTo);
-        }}
-        className="w-full cursor-pointer bg-red-300"
-      >
-        <Form.Item<Fields>
-          name="search_close_to"
-          valuePropName="checked"
-          noStyle
-        >
-          <Switch
-            disabled={locationDenied}
-            onChange={(e) => {
-              setIsSearchCloseTo(e);
-            }}
-            checkedChildren="Tìm gần đây"
-            unCheckedChildren="..."
-          />
-        </Form.Item>
-        Tìm gần đây
-      </Space>
-    </Form.Item>
-
-    <MyButton block>Lấy vị trí</MyButton> */}
         </Card>
       </Form.Item>
-      <Form.Item<Fields> name="room_type" label="Kiểu phòng">
+
+      <Form.Item<Fields> name="room_type" label={t("home page.Room type")}>
         <SelectRoomType allowClear />
       </Form.Item>
-      <Form.Item<Fields> name="services" label="Dịch vụ">
+
+      <Form.Item<Fields> name="services" label={t("home page.Room service")}>
         <SelectService allowClear />
       </Form.Item>
-      <Form.Item<Fields> label="Diện tích sử dụng">
+
+      <Form.Item<Fields> label={t("Search page.Usable area")}>
         <Space.Compact block>
           <Form.Item<Fields> name="usable_area_from" noStyle>
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Từ"
+              placeholder={t("Search page.From")}
               step={10}
               className="w-full"
             />
@@ -537,20 +537,24 @@ const SearchFilter = ({
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Đến"
+              placeholder={t("Search page.To")}
               step={10}
               className="w-full"
             />
           </Form.Item>
         </Space.Compact>
       </Form.Item>
-      <Form.Item<Fields> label="Số tầng" tooltip="Không tính tầng trệt">
+
+      <Form.Item<Fields>
+        label={t("Search page.Number of floors")}
+        tooltip={t("Search page.Ground floor not included")}
+      >
         <Space.Compact block>
           <Form.Item<Fields> name="number_of_floor_from" noStyle>
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Từ"
+              placeholder={t("Search page.From")}
               className="w-full"
             />
           </Form.Item>
@@ -559,19 +563,20 @@ const SearchFilter = ({
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Đến"
+              placeholder={t("Search page.To")}
               className="w-full"
             />
           </Form.Item>
         </Space.Compact>
       </Form.Item>
-      <Form.Item<Fields> label="Tiền thuê mỗi tháng">
+
+      <Form.Item<Fields> label={t("Search page.Cost per month")}>
         <Space.Compact block>
           <Form.Item<Fields> name="price_per_month_from" noStyle>
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Từ"
+              placeholder={t("Search page.From")}
               step={100000}
               className="w-full"
             />
@@ -581,20 +586,21 @@ const SearchFilter = ({
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Đến"
+              placeholder={t("Search page.To")}
               step={100000}
               className="w-full"
             />
           </Form.Item>
         </Space.Compact>
       </Form.Item>
-      <Form.Item<Fields> label="Số phòng ngủ">
+
+      <Form.Item<Fields> label={t("Search page.Number of bedrooms")}>
         <Space.Compact block>
           <Form.Item<Fields> name="number_of_bedroom_from" noStyle>
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Từ"
+              placeholder={t("Search page.From")}
               className="w-full"
             />
           </Form.Item>
@@ -603,19 +609,20 @@ const SearchFilter = ({
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Đến"
+              placeholder={t("Search page.To")}
               className="w-full"
             />
           </Form.Item>
         </Space.Compact>
       </Form.Item>
-      <Form.Item<Fields> label="Số phòng tắm">
+
+      <Form.Item<Fields> label={t("Search page.Number of bathrooms")}>
         <Space.Compact block>
           <Form.Item<Fields> name="number_of_bathroom_from" noStyle>
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Từ"
+              placeholder={t("Search page.From")}
               className="w-full"
             />
           </Form.Item>
@@ -624,19 +631,20 @@ const SearchFilter = ({
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Đến"
+              placeholder={t("Search page.To")}
               className="w-full"
             />
           </Form.Item>
         </Space.Compact>
       </Form.Item>
-      <Form.Item<Fields> label="Số phòng khách">
+
+      <Form.Item<Fields> label={t("Search page.Number of living rooms")}>
         <Space.Compact block>
           <Form.Item<Fields> name="number_of_living_room_from" noStyle>
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Từ"
+              placeholder={t("Search page.From")}
               className="w-full"
             />
           </Form.Item>
@@ -645,7 +653,7 @@ const SearchFilter = ({
             <InputNumber
               formatter={numberFormat}
               parser={numberParser}
-              placeholder="Đến"
+              placeholder={t("Search page.To")}
               className="w-full"
             />
           </Form.Item>
