@@ -1,0 +1,24 @@
+{
+  "pattern": {
+    "thành phố": "Thành phố {{val}}",
+
+    "tỉnh": "Tỉnh {{val}}",
+
+    "huyện": "Huyện {{val}}",
+
+    "quận@str": "Quận {{val}}",
+    "quận@num": "Quận {{val}}",
+
+    "phường@str": "Phường {{val}}",
+    "phường@num": "Phường {{val}}",
+
+    "xã": "Xã {{val}}",
+
+    "thị trấn": "Thị trấn {{val}}",
+    "thị xã": "Thị trấn {{val}}"
+  },
+
+  "removeAccent": false,
+
+  "translate": "{{val,locationFormatter}}"
+}

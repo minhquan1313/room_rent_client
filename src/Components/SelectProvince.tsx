@@ -3,7 +3,7 @@ import { fetcher } from "@/services/fetcher";
 import { Location3rd } from "@/types/Location3rd";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
 import { Select, SelectProps } from "antd";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 
@@ -15,11 +15,26 @@ export interface SelectLocation extends SelectProps {
 export const SelectProvince = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
     const { t } = useTranslation();
+    const { t: tLoc } = useTranslation("location");
 
     const { data, isLoading } = useSWR<Location3rd[]>(
       `/location/provinces-all${code ? `?country=${code}` : ""}`,
       fetcher,
     );
+
+    const dataSorted = useMemo(() => {
+      if (!data) return undefined;
+
+      return data
+        .map((location) => ({
+          ...location,
+          nameTranslated: tLoc("translate", { val: location.name }),
+        }))
+        .sort((a, b) => {
+          const sortInt = a.nameTranslated.localeCompare(b.nameTranslated);
+          return sortInt;
+        });
+    }, [data, tLoc]);
 
     return (
       <Select
@@ -37,10 +52,10 @@ export const SelectProvince = memo(
         loading={isLoading}
         {...rest}
       >
-        {data &&
-          data.map(({ code, name }) => (
-            <Select.Option value={name} key={code} label={name}>
-              {name}
+        {dataSorted &&
+          dataSorted.map(({ code, name, nameTranslated }) => (
+            <Select.Option value={name} key={code}>
+              {nameTranslated}
             </Select.Option>
           ))}
       </Select>
@@ -50,11 +65,26 @@ export const SelectProvince = memo(
 export const SelectDistrict = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
     const { t } = useTranslation();
+    const { t: tLoc } = useTranslation("location");
 
     const { data, isLoading } = useSWR<Location3rd[]>(
       code ? `/location/districts-all?province=${code}` : undefined,
       fetcher,
     );
+
+    const dataSorted = useMemo(() => {
+      if (!data) return undefined;
+
+      return data
+        .map((location) => ({
+          ...location,
+          nameTranslated: tLoc("translate", { val: location.name }),
+        }))
+        .sort((a, b) => {
+          const sortInt = a.nameTranslated.localeCompare(b.nameTranslated);
+          return sortInt;
+        });
+    }, [data, tLoc]);
 
     // logger(`🚀 ~ data:`, data, isLoading);
     return (
@@ -73,10 +103,10 @@ export const SelectDistrict = memo(
         loading={isLoading}
         {...rest}
       >
-        {data &&
-          data.map(({ code, name }) => (
-            <Select.Option value={name} key={code} label={name}>
-              {name}
+        {dataSorted &&
+          dataSorted.map(({ code, name, nameTranslated }) => (
+            <Select.Option value={name} key={code}>
+              {nameTranslated}
             </Select.Option>
           ))}
       </Select>
@@ -86,11 +116,26 @@ export const SelectDistrict = memo(
 export const SelectWard = memo(
   ({ code, onSelect, ...rest }: SelectLocation) => {
     const { t } = useTranslation();
+    const { t: tLoc } = useTranslation("location");
 
     const { data, isLoading } = useSWR<Location3rd[]>(
       code ? `/location/wards-all?district=${code}` : undefined,
       fetcher,
     );
+
+    const dataSorted = useMemo(() => {
+      if (!data) return undefined;
+
+      return data
+        .map((location) => ({
+          ...location,
+          nameTranslated: tLoc("translate", { val: location.name }),
+        }))
+        .sort((a, b) => {
+          const sortInt = a.nameTranslated.localeCompare(b.nameTranslated);
+          return sortInt;
+        });
+    }, [data, tLoc]);
 
     return (
       <Select
@@ -108,10 +153,10 @@ export const SelectWard = memo(
         loading={isLoading}
         {...rest}
       >
-        {data &&
-          data.map(({ code, name }) => (
-            <Select.Option value={name} key={code} label={name}>
-              {name}
+        {dataSorted &&
+          dataSorted.map(({ code, name, nameTranslated }) => (
+            <Select.Option value={name} key={code}>
+              {nameTranslated}
             </Select.Option>
           ))}
       </Select>

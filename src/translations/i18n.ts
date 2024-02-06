@@ -1,7 +1,12 @@
 import API_EN from "@/translations/en/apiCode.json";
+import LOCATION_PATTERN_EN from "@/translations/en/locationConvertPattern.json";
 import UI_EN from "@/translations/en/ui.json";
+
 import API_VI from "@/translations/vi/apiCode.json";
+import LOCATION_PATTERN_VI from "@/translations/vi/locationConvertPattern.json";
 import UI_VI from "@/translations/vi/ui.json";
+
+import locationFormatter from "@/translations/formatter/locationFormatter";
 import logger from "@/utils/logger";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -19,10 +24,12 @@ export const resources = {
   en: {
     ui: UI_EN,
     api: API_EN,
+    location: LOCATION_PATTERN_EN,
   },
   vi: {
     ui: UI_VI,
     api: API_VI,
+    location: LOCATION_PATTERN_VI,
   },
 };
 
@@ -43,6 +50,7 @@ i18n
       escapeValue: false, // react already safes from xss
     },
   });
+i18n.services.formatter?.add("locationFormatter", locationFormatter);
 
 export function saveLanguage(language: string) {
   if (!i18n.isInitialized) logger.error("i18n not initialized");

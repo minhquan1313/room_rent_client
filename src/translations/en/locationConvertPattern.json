@@ -1,0 +1,24 @@
+{
+  "pattern": {
+    "thành phố": "{{val}} City",
+
+    "tỉnh": "{{val}} Province",
+
+    "huyện": "{{val}} District",
+
+    "quận@str": "{{val}} District",
+    "quận@num": "District {{val}}",
+
+    "phường@str": "{{val}} Ward",
+    "phường@num": "Ward {{val}}",
+
+    "xã": "{{val}} Commune",
+
+    "thị trấn": "{{val}} Commune Town",
+    "thị xã": "{{val}} District Town"
+  },
+
+  "removeAccent": true,
+
+  "translate": "{{val,locationFormatter}}"
+}
