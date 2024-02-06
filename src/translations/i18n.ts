@@ -7,6 +7,7 @@ import LOCATION_PATTERN_VI from "@/translations/vi/locationConvertPattern.json";
 import UI_VI from "@/translations/vi/ui.json";
 
 import locationFormatter from "@/translations/formatter/locationFormatter";
+import { onLanguageChangeDayjs } from "@/utils/dateFormat";
 import logger from "@/utils/logger";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -34,6 +35,16 @@ export const resources = {
 };
 
 export const defaultNS = "ui";
+
+i18n.on("languageChanged", (opt: keyof typeof resources) => {
+  onLanguageChangeDayjs(opt);
+});
+
+i18n.on("initialized", (opt) => {
+  console.log(`🚀 ~ i18n.on ~ opt:`, opt);
+
+  onLanguageChangeDayjs(opt.lng as keyof typeof resources);
+});
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next

@@ -3,6 +3,7 @@ import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
 import { QuickChatBtn } from "@/Components/QuickChatBtn";
+import { getDescriptionsRoom } from "@/Components/RoomDetail/getDescriptionsRoom";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
@@ -13,7 +14,6 @@ import { fetcher } from "@/services/fetcher";
 import { IRoom } from "@/types/IRoom";
 import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
-import { getDescriptionsRoom } from "@/utils/getDescriptionsRoom";
 import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { roomServiceIcon } from "@/utils/roomServiceIcon";
@@ -38,13 +38,15 @@ import {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const imageGutter: [number, number] = [8, 8];
 
 const RoomDetail = () => {
-  // const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const location = useLocation();
 
   const { getUser } = useContext(InteractedUserProviderContext);
@@ -77,24 +79,12 @@ const RoomDetail = () => {
     map.setZoom(15);
   }
 
-  // useEffect(() => {
-  // logger(`🚀 ~ useEffect ~ currentRoom:`, currentRoom);
-  // logger(`🚀 ~ useEffect ~ room_:`, room_);
-  // logger(`🚀 ~ useEffect ~ room:`, room);
-  // logger(`🚀 ~ useEffect ~ id:`, id);
-  // logger(`🚀 -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=`);
-  // });
   useLayoutEffect(() => {
     /**
      * Kiểm tra nhà có disable không
      */
     if (!room) return;
     logger(`🚀 ~ useLayoutEffect ~ room:`, room);
-
-    // if (room.disabled || !room.is_visible || !room.verified) {
-
-    //   navigate(`/`);
-    // }
   }, [room]);
 
   useEffect(() => {
@@ -103,7 +93,6 @@ const RoomDetail = () => {
     (async () => {
       if (!mapRef.current) return;
 
-      // const coords = await getUserCoords();
       const { map } = await loadMapTo({
         ref: mapRef.current,
       });
@@ -131,8 +120,6 @@ const RoomDetail = () => {
         content: `<a style="color:#000000" href="https://www.google.com/maps/place/${coord.lat},${coord.lng}" target="_blank" rel="noopener noreferrer">Mở Google map</a>`,
       });
 
-      // infowindow.open(map, mk);
-
       mk.addListener("click", function () {
         // Open a new tab or window with a specific URL when the marker is clicked
         // window.open(
@@ -147,37 +134,15 @@ const RoomDetail = () => {
       if (locationDenied || !coords) return;
 
       addUserMarker(map, coords);
-
-      // (async () => {
-      //   const c = coords || (await refreshCoords());
-
-      //   c && addUserMarker(map, c);
-      // })();
-
-      // map.addListener("click", (env: GoogleClickEvent) => {
-      //   setCoords({
-      //     lat: env.latLng.lat(),
-      //     lng: env.latLng.lng(),
-      //   });
-      // });
     })();
   }, [addMarker, map, room]);
-
-  // useEffect(() => {
-  //   if (!currentRoom || currentRoom._id === id) return;
-
-  //   setCurrentRoom(undefined);
-  // }, [currentRoom, id, setCurrentRoom]);
 
   useEffect(() => {
     if (!room_) return;
 
-    // setCurrentRoom(room_);
-    // addUser(room_.owner);
     setOwner(getUser(room_.owner));
   }, [getUser, room_]);
 
-  // const items: DescriptionsProps["items"] = getDescriptionsRoom(room);
   useEffect(() => {
     document.documentElement.scrollTop = 0;
   }, []);
@@ -198,12 +163,14 @@ const RoomDetail = () => {
               </Typography.Title>
 
               <Typography.Paragraph className="text-right">
-                Ngày đăng: {dateFormat(room.createdAt).format("LLL")}
+                {t("Room detail.Post date")}:{" "}
+                {dateFormat(room.createdAt).format("LLL")}
               </Typography.Paragraph>
 
               {!!dateFormat(room.createdAt).diff(room.updatedAt, "s") && (
                 <Typography.Paragraph className="text-right">
-                  Sửa đổi: {dateFormat(room.updatedAt).format("LLL")}
+                  {t("Room detail.Update date")}:{" "}
+                  {dateFormat(room.updatedAt).format("LLL")}
                 </Typography.Paragraph>
               )}
             </Space.Compact>
@@ -258,7 +225,7 @@ const RoomDetail = () => {
 
             <Descriptions
               bordered
-              title="Thông tin cơ bản"
+              title={t("Room detail.Basic information")}
               items={getDescriptionsRoom(room)}
             />
 
@@ -274,7 +241,7 @@ const RoomDetail = () => {
               </Space>
             </Card> */}
 
-            <Card title="Thông tin chi tiết">
+            <Card title={t("Room detail.Detail information")}>
               {room.description
                 ?.split(/\n+/)
                 .map((e, i) => (
@@ -283,7 +250,7 @@ const RoomDetail = () => {
             </Card>
 
             <Card
-              title="Liên hệ"
+              title={t("Room detail.Contact")}
               extra={
                 <Space>
                   {user && room.owner !== user._id && (
@@ -294,7 +261,7 @@ const RoomDetail = () => {
                     loading={!owner}
                     to={!owner ? undefined : `tel:${owner.phone?.e164_format}`}
                   >
-                    Gọi
+                    {t("Room detail.Call")}
                   </MyButton>
                 </Space>
               }
@@ -349,7 +316,7 @@ const RoomDetail = () => {
             </Card>
 
             <Card
-              title="Vị trí"
+              title={t("Search page.Location")}
               extra={
                 <Space>
                   <MyButton
@@ -358,13 +325,13 @@ const RoomDetail = () => {
                       centerMarker(map, marker.current);
                     }}
                   >
-                    Về giữa
+                    {t("Room detail.Center")}
                   </MyButton>
                   <MyButton
                     to={`https://www.google.com/maps/dir/?api=1&destination=${room.location?.lat_long.coordinates[1]},${room.location?.lat_long.coordinates[0]}`}
                     icon={<GoogleOutlined />}
                   >
-                    Chỉ đường
+                    {t("Room detail.Guide")}
                   </MyButton>
                 </Space>
               }

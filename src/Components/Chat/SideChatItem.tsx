@@ -11,6 +11,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Badge, Spin, Typography } from "antd";
 import { BaseButtonProps } from "antd/es/button/button";
 import { memo, useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onChangeRoom(room: string): void;
@@ -31,6 +32,7 @@ const SideChatItem_ = ({
   lastMsg,
 }: Props) => {
   const { user: me } = useContext(UserContext);
+  const { t } = useTranslation();
 
   return (
     <Spin spinning={!user}>
@@ -55,19 +57,15 @@ const SideChatItem_ = ({
             <Typography.Paragraph ellipsis={{ rows: 1 }} className="!m-0">
               {members.length <= 2 ? (
                 <>
-                  {/* {toStringUserName(user)} */}
                   {user?.username} / {user?._id} / {toStringUserName(user)}
                 </>
               ) : (
-                <>Nhóm chat {members.length} người</>
+                <>{t("Chat.Group chat x people", { val: members.length })}</>
               )}
 
               {/* {!lastMsg.seen.find((u) => u.seen_by === me?._id) &&
                 `Chưa xem nhe`} */}
             </Typography.Paragraph>
-            {/* <Typography.Title level={5} ellipsis={{ rows: 1 }} className="!m-0">
-            {toStringUserName(user)}
-          </Typography.Title> */}
             <Typography.Paragraph ellipsis={{ rows: 1 }} className="!m-0">
               {lastMsg.sender === me?._id && "Bạn: "}
               {lastMsg.message}

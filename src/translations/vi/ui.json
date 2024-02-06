@@ -37,9 +37,32 @@
     "Number of living rooms": "Số phòng khách"
   },
 
+  "Room detail": {
+    "Post date": "Ngày đăng",
+    "Update date": "Sửa đổi",
+    "Basic information": "Thông tin cơ bản",
+    "Detail information": "Thông tin chi tiết",
+    "Contact": "Liên hệ",
+    "Call": "Gọi",
+    "Center": "Về giữa",
+    "Guide": "Chỉ đường",
+
+    "Address": "Địa chỉ",
+    "Usable area": "Diện tích sử dụng",
+    "Room type": "Kiểu phòng",
+    "Bathroom": "Số phòng tắm",
+    "Bedroom": "Số phòng ngủ",
+    "Living room": "Số phòng khách",
+    "Floor": "Số tầng",
+    "Verify": "Xác thực",
+    "Status": "Trạng thái",
+    "Cost per month": "Tiền thuê mỗi tháng"
+  },
+
   "Chat": {
     "Start a new conversation with": "Bắt đầu cuộc trò chuyện mới với",
-    "Message": "Tin nhắn"
+    "Message": "Tin nhắn",
+    "Group chat x people": "Nhóm chat {{val}} người"
   },
 
   "Permission": {

@@ -37,9 +37,32 @@
     "Number of living rooms": "Number of living rooms"
   },
 
+  "Room detail": {
+    "Post date": "Posted at",
+    "Update date": "Updated at",
+    "Basic information": "Basic information",
+    "Detail information": "Detail information",
+    "Contact": "Contact",
+    "Call": "Call",
+    "Center": "Center",
+    "Guide": "Guide",
+
+    "Address": "Address",
+    "Usable area": "Usable area",
+    "Room type": "Room type",
+    "Bathroom": "Bathroom",
+    "Bedroom": "Bedroom",
+    "Living room": "Living room",
+    "Floor": "Floor",
+    "Verify": "Verify",
+    "Status": "Status",
+    "Cost per month": "Cost per month"
+  },
+
   "Chat": {
     "Start a new conversation with": "Start a new conversation with",
-    "Message": "Message"
+    "Message": "Message",
+    "Group chat x people": "Group chat {{val}} people"
   },
 
   "Permission": {

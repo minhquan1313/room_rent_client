@@ -6,7 +6,7 @@ import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
 import { isMobile } from "@/utils/isMobile";
 import { toStringUserName } from "@/utils/toString";
-import { Avatar, Card, Space, Tooltip, Typography, theme } from "antd";
+import { Card, Space, Tooltip, Typography, theme } from "antd";
 import classNames from "classnames";
 import { memo, useContext } from "react";
 
@@ -57,38 +57,26 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
           </Space>
         )}
       </div>
-      {/* [{String(message.createdAt)}] */}
 
       <div className="flex">
-        <Tooltip title={dateFormat(date).format("LLL:ss")}>
+        <Tooltip title={dateFormat(date).format("LLL")}>
           <div className="ml-auto">{dateFormat(date).fromNow()}</div>
         </Tooltip>
 
         <Space>
-          {seen
-            // .filter((s) => s.seen_by !== me?._id)
-            .map((r) => (
-              <Tooltip title={getUser(r.seen_by)?.username} key={r.seen_by}>
-                <MyAvatar
-                  src={(() => {
-                    const u = getUser(r.seen_by);
-                    return u ? u.image : undefined;
-                  })()}
-                  size={"small"}
-                  addServer
-                  name={getUser(r.seen_by)?.first_name}
-                />
-                {/* <Avatar
-                  src={(() => {
-                    const u = getUser(r.seen_by);
-                    return u ? u.image : undefined;
-                  })()}
-                  size={"small"}
-                >
-                  {getUser(r.seen_by)?.first_name[0]}
-                </Avatar> */}
-              </Tooltip>
-            ))}
+          {seen.map((r) => (
+            <Tooltip title={getUser(r.seen_by)?.username} key={r.seen_by}>
+              <MyAvatar
+                src={(() => {
+                  const u = getUser(r.seen_by);
+                  return u ? u.image : undefined;
+                })()}
+                size={"small"}
+                addServer
+                name={getUser(r.seen_by)?.first_name}
+              />
+            </Tooltip>
+          ))}
         </Space>
       </div>
       {/* <div className="">[{date.format("LTS")}]</div> */}
