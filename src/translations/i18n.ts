@@ -20,7 +20,7 @@ export const languagesLabels = {
 
 // the translations
 // (tip move them in a JSON file and import them,
-// or even better, manage them separated from your code: https://react.i18next.com/guides/multiple-translation-files)
+// or even better, manage them separated from your code: https://react.i18next.com/Navigations/multiple-translation-files)
 export const resources = {
   en: {
     ui: UI_EN,

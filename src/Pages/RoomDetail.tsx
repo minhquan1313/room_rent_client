@@ -1,9 +1,10 @@
+import GoogleMapIcon from "@/Components/Icons/GoogleMapIcon";
 import MyAvatar from "@/Components/MyAvatar";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import MyImage from "@/Components/MyImage";
 import { QuickChatBtn } from "@/Components/QuickChatBtn";
-import { getDescriptionsRoom } from "@/Components/RoomDetail/getDescriptionsRoom";
+import DescriptionsRoom from "@/Components/RoomDetail/DescriptionsRoom";
 import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
@@ -18,17 +19,7 @@ import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { roomServiceIcon } from "@/utils/roomServiceIcon";
 import { toStringUserName } from "@/utils/toString";
-import { GoogleOutlined } from "@ant-design/icons";
-import {
-  Badge,
-  Card,
-  Col,
-  Descriptions,
-  Image,
-  Row,
-  Space,
-  Typography,
-} from "antd";
+import { Badge, Card, Col, Image, Row, Space, Typography } from "antd";
 import Meta from "antd/es/card/Meta";
 import { Coords } from "google-map-react";
 import {
@@ -46,6 +37,7 @@ const imageGutter: [number, number] = [8, 8];
 
 const RoomDetail = () => {
   const { t } = useTranslation();
+  const { t: tApi } = useTranslation("api");
 
   const location = useLocation();
 
@@ -214,32 +206,17 @@ const RoomDetail = () => {
             </Image.PreviewGroup>
 
             <Space size={"large"}>
-              {room.services.map((e, i) => (
+              {room.services.map(({ title }, i) => (
                 <Typography.Text key={i}>
                   <Space size={"small"}>
-                    {roomServiceIcon(e.title)} {e.display_name}
+                    {roomServiceIcon(title)}{" "}
+                    {tApi(`data code.room service.${title}`)}
                   </Space>
                 </Typography.Text>
               ))}
             </Space>
 
-            <Descriptions
-              bordered
-              title={t("Room detail.Basic information")}
-              items={getDescriptionsRoom(room)}
-            />
-
-            {/* <Card title="Dịch vụ">
-              <Space size={"large"}>
-                {room.services.map((e, i) => (
-                  <Typography.Paragraph key={i}>
-                    <Space size={"small"}>
-                      {roomServiceIcon(e.title)} {e.display_name}
-                    </Space>
-                  </Typography.Paragraph>
-                ))}
-              </Space>
-            </Card> */}
+            <DescriptionsRoom room={room} />
 
             <Card title={t("Room detail.Detail information")}>
               {room.description
@@ -329,9 +306,9 @@ const RoomDetail = () => {
                   </MyButton>
                   <MyButton
                     to={`https://www.google.com/maps/dir/?api=1&destination=${room.location?.lat_long.coordinates[1]},${room.location?.lat_long.coordinates[0]}`}
-                    icon={<GoogleOutlined />}
+                    icon={<GoogleMapIcon />}
                   >
-                    {t("Room detail.Guide")}
+                    {t("Room detail.Navigation")}
                   </MyButton>
                 </Space>
               }

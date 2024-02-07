@@ -6,10 +6,13 @@ import { TCountData } from "@/types/IRoom";
 import logger from "@/utils/logger";
 import { Typography } from "antd";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import useSWR from "swr";
 
 export const PopularProvinces = () => {
+  const { t } = useTranslation("location");
+
   const { data: roomCounts } = useSWR<TCountData[]>(
     "/stats/count-room?limit=4&province",
     fetcher,
@@ -43,7 +46,7 @@ export const PopularProvinces = () => {
                 />
                 <div className="absolute inset-x-0 bottom-0 z-20 p-5">
                   <Typography.Title level={3} className="!text-white">
-                    {label}
+                    {t("translate", { val: label })}
                   </Typography.Title>
                   <Typography.Text className="!text-white">
                     {count} tin

@@ -1,15 +1,22 @@
+import i18n from "@/translations/i18n";
 import { IRoomLocation } from "@/types/IRoomLocation";
 import { IUser } from "@/types/IUser";
 
 export const toStringLocation = (
-  l: Partial<
+  location: Partial<
     Pick<IRoomLocation, "detail_location" | "ward" | "district" | "province">
   >,
   full = true,
 ) => {
-  const { detail_location, ward, district, province } = l;
+  const { t } = i18n;
+  const { detail_location, ward, district, province } = location;
 
-  return [full && detail_location, ward, district, province]
+  return [
+    full && detail_location,
+    t("location:translate", { val: ward }),
+    t("location:translate", { val: district }),
+    t("location:translate", { val: province }),
+  ]
     .filter((r) => r)
     .join(", ");
 };
