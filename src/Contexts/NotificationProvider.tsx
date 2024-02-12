@@ -10,6 +10,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
 
 type Props = {
@@ -27,6 +28,8 @@ export const NotificationContext = createContext<INotificationContext>(
   null as never,
 );
 export default function NotificationProvider({ children }: Props) {
+  const { t } = useTranslation();
+
   const location = useLocation();
 
   const { user } = useContext(UserContext);
@@ -136,17 +139,21 @@ export default function NotificationProvider({ children }: Props) {
   return (
     <NotificationContext.Provider value={value}>
       <Modal
-        title="Bật thông báo"
+        title={t("User.Dialog.Push notify.Title")}
         open={isModalOpen && user?.disabled === false}
         onOk={handleOk}
         onCancel={handleCancel}
-        okText="Ok nhen"
-        cancelText="Hông"
+        okText={t("User.Dialog.Push notify.Ok")}
+        cancelText={t("User.Dialog.Push notify.No")}
         confirmLoading={loading}
         maskClosable={false}
+        closable={false}
       >
         <p>
-          Nhận thông báo khi có tin nhắn đến hong {toStringUserName(user)}??
+          {/* Nhận thông báo khi có tin nhắn đến hong {toStringUserName(user)}?? */}
+          {t("User.Dialog.Push notify.Description{{val}}", {
+            val: toStringUserName(user),
+          })}
         </p>
       </Modal>
       {children}

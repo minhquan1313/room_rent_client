@@ -4,10 +4,11 @@
     "Find": "Search",
     "Chat": "Chat",
     "Add room": "Add room",
-    "Profile settings": "Profile setting"
+    "Profile settings": "Profile setting",
+    "Bookmark": "Bookmark"
   },
   "home page": {
-    "New boarding house nationwide": "Accommodation all over country",
+    "New boarding house nationwide": "Accommodations over country",
     "Keyword": "Keyword",
     "Room type": "Room type",
     "Room service": "Room service",
@@ -119,14 +120,17 @@
     "Not supported region": "Not supported region",
 
     "Add": "Add",
-    "Added successfully!": "Added successfully!"
+    "Update": "Update",
+    "Added successfully!": "Added successfully!",
+
+    "Month": "Month"
   },
 
   "Drop down": {
     "User nav btn": {
       "Dashboard": "Dashboard",
       "Add room": "Add room",
-      "Saved": "Saved",
+      "Saved": "Bookmark",
       "Sign out": "Sign out"
     }
   },
@@ -195,6 +199,19 @@
       "Notify new message": "Notify new message",
 
       "User denied": "You denied to provide notify permission, please allow access by yourself in browser setting."
+    },
+
+    "Dialog": {
+      "Push notify": {
+        "Title": "Turn on notification",
+        "Ok": "Yes sir!",
+        "No": "Nope",
+        "Description{{val}}": "Hey {{val}}, do you want notification on new messages??"
+      }
+    },
+
+    "Bookmark page": {
+      "Bookmarked rooms": "Bookmarked rooms"
     }
   }
 }

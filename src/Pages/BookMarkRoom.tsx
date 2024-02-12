@@ -9,12 +9,15 @@ import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Divider, List, Skeleton, Typography } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const LIMIT = 5;
 // let page = 1;
 const BookMarkRoom = () => {
-  pageTitle("Đã lưu");
+  const { t } = useTranslation();
+
+  pageTitle(t("page name.Bookmark"));
 
   const { user } = useContext(UserContext);
   const { saved, add, page, setPage, hasMore, setHasMore } =
@@ -22,19 +25,11 @@ const BookMarkRoom = () => {
 
   const [rooms, setRooms] = useState<IRoom[]>(saved);
   const [loading, setLoading] = useState(false);
-  // const [hasMore, setHasMore] = useState(saved.length === 0);
 
   const fetched = useRef(rooms.length !== 0);
   logger(`🚀 ~ BookMarkRoom ~ page:`, page);
 
   logger(`🚀 ~ BookMarkRoom ~ fetched:`, fetched);
-
-  // const [f, setF] = useState(true);
-  // const { data } = useSWR<IRoom[]>(
-  //   f ? `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved` : null,
-  //   fetcher,
-  // );
-  // logger(`🚀 ~ data:`, data);
 
   async function loadMoreData() {
     fetched.current = true;
@@ -67,28 +62,6 @@ const BookMarkRoom = () => {
     setLoading(false);
   }
 
-  // useEffect(() => {
-  //   logger(`🚀 ~ loadMoreData ~ hasMore:`, hasMore);
-  //   logger(`🚀 ~ loadMoreData ~ loading:`, loading);
-  // });
-
-  // useEffect(() => {
-  /**
-   * Khi user logout thì
-   */
-
-  // return () => {
-  //   logger(`🚀 ~ return ~ user:`, user);
-  //   if (user) return;
-
-  //   reset();
-  //   setRooms([]);
-  //   setLoading(false);
-  //   setHasMore(true);
-  //   page = 1;
-  // };
-  // }, [user]);
-
   useEffect(() => {
     if (fetched.current) return;
     loadMoreData();
@@ -98,44 +71,19 @@ const BookMarkRoom = () => {
     document.documentElement.scrollTop = 0;
   }, []);
 
-  // useEffect(() => {
-  //   logger("asd");
-
-  //   setRooms(data || rooms);
-  //   logger(`🚀 ~ useEffect ~ rooms:`, rooms);
-
-  //   logger(`🚀 ~ useEffect ~ data:`, data);
-
-  //   if (!data) return;
-
-  //   setPage(page + 1);
-  //   if (data.length < LIMIT) setHasMore(false);
-  //   setF(false);
-  // }, [data]);
-
-  // useEffect(() => {
-  //   logger(`🚀 ~ useEffect ~ userId:`, userId);
-
-  //   if (data) return;
-
-  //   setLoading(false);
-  //   setHasMore(true);
-  //   setPage(1);
-  //   setF(true);
-  // }, [userId]);
-
   return (
     <MyContainer>
       <Divider orientation="left">
-        <Typography.Title level={3}>Các phòng đã lưu</Typography.Title>
+        <Typography.Title level={3}>
+          {t("User.Bookmark page.Bookmarked rooms")}
+        </Typography.Title>
       </Divider>
       <InfiniteScroll
         dataLength={rooms.length}
         next={loadMoreData}
         hasMore={hasMore}
         loader={<Skeleton paragraph={{ rows: 1 }} active />}
-        endMessage={<Divider plain>Hết rùi</Divider>}
-        className="asd"
+        endMessage={<Divider plain>{t("Extra.No more content")}</Divider>}
       >
         <List
           renderItem={(room) => <RoomListItem room={room} key={room._id} />}

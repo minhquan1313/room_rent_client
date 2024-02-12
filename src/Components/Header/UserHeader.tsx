@@ -8,7 +8,13 @@ import {
   routeUserDetail,
 } from "@/constants/route";
 import { toStringUserName } from "@/utils/toString";
-import { LogoutOutlined } from "@ant-design/icons";
+import {
+  AppstoreAddOutlined,
+  BookFilled,
+  DashboardFilled,
+  LogoutOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { Dropdown, Space } from "antd";
 import classNames from "classnames";
 import { useContext } from "react";
@@ -32,6 +38,8 @@ const UserHeader = memo(() => {
           isRoleAdmin(user.role?.title)
             ? {
                 key: routeAdmin.index,
+                icon: <DashboardFilled />,
+                dashed: true,
                 label: (
                   <Link to={`${routeAdmin.index}/${routeAdmin.stats}`}>
                     {t("Drop down.User nav btn.Dashboard")}
@@ -41,6 +49,7 @@ const UserHeader = memo(() => {
             : null,
           {
             key: "/info",
+            icon: <UserOutlined />,
             label: (
               <Link
                 to={`${routeUserDetail}/${user._id}`}
@@ -50,7 +59,6 @@ const UserHeader = memo(() => {
               >
                 <Space>
                   {toStringUserName(user)}
-
                   {user.role && isRoleOwner(user.role?.title) && (
                     <UserRoleBadge role={user.role} />
                   )}
@@ -62,6 +70,7 @@ const UserHeader = memo(() => {
           isRoleOwner(user.role?.title)
             ? {
                 key: routeRoomAdd,
+                icon: <AppstoreAddOutlined />,
                 label: (
                   <Link to={routeRoomAdd}>
                     {t("Drop down.User nav btn.Add room")}
@@ -71,6 +80,7 @@ const UserHeader = memo(() => {
             : null,
           {
             key: "/favorite",
+            icon: <BookFilled />,
             label: (
               <Link to={routeFavoriteRoom}>
                 {t("Drop down.User nav btn.Saved")}

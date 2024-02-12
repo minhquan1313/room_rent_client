@@ -4,7 +4,8 @@
     "Find": "Tìm kiếm",
     "Chat": "Trò chuyện",
     "Add room": "Thêm phòng",
-    "Profile settings": "Thay đổi thông tin"
+    "Profile settings": "Thay đổi thông tin",
+    "Bookmark": "Đã lưu"
   },
   "home page": {
     "New boarding house nationwide": "Trọ mới toàn quốc",
@@ -119,7 +120,10 @@
     "Not supported region": "Vùng không hỗ trợ",
 
     "Add": "Thêm",
-    "Added successfully!": "Thêm thành công!"
+    "Update": "Chỉnh sửa",
+    "Added successfully!": "Thêm thành công!",
+
+    "Month": "Tháng"
   },
 
   "Drop down": {
@@ -195,6 +199,19 @@
       "Notify new message": "Thông báo tin nhắn đến",
 
       "User denied": "Bạn đã từ chối cấp quyền thông báo, hãy vào cài đặt cấp lại quyền trong cài đặt trình duyệt."
+    },
+
+    "Dialog": {
+      "Push notify": {
+        "Title": "Bật thông báo",
+        "Ok": "Ok nhen!",
+        "No": "Hông",
+        "Description{{val}}": "Nhận thông báo khi có tin nhắn đến hong {{val}}??"
+      }
+    },
+
+    "Bookmark page": {
+      "Bookmarked rooms": "Các phòng đã lưu"
     }
   }
 }

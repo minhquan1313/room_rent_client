@@ -9,6 +9,7 @@ import { toStringUserName } from "@/utils/toString";
 import { Card, Space, Tooltip, Typography, theme } from "antd";
 import classNames from "classnames";
 import { memo, useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   user?: IUser | null;
@@ -18,6 +19,8 @@ interface Props {
   seen: IChatSeen[];
 }
 const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
+  const { t } = useTranslation();
+
   const { token } = theme.useToken();
 
   const { getUser } = useContext(InteractedUserProviderContext);
@@ -29,14 +32,22 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
         "ml-auto": user?._id === me?._id,
       })}
       size="small"
-      style={{
-        backgroundColor: user?._id === me?._id ? token.colorPrimary : undefined,
-      }}
+      style={
+        user?._id === me?._id
+          ? {
+              // My message
+              backgroundColor: token.colorPrimary,
+              color: token.colorTextLightSolid,
+            }
+          : {
+              // Other message
+            }
+      }
       loading={!user}
     >
       <div>
         {user?._id === me?._id ? (
-          <Typography.Text>{message}</Typography.Text>
+          <>{message}</>
         ) : (
           <Space className="items-start">
             <MyAvatar
@@ -79,7 +90,6 @@ const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
           ))}
         </Space>
       </div>
-      {/* <div className="">[{date.format("LTS")}]</div> */}
     </Card>
   );
 };

@@ -19,4 +19,3 @@ const logger: TLogger = (() => {
 })();
 
 export default logger;
-// (...s: unknown[]) => console.log(...s)

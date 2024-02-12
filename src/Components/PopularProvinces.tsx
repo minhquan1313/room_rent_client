@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import useSWR from "swr";
 
 export const PopularProvinces = () => {
-  const { t } = useTranslation("location");
+  const { t: tLocation } = useTranslation("location");
 
   const { data: roomCounts } = useSWR<TCountData[]>(
     "/stats/count-room?limit=4&province",
@@ -46,7 +46,7 @@ export const PopularProvinces = () => {
                 />
                 <div className="absolute inset-x-0 bottom-0 z-20 p-5">
                   <Typography.Title level={3} className="!text-white">
-                    {t("translate", { val: label })}
+                    {tLocation("translate", { val: label })}
                   </Typography.Title>
                   <Typography.Text className="!text-white">
                     {count} tin

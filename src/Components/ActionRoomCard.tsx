@@ -8,12 +8,15 @@ import logger from "@/utils/logger";
 import { EditOutlined, HeartFilled, HeartOutlined } from "@ant-design/icons";
 import { Space, Tooltip } from "antd";
 import { ReactNode, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 interface Props {
   room: IRoom;
 }
 const ActionRoomCard = ({ room }: Props): ReactNode[] => {
+  const { t } = useTranslation();
+
   const { saved, _id } = room;
 
   const { add, remove } = useContext(SavedContext);
@@ -65,7 +68,7 @@ const ActionRoomCard = ({ room }: Props): ReactNode[] => {
   if (user?._id === room.owner || isRoleAdmin(user?.role?.title)) {
     actions.push(
       ...[
-        <Tooltip title="Sửa thông tin">
+        <Tooltip title={t("Extra.Update")}>
           <Link
             to={`${routeRoomEdit}/${_id}`}
             state={{

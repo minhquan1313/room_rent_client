@@ -201,7 +201,7 @@ const LocationFormInputs = memo(
       z && z < 18 && map.setZoom(18);
 
       if (!allowSpecialFeature) return;
-      setAllowSpecialFeature(false);
+      // setAllowSpecialFeature(false);
 
       let geoLocation;
       setResolving(true);
@@ -273,7 +273,7 @@ const LocationFormInputs = memo(
     useEffect(() => {
       onCoordChange();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [coord]);
+    }, [JSON.stringify(coord)]);
 
     useImperativeHandle(ref, () => {
       if (!coord?.lat && !coord?.lng && !country && !province && !district) {

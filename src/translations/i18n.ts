@@ -25,20 +25,20 @@ export function langChangeObserverAttach(cb: TLanguageObserverCB) {
 
   languageChangeCbs.push(cb);
 }
-export function langChangeObserverDetach(cb: TLanguageObserverCB) {
-  const index = languageChangeCbs.indexOf(cb);
-  while (index !== -1) {
-    languageChangeCbs.splice(index, 1);
-  }
-}
+// export function langChangeObserverDetach(cb: TLanguageObserverCB) {
+//   const index = languageChangeCbs.indexOf(cb);
+//   while (index !== -1) {
+//     languageChangeCbs.splice(index, 1);
+//   }
+// }
 
 i18n.on("languageChanged", (opt: TAvailableLanguage) => {
   languageChangeCbs.forEach((cb) => cb(opt));
 });
 
-i18n.on("initialized", ({ lng }) => {
-  languageChangeCbs.forEach((cb) => cb(lng as TAvailableLanguage));
-});
+// i18n.on("initialized", ({ lng }) => {
+//   languageChangeCbs.forEach((cb) => cb(lng as TAvailableLanguage));
+// });
 
 // the translations
 // (tip move them in a JSON file and import them,
