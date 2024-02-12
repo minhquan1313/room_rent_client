@@ -3,8 +3,11 @@ import { UserContext } from "@/Contexts/UserProvider";
 import logger from "@/utils/logger";
 import { Alert, Form, Space, Switch, Typography, message } from "antd";
 import { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const NotifyEdit = () => {
+  const { t } = useTranslation();
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const { user } = useContext(UserContext);
@@ -34,12 +37,16 @@ const NotifyEdit = () => {
                   if (await register()) {
                     messageApi.open({
                       type: "success",
-                      content: "Bật thông báo thành công!",
+                      content: t(
+                        "User.Notification tab.Turning notify message successfully!",
+                      ),
                     });
                   } else {
                     messageApi.open({
                       type: "error",
-                      content: "Bật thông báo thất bại!",
+                      content: t(
+                        "User.Notification tab.Turning notify message failure!",
+                      ),
                     });
                   }
                 } else {
@@ -47,18 +54,17 @@ const NotifyEdit = () => {
                 }
                 setLoading(false);
               }}
-              // unCheckedChildren={locationDenied ? "Bị cấm" : "Gần đây"}
             />
 
             <Typography.Text disabled={denied}>
-              Thông báo tin nhắn đến
+              {t("User.Notification tab.Notify new message")}
             </Typography.Text>
           </Space>
 
           {denied && (
             <Alert
               type="warning"
-              message="Bạn đã từ chối cấp quyền thông báo, hãy vào cài đặt cấp lại quyền"
+              message={t("User.Notification tab.User denied")}
               showIcon
             />
           )}

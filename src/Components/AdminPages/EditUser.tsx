@@ -1,4 +1,6 @@
-import FilesUpload, { FilesUploadRef } from "@/Components/FilesUpload";
+import FilesUpload, {
+  FilesUploadRef,
+} from "@/Components/FilesUpload/FilesUpload";
 import MyButton from "@/Components/MyButton";
 import SelectGender from "@/Components/SelectGender";
 import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
@@ -6,8 +8,8 @@ import SelectRole from "@/Components/SelectRole";
 import { UserContext } from "@/Contexts/UserProvider";
 import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner, isRoleTopAdmin } from "@/constants/roleType";
-import { noWhiteSpace } from "@/rules/noWhiteSpace";
-import { phoneRule } from "@/rules/phoneRule";
+import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
+import { phoneRules } from "@/rules/phoneRule";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";
@@ -149,7 +151,7 @@ const EditUser = ({
           <Form.Item<IUser>
             name={"first_name"}
             label="Tên"
-            rules={noWhiteSpace}
+            rules={[noWhiteSpaceRule]}
           >
             <Input />
           </Form.Item>
@@ -175,7 +177,7 @@ const EditUser = ({
           <Form.Item<IUser>
             name={["phone", "national_number"]}
             label="Phone"
-            rules={phoneRule}
+            rules={phoneRules}
             dependencies={[["phone", "region_code"]]}
           >
             <Input

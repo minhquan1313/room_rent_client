@@ -1,4 +1,4 @@
-import { FilesUploadRef } from "@/Components/FilesUpload";
+import { FilesUploadRef } from "@/Components/FilesUpload/FilesUpload";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import RoomFormAddEdit from "@/Components/RoomFormAddEdit";
@@ -14,13 +14,17 @@ import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Form, Space, Switch, Typography, message } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
   onSaveSuccess?(): void;
 }
 function AddRoom({ onSaveSuccess }: Props) {
-  pageTitle("Thêm phòng");
+  const { t } = useTranslation();
+  const { t: tApi } = useTranslation("api");
+
+  pageTitle(t("page name.Add room"));
 
   const navigate = useNavigate();
 
@@ -44,40 +48,39 @@ function AddRoom({ onSaveSuccess }: Props) {
     if (!location.current) {
       messageApi.open({
         type: "error",
-        content: "Điền thông tin về vị trí",
+        content: t("Add room page.Please fill address fields"),
       });
 
       return;
     } else if (location.current.lat === 0 || location.current.long === 0) {
       messageApi.open({
         type: "error",
-        content: "Hãy ghim trên bản đồ",
+        content: t("Add room page.Please pin on map"),
       });
 
       return;
     } else if (location.current.country === "") {
       messageApi.open({
         type: "error",
-        content: "Thiếu thông tin về quốc gia",
+        content: t("Add room page.Missing country"),
       });
 
       return;
     } else if (location.current.province === "") {
       messageApi.open({
         type: "error",
-        content: "Thiếu thông tin về tỉnh thành",
+        content: t("Add room page.Missing province"),
       });
       return;
     } else if (location.current.detail_location === "") {
       messageApi.open({
         type: "warning",
-        content: "Nếu có hãy thêm địa chỉ chi tiết để mọi người dễ tìm hơn",
+        content: t("Add room page.Missing detail address"),
       });
     }
 
     setError(undefined);
     setSubmitting(true);
-    // const { remember } = values;
 
     (async () => {
       try {
@@ -104,7 +107,7 @@ function AddRoom({ onSaveSuccess }: Props) {
 
         messageApi.open({
           type: "success",
-          content: "Thêm thành công",
+          content: t("Extra.Added successfully!"),
         });
 
         form.resetFields();
@@ -141,7 +144,7 @@ function AddRoom({ onSaveSuccess }: Props) {
         />
       ) : (
         <>
-          <Typography.Title>Thêm phòng mới</Typography.Title>
+          <Typography.Title>{t("Add room page.Add new room")}</Typography.Title>
           <Form
             initialValues={{
               //   number_of_living_room: 1,
@@ -174,7 +177,7 @@ function AddRoom({ onSaveSuccess }: Props) {
             <Space>
               <Form.Item<IRoom>
                 name={"is_visible"}
-                label="Trạng thái hiển thị"
+                label={tApi("data code.room.is_visible")}
                 valuePropName="checked"
               >
                 <Switch />
@@ -183,8 +186,10 @@ function AddRoom({ onSaveSuccess }: Props) {
               <Form.Item<IRoom>
                 name={"disabled"}
                 valuePropName="checked"
-                label={"Bài bị cấm"}
-                tooltip="Chỉ quản trị mới có quyền thay đổi"
+                label={tApi("data code.room.disabled")}
+                tooltip={t(
+                  "Add room page.Only admin have permission to change this!",
+                )}
               >
                 <Switch disabled={!isRoleAdmin(user?.role?.title)} />
               </Form.Item>
@@ -192,8 +197,10 @@ function AddRoom({ onSaveSuccess }: Props) {
               <Form.Item<IRoom>
                 name={"verified"}
                 valuePropName="checked"
-                label={"Admin đã duyệt bài"}
-                tooltip="Chỉ quản trị mới có quyền thay đổi"
+                label={tApi("data code.room.verified")}
+                tooltip={t(
+                  "Add room page.Only admin have permission to change this!",
+                )}
               >
                 <Switch disabled={!isRoleAdmin(user?.role?.title)} />
               </Form.Item>
@@ -201,10 +208,13 @@ function AddRoom({ onSaveSuccess }: Props) {
               <Form.Item<IRoom>
                 name={"verified_real"}
                 valuePropName="checked"
-                label={"Admin đã xem tận nơi"}
-                tooltip="Chỉ quản trị mới có quyền thay đổi"
+                label={tApi("data code.room.verified_real")}
+                tooltip={t(
+                  "Add room page.Only admin have permission to change this!",
+                )}
+                hidden={!isRoleAdmin(user?.role?.title)}
               >
-                <Switch disabled={!isRoleAdmin(user?.role?.title)} />
+                <Switch />
               </Form.Item>
             </Space>
 
@@ -220,7 +230,7 @@ function AddRoom({ onSaveSuccess }: Props) {
                   danger={!!error}
                   htmlType="submit"
                 >
-                  Thêm
+                  {t("Extra.Add")}
                 </MyButton>
               </Space.Compact>
             </Form.Item>

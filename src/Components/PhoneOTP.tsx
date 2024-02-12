@@ -7,13 +7,17 @@ import logger from "@/utils/logger";
 import { Space, message } from "antd";
 import { memo, useEffect, useMemo, useState } from "react";
 import Countdown from "react-countdown";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   e164_format: string;
   onSuccess(): void;
 }
 const SIZE = 6;
-const _ = ({ e164_format, onSuccess }: Props) => {
+
+const PhoneOTP = memo(({ e164_format, onSuccess }: Props) => {
+  const { t } = useTranslation();
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const [otp, setOtp] = useState("");
@@ -43,7 +47,7 @@ const _ = ({ e164_format, onSuccess }: Props) => {
       } else {
         messageApi.open({
           type: "error",
-          content: "Mã sai!",
+          content: t("Extra.Wrong OTP!"),
           duration: 30,
         });
         setError(true);
@@ -55,12 +59,13 @@ const _ = ({ e164_format, onSuccess }: Props) => {
         type: "error",
         content:
           error.response?.data?.error?.[0]?.msg ||
-          "Có lỗi khi xác thực, hãy thử lại!",
+          t("Extra.Error during verifying, please try again!"),
         duration: 30,
       });
     }
     setOtpSubmitting(false);
   };
+
   const onResendCode = async () => {
     setOtpResending(true);
     try {
@@ -74,13 +79,17 @@ const _ = ({ e164_format, onSuccess }: Props) => {
 
       messageApi.open({
         type: "info",
-        content: "Đã gửi mã, mã sẽ tới số điện thoại của bạn trong giây lát!",
+        content: t(
+          "Extra.OTP sent, the code will be delivered to your phone in sometime!",
+        ),
         duration: 30,
       });
     } catch (error) {
+      logger.error(error);
+
       messageApi.open({
         type: "error",
-        content: "Có lỗi khi gửi lại mã!",
+        content: t("Extra.OTP send error, please try again!"),
         duration: 30,
       });
     }
@@ -149,8 +158,6 @@ const _ = ({ e164_format, onSuccess }: Props) => {
       </MyButton>
     </Space>
   );
-};
-
-const PhoneOTP = memo(_);
+});
 
 export default PhoneOTP;

@@ -9,6 +9,7 @@ import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Grid, Tabs } from "antd";
 import { useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 export type TUserEditFields = Partial<IUser> & {
@@ -19,11 +20,13 @@ export type TUserEditFields = Partial<IUser> & {
   file_to?: "avatar" | "banner";
 };
 const UserInfo = () => {
+  const { t } = useTranslation();
+
   const { user } = useContext(UserContext);
   const [query, setQuery] = useSearchParams();
   const screens = Grid.useBreakpoint();
 
-  pageTitle("Cài đặt");
+  pageTitle(t("page name.Profile settings"));
 
   useEffect(() => {
     screens;
@@ -42,22 +45,22 @@ const UserInfo = () => {
         <Tabs
           items={[
             {
-              label: `Thông tin`,
+              label: t("User.Information"),
               key: "info",
               children: <NormalInfoEdit />,
             },
             {
-              label: `Hình ảnh`,
+              label: t("User.Cover"),
               key: "avatar",
               children: <AvatarEdit />,
             },
             {
-              label: `Mật khẩu`,
+              label: t("User.Password"),
               key: "password",
               children: <PasswordEdit />,
             },
             {
-              label: `Thông báo`,
+              label: t("User.Notification"),
               key: "notify",
               children: <NotifyEdit />,
             },

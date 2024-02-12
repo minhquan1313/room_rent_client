@@ -6,9 +6,9 @@ import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import SelectRole from "@/Components/SelectRole";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
-import { noWhiteSpace } from "@/rules/noWhiteSpace";
-import { passwordRule } from "@/rules/passwordRule";
-import { phoneRule } from "@/rules/phoneRule";
+import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
+import { passwordRules } from "@/rules/passwordRule";
+import { phoneRules } from "@/rules/phoneRule";
 import { sendOtp } from "@/services/sendOtp";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { UserRegisterPayload } from "@/types/IUser";
@@ -181,7 +181,7 @@ function Register() {
                 required: true,
                 message: "Mật khẩu không bỏ trống",
               },
-              ...passwordRule,
+              ...passwordRules,
             ]}
           >
             <Input.Password />
@@ -205,7 +205,7 @@ function Register() {
                     required: true,
                     message: "Tên không bỏ trống",
                   },
-                  ...noWhiteSpace,
+                  noWhiteSpaceRule,
                 ]}
               >
                 <Input />
@@ -221,7 +221,7 @@ function Register() {
                 message: "Số điện thoại không được trống",
                 required: true,
               },
-              ...phoneRule,
+              ...phoneRules,
             ]}
           >
             <Input

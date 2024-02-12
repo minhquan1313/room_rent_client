@@ -4,6 +4,7 @@ import MyImage from "@/Components/MyImage";
 import { QuickChatBtn } from "@/Components/QuickChatBtn";
 import RoomListOfUser from "@/Components/RoomListOfUser";
 import { SettingBtn } from "@/Components/SettingBtn";
+import UserRoleBadge from "@/Components/UserRoleBadge";
 import { InteractedUserProviderContext } from "@/Contexts/InteractedUserProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { bannerAspect } from "@/constants/bannerAspect";
@@ -14,13 +15,17 @@ import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { toStringUserName } from "@/utils/toString";
-import { Badge, Divider, Space, Typography, theme } from "antd";
+import { Divider, Space, Typography, theme } from "antd";
 import classNames from "classnames";
 import { useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useParams } from "react-router-dom";
 import useSWR from "swr";
 
 const UserDetail = () => {
+  const { t } = useTranslation();
+  const { t: tApi } = useTranslation("api");
+
   const {
     token: { colorBgSpotlight, colorBgContainer },
   } = theme.useToken();
@@ -95,32 +100,21 @@ const UserDetail = () => {
                     className="border-2"
                     style={{
                       borderColor: colorBgContainer,
-                      // backgroundColor: colorInfoBg,
                     }}
                   />
                   <div>
-                    <Typography.Title
-                      //   editable={
-                      //     user._id === me?._id && {
-                      //       onChange(value) {
-                      //         logger(`🚀 ~ onChange ~ value:`, value);
-                      //       },
-                      //     }
-                      //   }
-                      className="!m-0"
-                      level={2}
-                    >
-                      {toStringUserName(user)}{" "}
-                      <Badge
-                        color="cyan"
-                        count={user.role?.display_name}
-                        showZero={false}
-                      />
-                    </Typography.Title>
+                    {user.role && (
+                      <Typography.Title className="!m-0" level={2}>
+                        {toStringUserName(user)}{" "}
+                        <UserRoleBadge role={user.role} />
+                      </Typography.Title>
+                    )}
 
-                    <Typography.Paragraph className="!m-0">
-                      {user.gender?.display_name}
-                    </Typography.Paragraph>
+                    {user.gender && (
+                      <Typography.Paragraph className="!m-0">
+                        {tApi(`data code.gender.${user.gender.title}`)}
+                      </Typography.Paragraph>
+                    )}
                   </div>
                 </Space>
               </div>
@@ -152,7 +146,9 @@ const UserDetail = () => {
         {user && isRoleOwner(user.role?.title) && (
           <MyContainer className="mt-10">
             <Divider orientation="left">
-              <Typography.Title level={3}>Các tin đang đăng</Typography.Title>
+              <Typography.Title level={3}>
+                {t("Profile page.Room for rent")}
+              </Typography.Title>
             </Divider>
 
             <RoomListOfUser userId={user._id} />

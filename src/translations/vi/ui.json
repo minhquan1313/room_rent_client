@@ -2,7 +2,9 @@
   "page name": {
     "home": "Trang chủ",
     "Find": "Tìm kiếm",
-    "Chat": "Trò chuyện"
+    "Chat": "Trò chuyện",
+    "Add room": "Thêm phòng",
+    "Profile settings": "Thay đổi thông tin"
   },
   "home page": {
     "New boarding house nationwide": "Trọ mới toàn quốc",
@@ -34,14 +36,18 @@
     "Cost per month": "Tiền thuê mỗi tháng",
     "Number of bedrooms": "Số phòng ngủ",
     "Number of bathrooms": "Số phòng tắm",
-    "Number of living rooms": "Số phòng khách"
+    "Number of living rooms": "Số phòng khách",
+    "Owner ID": "ID chủ phòng",
+    "Room name": "Tên phòng",
+    "Room images": "Ảnh phòng",
+    "Room image tooltip": "Sau khi chọn ảnh, bấm giữ ảnh và kéo để thay đổi thứ tự"
   },
 
   "Room detail": {
     "Post date": "Ngày đăng",
     "Update date": "Sửa đổi",
-    "Basic information": "Thông tin cơ bản",
-    "Detail information": "Thông tin chi tiết",
+    "Basic information": "Giới thiệu ngắn",
+    "Detail information": "Mô tả chi tiết",
     "Contact": "Liên hệ",
     "Call": "Gọi",
     "Center": "Về giữa",
@@ -55,6 +61,8 @@
     "Living room": "Số phòng khách",
     "Floor": "Số tầng",
     "Verify": "Xác thực",
+    "Verified": "Đã xác thực",
+    "Not verified": "Chưa xác thực",
     "Status": "Trạng thái",
     "Cost per month": "Tiền thuê mỗi tháng"
   },
@@ -66,7 +74,7 @@
   },
 
   "Permission": {
-    "Denied": "Bị cấm"
+    "Denied": "Đã bị cấm"
   },
 
   "State": {
@@ -78,5 +86,115 @@
     "Light": "Sáng",
     "Dark": "Tối",
     "System": "Hệ thống"
+  },
+
+  "Profile page": {
+    "Room for rent": "Các tin đang đăng"
+  },
+
+  "Extra": {
+    "No content": "Không có dữ liệu nha",
+    "No more content": "Hết rùi",
+
+    "Don't leave it empty": "Không bỏ trống",
+    "No space character allowed": "Không chứa khoảng trắng",
+    "Invalid tel number": "Số điện thoại không hợp lệ",
+    "Missing region code": "Thiếu mã vùng",
+
+    "OTP sent, the code will be delivered to your phone in sometime!": "Đã gửi mã, mã sẽ tới số điện thoại của bạn trong giây lát!",
+    "OTP send error, please try again!": "Có lỗi khi gửi mã OTP, xin thử lại!",
+    "Wrong OTP!": "Mã OTP sai!",
+    "Error during verifying, please try again!": "Có lỗi khi xác thực, hãy thử lại!",
+    "Update successfully!": "Cập nhật thành công!",
+    "Update failure!": "Cập nhật thất bại!",
+    "Save": "Lưu",
+    "Code send succeed!": "Gửi mã thành công!",
+    "Code send failed!": "Gửi mã thất bại!",
+    "Send code": "Gửi mã",
+    "Enter code": "Nhập mã",
+    "Verify successfully!": "Xác thực thành công!",
+
+    "Drop file here": "Thả file vô đây",
+    "Not supported file type": "Kiểu file không hỗ trợ",
+    "Not supported region": "Vùng không hỗ trợ",
+
+    "Add": "Thêm",
+    "Added successfully!": "Thêm thành công!"
+  },
+
+  "Drop down": {
+    "User nav btn": {
+      "Dashboard": "Quản trị",
+      "Add room": "Thêm phòng",
+      "Saved": "Đã lưu",
+      "Sign out": "Đăng xuất"
+    }
+  },
+
+  "Add room page": {
+    "Add new room": "Thêm phòng mới",
+    "Only admin have permission to change this!": "Chỉ quản trị mới có quyền thay đổi!",
+    "Auto fill": "Tự động điền",
+    "Get current location": "Lấy vị trí hiện tại",
+
+    "API ran out of request": "API hết lượt dùng rồi :>",
+    "Error getting address!": "Có lỗi khi lấy địa chỉ, mở console",
+    "Please fill address fields": "Xin hãy điền thông tin về vị trí",
+    "Please pin on map": "Hãy ghim trên bản đồ",
+    "Missing country": "Thiếu thông tin về quốc gia",
+    "Missing province": "Thiếu thông tin về tỉnh thành",
+    "Missing detail address": "Nếu có hãy thêm địa chỉ chi tiết để mọi người dễ tìm hơn"
+  },
+
+  "User": {
+    "Information": "Thông tin",
+    "Cover": "Hình ảnh",
+    "Password": "Mật khẩu",
+    "Notification": "Thông báo",
+
+    "Last name": "Họ",
+    "First name": "Tên",
+    "Gender": "Giới tính",
+    "Phone number": "Điện thoại",
+
+    "Email tab": {
+      "Please check email and in spam folder#1": "Hãy kiểm tra",
+      "Please check email and in spam folder#2": "hộp thư đến",
+      "Please check email and in spam folder#3": "trong email, và cả hộp thư",
+      "Please check email and in spam folder#4": "spam",
+
+      "Please add email to do what#1": "Hãy thêm email để có thể",
+      "Please add email to do what#2": "khôi phục mật khẩu",
+      "Please add email to do what#3": "hoặc",
+      "Please add email to do what#4": "nhận tin",
+      "Please add email to do what#5": "về các phòng mới/phòng yêu thích thay đổi!",
+
+      "Re-send after": "Gửi lại sau"
+    },
+
+    "Phone tab": {
+      "Tel number haven't verified yet!": "Số điện thoại chưa xác thực!"
+    },
+
+    "Cover tab": {
+      "Change cover": "Thay đổi ảnh bìa",
+      "Change avatar": "Thay đổi ảnh đại diện"
+    },
+
+    "Pass tab": {
+      "Current": "Mật khẩu hiện tại",
+      "New": "Mật khẩu mới",
+      "Repeat": "Nhập lại mật khẩu mới",
+      "Repeat not match!": "Mật khẩu không khớp!"
+    },
+
+    "Notification tab": {
+      "Turning notify message successfully!": "Bật thông báo tin nhắn thành công!",
+      "Turning notify message failure!": "Bật thông báo tin nhắn thất bại!",
+
+      "Notify new message": "Thông báo tin nhắn đến",
+
+      "User denied": "Bạn đã từ chối cấp quyền thông báo, hãy vào cài đặt cấp lại quyền trong cài đặt trình duyệt."
+    }
   }
 }

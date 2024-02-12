@@ -9,14 +9,18 @@ import {
 } from "@/constants/route";
 import { toStringUserName } from "@/utils/toString";
 import { LogoutOutlined } from "@ant-design/icons";
-import { Badge, Dropdown, Space } from "antd";
+import { Dropdown, Space } from "antd";
 import classNames from "classnames";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 
+import UserRoleBadge from "@/Components/UserRoleBadge";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 const UserHeader = memo(() => {
+  const { t } = useTranslation();
+
   const { user, logout } = useContext(UserContext);
 
   if (!user) return null;
@@ -30,7 +34,7 @@ const UserHeader = memo(() => {
                 key: routeAdmin.index,
                 label: (
                   <Link to={`${routeAdmin.index}/${routeAdmin.stats}`}>
-                    Dashboard
+                    {t("Drop down.User nav btn.Dashboard")}
                   </Link>
                 ),
               }
@@ -47,12 +51,8 @@ const UserHeader = memo(() => {
                 <Space>
                   {toStringUserName(user)}
 
-                  {isRoleOwner(user.role?.title) && (
-                    <Badge
-                      // title={user.role?.display_name ?? ""}
-                      color="cyan"
-                      count={user.role?.display_name}
-                    />
+                  {user.role && isRoleOwner(user.role?.title) && (
+                    <UserRoleBadge role={user.role} />
                   )}
                 </Space>
               </Link>
@@ -62,12 +62,20 @@ const UserHeader = memo(() => {
           isRoleOwner(user.role?.title)
             ? {
                 key: routeRoomAdd,
-                label: <Link to={routeRoomAdd}>Thêm phòng</Link>,
+                label: (
+                  <Link to={routeRoomAdd}>
+                    {t("Drop down.User nav btn.Add room")}
+                  </Link>
+                ),
               }
             : null,
           {
             key: "/favorite",
-            label: <Link to={routeFavoriteRoom}>Đã lưu</Link>,
+            label: (
+              <Link to={routeFavoriteRoom}>
+                {t("Drop down.User nav btn.Saved")}
+              </Link>
+            ),
           },
           {
             type: "divider",
@@ -75,7 +83,7 @@ const UserHeader = memo(() => {
           {
             key: "logout",
             icon: <LogoutOutlined />,
-            label: "Đăng xuất",
+            label: t("Drop down.User nav btn.Sign out"),
             disabled: false,
             onClick: logout,
           },

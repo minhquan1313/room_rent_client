@@ -4,10 +4,7 @@ import NewUserMonthCountStat from "@/Components/AdminPages/DashBoardStat/NewUser
 import RoomCountStat from "@/Components/AdminPages/DashBoardStat/RoomCountStat";
 import UserCountStat from "@/Components/AdminPages/DashBoardStat/UserCountStat";
 import VerifiedRoomCountStat from "@/Components/AdminPages/DashBoardStat/VerifiedRoomCountStat";
-import { UserContext } from "@/Contexts/UserProvider";
 import { pageTitle } from "@/utils/pageTitle";
-import { Card } from "antd";
-import { useContext } from "react";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 const columnsCountBreakPoints = {
@@ -18,7 +15,7 @@ const columnsCountBreakPoints = {
 };
 const DashBoard = () => {
   pageTitle("Thống kê - Quản trị");
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
 
   return (
     <div className="space-y-5">

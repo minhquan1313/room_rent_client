@@ -8,7 +8,6 @@ export interface IRoom {
   _id: string;
 
   owner: string;
-  // owner: IUser;
   room_type: IRoomType | null;
   location: IRoomLocation | null;
   images: IRoomImage[];

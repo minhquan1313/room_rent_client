@@ -6,6 +6,7 @@ import { IRoom } from "@/types/IRoom";
 import logger from "@/utils/logger";
 import { Divider, List, Skeleton } from "antd";
 import { memo, useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 interface Props {
@@ -13,7 +14,9 @@ interface Props {
 }
 
 const LIMIT = 5;
-function RoomListOfUser_({ userId }: Props) {
+const RoomListOfUser = memo(({ userId }: Props) => {
+  const { t } = useTranslation();
+
   const { user } = useContext(UserContext);
 
   const [rooms, setRooms] = useState<IRoom[]>([]);
@@ -22,13 +25,6 @@ function RoomListOfUser_({ userId }: Props) {
   const [page, setPage] = useState(1);
 
   const fetched = useRef(rooms.length !== 0);
-
-  // const [f, setF] = useState(true);
-  // const { data } = useSWR<IRoom[]>(
-  //   f ? `/rooms?owner=${userId}&limit=${LIMIT}&page=${page}&saved` : null,
-  //   fetcher,
-  // );
-  // logger(`🚀 ~ data:`, data);
 
   async function loadMoreData() {
     fetched.current = true;
@@ -58,32 +54,8 @@ function RoomListOfUser_({ userId }: Props) {
     if (fetched.current) return;
 
     loadMoreData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  // useEffect(() => {
-  //   logger("asd");
-
-  //   setRooms(data || rooms);
-  //   logger(`🚀 ~ useEffect ~ rooms:`, rooms);
-
-  //   logger(`🚀 ~ useEffect ~ data:`, data);
-
-  //   if (!data) return;
-
-  //   setPage(page + 1);
-  //   if (data.length < LIMIT) setHasMore(false);
-  //   setF(false);
-  // }, [data]);
-
-  // useEffect(() => {
-  //   logger(`🚀 ~ useEffect ~ userId:`, userId);
-
-  //   if (data) return;
-
-  //   setLoading(false);
-  //   setHasMore(true);
-  //   setPage(1);
-  //   setF(true);
-  // }, [userId]);
 
   return (
     <InfiniteScroll
@@ -91,7 +63,7 @@ function RoomListOfUser_({ userId }: Props) {
       next={loadMoreData}
       hasMore={hasMore}
       loader={<Skeleton paragraph={{ rows: 1 }} active />}
-      endMessage={<Divider plain>Hết rùi</Divider>}
+      endMessage={<Divider plain>{t("Extra.No more content")}</Divider>}
       // scrollableTarget="scrollableDiv"
     >
       <List
@@ -113,7 +85,6 @@ function RoomListOfUser_({ userId }: Props) {
       />
     </InfiniteScroll>
   );
-}
+});
 
-const RoomListOfUser = memo(RoomListOfUser_);
 export default RoomListOfUser;

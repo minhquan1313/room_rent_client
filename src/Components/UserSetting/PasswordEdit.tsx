@@ -1,14 +1,17 @@
 import MyButton from "@/Components/MyButton";
 import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
-import { passwordRule } from "@/rules/passwordRule";
+import { passwordRules } from "@/rules/passwordRule";
 import { fetcher } from "@/services/fetcher";
 import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
 import { Form, Input, message, notification } from "antd";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 const PasswordEdit = () => {
+  const { t } = useTranslation();
+
   const [notifyApi, contextHolder] = notification.useNotification();
   const [messageApi, contextHolderMessage] = message.useMessage();
 
@@ -28,7 +31,7 @@ const PasswordEdit = () => {
           logger(`🚀 ~ NormalInfoEdit ~ e:`, e);
           messageApi.open({
             type: "success",
-            content: "Cập nhật mật khẩu thành công!",
+            content: t("Extra.Update successfully!"),
           });
           refresh();
           form.resetFields();
@@ -36,7 +39,7 @@ const PasswordEdit = () => {
           logger(`🚀 ~ error:`, error);
           notificationResponseError({
             error,
-            message: "Cập nhật thất bại!",
+            message: t("Extra.Update failure!"),
             notification: notifyApi,
           });
         }
@@ -51,30 +54,18 @@ const PasswordEdit = () => {
       {contextHolder}
       {contextHolderMessage}
       <Form.Item<TUserEditFields>
-        rules={[
-          {
-            required: true,
-            message: "Hãy nhập mật khẩu cũ!",
-          },
-          ...passwordRule,
-        ]}
+        rules={passwordRules}
         name={"old_password"}
-        label="Mật khẩu cũ"
+        label={t("User.Pass tab.Current")}
         hasFeedback
       >
         <Input.Password />
       </Form.Item>
 
       <Form.Item<TUserEditFields>
-        rules={[
-          {
-            required: true,
-            message: "Hãy nhập mật khẩu mới!",
-          },
-          ...passwordRule,
-        ]}
+        rules={passwordRules}
         name={"password"}
-        label="Mật khẩu mới"
+        label={t("User.Pass tab.New")}
         hasFeedback
       >
         <Input.Password />
@@ -82,12 +73,8 @@ const PasswordEdit = () => {
 
       <Form.Item<TUserEditFields>
         rules={[
-          {
-            required: true,
-            message: "Hãy xác nhận lại mật khẩu!",
-          },
           ({ getFieldValue }) => ({
-            message: "Mật khẩu không khớp!",
+            message: t("User.Pass tab.Repeat not match!"),
             validator(_, value) {
               if (!value || getFieldValue("password") === value) {
                 return Promise.resolve();
@@ -95,11 +82,10 @@ const PasswordEdit = () => {
               return Promise.reject();
             },
           }),
-          ...passwordRule,
         ]}
         validateTrigger={"onBlur"}
         name={"passwordConfirm"}
-        label="Xác nhận"
+        label={t("User.Pass tab.Repeat")}
         dependencies={["password"]}
         hasFeedback
       >
@@ -115,7 +101,7 @@ const PasswordEdit = () => {
           //   danger={!!error}
           htmlType="submit"
         >
-          Lưu
+          {t("Extra.Save")}
         </MyButton>
       </Form.Item>
     </Form>

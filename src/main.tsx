@@ -1,4 +1,5 @@
 import App from "@/App";
+import AntDProvider from "@/Contexts/AntDProvider";
 import ChatSocketProvider from "@/Contexts/ChatSocketProvider";
 import GlobalDataProvider from "@/Contexts/GlobalDataProvider";
 import GoogleMapProvider from "@/Contexts/GoogleMapProvider";
@@ -12,9 +13,7 @@ import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
 import "@/styles/flickityOverwrite.css";
 import "@/styles/tailwind.css";
 import "@/translations/i18n";
-import { ConfigProvider } from "antd";
 import "antd/dist/reset.css";
-import viVN from "antd/locale/vi_VN";
 import "flickity/css/flickity.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -32,9 +31,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                   <ChatSocketProvider>
                     <InteractedUserProvider>
                       <NotificationProvider>
-                        <ConfigProvider locale={viVN}>
+                        <AntDProvider>
                           <App />
-                        </ConfigProvider>
+                        </AntDProvider>
                       </NotificationProvider>
                     </InteractedUserProvider>
                   </ChatSocketProvider>

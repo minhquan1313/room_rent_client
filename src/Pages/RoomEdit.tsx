@@ -1,4 +1,4 @@
-import { FilesUploadRef } from "@/Components/FilesUpload";
+import { FilesUploadRef } from "@/Components/FilesUpload/FilesUpload";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import RoomFormAddEdit from "@/Components/RoomFormAddEdit";

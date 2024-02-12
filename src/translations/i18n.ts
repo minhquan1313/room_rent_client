@@ -1,22 +1,44 @@
 import API_EN from "@/translations/en/apiCode.json";
 import LOCATION_PATTERN_EN from "@/translations/en/locationConvertPattern.json";
 import UI_EN from "@/translations/en/ui.json";
-
 import API_VI from "@/translations/vi/apiCode.json";
 import LOCATION_PATTERN_VI from "@/translations/vi/locationConvertPattern.json";
 import UI_VI from "@/translations/vi/ui.json";
 
 import locationFormatter from "@/translations/formatter/locationFormatter";
-import { onLanguageChangeDayjs } from "@/utils/dateFormat";
 import logger from "@/utils/logger";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
-export type TAvailableLanguage = keyof typeof languagesLabels;
-export const languagesLabels = {
+export type TAvailableLanguage = keyof typeof resources;
+export const languagesLabels: { [k in TAvailableLanguage]: string } = {
   vi: "Tiếng Việt",
   en: "English",
 };
+
+type TLanguageObserverCB = (lang: TAvailableLanguage) => void;
+const languageChangeCbs: TLanguageObserverCB[] = [];
+
+export function langChangeObserverAttach(cb: TLanguageObserverCB) {
+  const index = languageChangeCbs.indexOf(cb);
+  if (index !== -1) return;
+
+  languageChangeCbs.push(cb);
+}
+export function langChangeObserverDetach(cb: TLanguageObserverCB) {
+  const index = languageChangeCbs.indexOf(cb);
+  while (index !== -1) {
+    languageChangeCbs.splice(index, 1);
+  }
+}
+
+i18n.on("languageChanged", (opt: TAvailableLanguage) => {
+  languageChangeCbs.forEach((cb) => cb(opt));
+});
+
+i18n.on("initialized", ({ lng }) => {
+  languageChangeCbs.forEach((cb) => cb(lng as TAvailableLanguage));
+});
 
 // the translations
 // (tip move them in a JSON file and import them,
@@ -35,16 +57,6 @@ export const resources = {
 };
 
 export const defaultNS = "ui";
-
-i18n.on("languageChanged", (opt: keyof typeof resources) => {
-  onLanguageChangeDayjs(opt);
-});
-
-i18n.on("initialized", (opt) => {
-  console.log(`🚀 ~ i18n.on ~ opt:`, opt);
-
-  onLanguageChangeDayjs(opt.lng as keyof typeof resources);
-});
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next

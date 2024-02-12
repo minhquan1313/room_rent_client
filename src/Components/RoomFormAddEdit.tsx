@@ -1,4 +1,6 @@
-import FilesUpload, { FilesUploadRef } from "@/Components/FilesUpload";
+import FilesUpload, {
+  FilesUploadRef,
+} from "@/Components/FilesUpload/FilesUpload";
 import LocationFormInputs from "@/Components/LocationFormInputs";
 import SelectCurrency from "@/Components/SelectCurrency";
 import SelectMeasure from "@/Components/SelectMeasure";
@@ -7,10 +9,12 @@ import SelectService from "@/Components/SelectService";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleAdmin } from "@/constants/roleType";
+import { noEmptyRule } from "@/rules/noEmptyRule";
 import { IRoom, RoomLocationPayload, RoomPayload } from "@/types/IRoom";
 import { numberFormat } from "@/utils/numberFormat";
 import { Form, Input, InputNumber, SelectProps, Skeleton } from "antd";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props extends SelectProps {
   room?: IRoom;
@@ -21,13 +25,17 @@ interface Props extends SelectProps {
 }
 
 const RoomFormAddEdit = ({ room, files, location }: Props) => {
+  const { t } = useTranslation();
+
   const { user } = useContext(UserContext);
   const { roomServicesConverted, roomTypes } = useContext(GlobalDataContext);
+
+  if (!user) return <>Please sign in</>;
 
   return (
     <>
       <Form.Item<RoomPayload>
-        label="ID chủ phòng"
+        label={t("Search page.Owner ID")}
         name="owner"
         hidden={!isRoleAdmin(user?.role?.title)}
       >
@@ -35,40 +43,39 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
       </Form.Item>
 
       <Form.Item<RoomPayload>
-        rules={[
-          {
-            required: true,
-            message: "Tên phòng không bỏ trống",
-          },
-        ]}
-        label="Tên phòng"
+        rules={[noEmptyRule]}
+        label={t("Search page.Room name")}
         name="name"
       >
         <Input maxLength={50} showCount />
       </Form.Item>
 
-      <Form.Item<RoomPayload> label="Giới thiệu ngắn" name="sub_name">
+      <Form.Item<RoomPayload>
+        label={t("Room detail.Basic information")}
+        name="sub_name"
+      >
         <Input maxLength={50} showCount />
       </Form.Item>
 
-      <Form.Item<RoomPayload> label="Mô tả chi tiết" name="description">
+      <Form.Item<RoomPayload>
+        label={t("Room detail.Detail information")}
+        name="description"
+      >
         <Input.TextArea maxLength={1000} showCount autoSize />
       </Form.Item>
 
       <Form.Item<RoomPayload>
-        rules={[
-          {
-            required: true,
-            message: " không bỏ trống",
-          },
-        ]}
-        label="Kiểu phòng"
+        rules={[noEmptyRule]}
+        label={t("Room detail.Room type")}
         name="room_type"
       >
         {!roomTypes ? <Skeleton.Input active block /> : <SelectRoomType />}
       </Form.Item>
 
-      <Form.Item<RoomPayload> label="Các dịch vụ" name="services">
+      <Form.Item<RoomPayload>
+        label={t("home page.Room service")}
+        name="services"
+      >
         {!roomServicesConverted ? (
           <Skeleton.Input active block />
         ) : (
@@ -77,20 +84,15 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
       </Form.Item>
 
       <Form.Item<RoomPayload>
-        label="Chọn ảnh cho phòng"
-        tooltip="Sau khi chọn ảnh, bấm giữ ảnh và kéo để thay đổi thứ tự"
+        label={t("Search page.Room images")}
+        tooltip={t("Search page.Room image tooltip")}
       >
         <FilesUpload ref={files} accept="image/*" initImages={room?.images} />
       </Form.Item>
 
       <Form.Item<RoomPayload>
-        rules={[
-          {
-            required: true,
-            message: " không bỏ trống",
-          },
-        ]}
-        label="Giá tiền thuê mỗi tháng"
+        rules={[noEmptyRule]}
+        label={t("Search page.Cost per month")}
         name="price_per_month"
       >
         <InputNumber
@@ -106,13 +108,8 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
       </Form.Item>
 
       <Form.Item<RoomPayload>
-        rules={[
-          {
-            required: true,
-            message: " không bỏ trống",
-          },
-        ]}
-        label="Diện tích sử dụng"
+        rules={[noEmptyRule]}
+        label={t("Search page.Usable area")}
         name="usable_area"
       >
         <InputNumber
@@ -130,7 +127,7 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
       </Form.Item>
 
       <Form.Item<RoomPayload>
-        label="Số phòng khách"
+        label={t("Search page.Number of living rooms")}
         name="number_of_living_room"
       >
         <InputNumber
@@ -142,7 +139,10 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
         />
       </Form.Item>
 
-      <Form.Item<RoomPayload> label="Số phòng ngủ" name="number_of_bedroom">
+      <Form.Item<RoomPayload>
+        label={t("Search page.Number of bedrooms")}
+        name="number_of_bedroom"
+      >
         <InputNumber
           formatter={(value) =>
             `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -152,7 +152,10 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
         />
       </Form.Item>
 
-      <Form.Item<RoomPayload> label="Số nhà vệ sinh" name="number_of_bathroom">
+      <Form.Item<RoomPayload>
+        label={t("Search page.Number of bathrooms")}
+        name="number_of_bathroom"
+      >
         <InputNumber
           formatter={(value) =>
             `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -162,7 +165,10 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
         />
       </Form.Item>
 
-      <Form.Item<RoomPayload> label="Số tầng" name="number_of_floor">
+      <Form.Item<RoomPayload>
+        label={t("Search page.Number of floors")}
+        name="number_of_floor"
+      >
         <InputNumber
           formatter={(value) =>
             `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -175,34 +181,6 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
       <Form.Item<RoomPayload> noStyle name={"location"}>
         <LocationFormInputs location={room?.location} ref={location} />
       </Form.Item>
-      {/* -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      <Form.Item noStyle={!error}>
-        <Space.Compact block>
-          <MyButton
-            block
-            type="primary"
-            loading={submitting || isLogging}
-            disabled={!roomServicesConverted || !roomTypes}
-            danger={!!error}
-            htmlType="submit"
-          >
-            Sửa
-          </MyButton>
-        </Space.Compact>
-      </Form.Item>
-
-      <Form.Item noStyle>
-        {error && (
-          <Alert
-            type="error"
-            message={error.error.map(({ msg }) => (
-              <div key={msg} className="text-center">
-                <Typography.Text type="danger">{msg}</Typography.Text>
-              </div>
-            ))}
-          />
-        )}
-      </Form.Item> */}
     </>
   );
 };

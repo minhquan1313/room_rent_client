@@ -1,9 +1,7 @@
-import MyButton from "@/Components/MyButton";
-import MyImage from "@/Components/MyImage";
 import fileImg from "@/assets/file.svg";
 import { IRoomImage } from "@/types/IRoomImage";
 import logger from "@/utils/logger";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import {
   DndContext,
   DragOverlay,
@@ -17,13 +15,10 @@ import { restrictToWindowEdges } from "@dnd-kit/modifiers";
 import {
   SortableContext,
   horizontalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { Col, Image, Row, Space, Upload, message } from "antd";
+import { Image, Row, Space, Upload, message } from "antd";
 import { RcFile, UploadProps } from "antd/es/upload";
 import { arrayMoveImmutable } from "array-move";
-import classNames from "classnames";
 import {
   ForwardRefRenderFunction,
   forwardRef,
@@ -32,6 +27,9 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
+import { SortableItem, SortableItemProps } from "./SortableItem";
+import { SortableItemOverlay } from "./SortableItemOverlay";
 
 type FileAcceptType =
   | "image/*"
@@ -59,7 +57,6 @@ type FileAcceptType =
 interface Props extends UploadProps {
   beforeUpload?: never;
   fileList?: never;
-  // multiple?: never;
 
   imageAspect?: `aspect-${"auto" | "square" | "video" | string}`;
   avatar?: boolean;
@@ -83,6 +80,8 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
   { accept, initImages, avatar, ...p },
   ref,
 ) => {
+  const { t } = useTranslation();
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const [files, setFiles] = useState<MyFile[]>(
@@ -125,7 +124,7 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
 
       messageApi.open({
         type: "error",
-        content: "Kiểu file không hỗ trợ",
+        content: t("Extra.Not supported file type"),
       });
       return;
     }
@@ -202,37 +201,10 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
         });
       result.order = [...orderK, ...orderF];
 
-      // const rest = files.filter((f) => !f.deleted);
-
-      // result.keeps = rest.filter((e) => !e.file).map((e) => e.id);
-
-      // // result.order = Array(result.keeps.length).map((r, i) => i);
-
-      // result.files = rest
-      //   .map((r) => r.file)
-      //   .filter((e) => e !== undefined) as File[];
-
-      // result.order = rest.map((_e, i) => i + 1);
-
       return result;
     },
     [files],
   );
-
-  // useEffect(() => {
-  //   if (!initSrc) return;
-  //   initSrc.forEach((url) => {
-  //     setFiles((files) => {
-  //       const f: MyFile = {
-  //         src: url,
-  //         id: url,
-  //         file,
-  //       };
-
-  //       return files ? [...files, f] : [f];
-  //     });
-  //   });
-  // }, []);
 
   return (
     <Space direction="vertical" style={{ display: "flex" }}>
@@ -258,13 +230,7 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
                 setFiles(newArray);
                 setActiveFile(undefined);
               }}
-              modifiers={[
-                // restrictToHorizontalAxis,
-                restrictToWindowEdges,
-                // restrictToParentElement,
-                // restrictToFirstScrollableAncestor,
-                // snapCenterToCursor,
-              ]}
+              modifiers={[restrictToWindowEdges]}
               sensors={sensors}
               collisionDetection={closestCenter}
             >
@@ -303,119 +269,12 @@ const FilesUpload: ForwardRefRenderFunction<FilesUploadRef, Props> = (
       <Upload.Dragger fileList={[]} beforeUpload={beforeUpload} multiple {...p}>
         <div>
           <PlusOutlined />
-          <div style={{ marginTop: 8 }}>Thả file vô đây</div>
+          <div style={{ marginTop: 8 }}>{t("Extra.Drop file here")}</div>
         </div>
       </Upload.Dragger>
     </Space>
   );
 };
-
-type SortableItemProps = {
-  src: string;
-  id: string;
-  isExternal: boolean;
-  deleted?: boolean;
-  spanFull?: boolean;
-  aspect?: string;
-  avatar?: boolean;
-  onRemove(id: string, isExternal: boolean): void;
-};
-const SortableItem = ({
-  src,
-  id,
-  isExternal,
-  deleted,
-  spanFull,
-  aspect,
-  avatar,
-  onRemove,
-}: SortableItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    // transition,
-    isDragging,
-    isSorting,
-  } = useSortable({ id: id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    // transition,
-  };
-
-  return (
-    <Col
-      xs={24}
-      sm={spanFull ? 24 : 12}
-      md={spanFull ? 24 : 8}
-      xl={spanFull ? 24 : 6}
-      className={classNames("select-none overflow-visible", {
-        "transition-all duration-300": isSorting || isDragging,
-        // "opacity-75 grayscale": isSorting && !isDragging,
-        "z-10 opacity-50 grayscale": isDragging,
-        "opacity-50": deleted,
-        // "z-10 scale-125 blur-xl": isDragging || active,
-      })}
-      style={style}
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-    >
-      <div className="relative">
-        <MyImage
-          className={classNames(
-            "select-none object-cover",
-            avatar ? "rounded-full" : "rounded-lg",
-            aspect ?? "aspect-square",
-            {
-              "border-2 border-solid border-pink-400": isExternal,
-            },
-          )}
-          width={`100%`}
-          src={src}
-          preview={!isDragging && !isSorting}
-          addServer
-        />
-        <div className="absolute right-0 top-0">
-          <MyButton
-            onClick={() => onRemove && onRemove(id, isExternal)}
-            className={classNames({
-              "bg-pink-400": isExternal,
-              "rounded-br-none rounded-tl-none": !avatar,
-            })}
-            icon={<DeleteOutlined />}
-            type="primary"
-            shape="default"
-            // danger
-          />
-        </div>
-      </div>
-    </Col>
-  );
-};
-function SortableItemOverlay({
-  src,
-  aspect,
-  avatar,
-}: Omit<SortableItemProps, "id" | "onRemove" | "isExternal">) {
-  return (
-    <Col span={24} className="cursor-grabbing">
-      <MyImage
-        className={classNames(
-          "object-cover shadow-2xl",
-          avatar ? "rounded-full" : "rounded-lg",
-          aspect ?? "aspect-square",
-        )}
-        width={`100%`}
-        src={src}
-        preview={false}
-        addServer
-      />
-    </Col>
-  );
-}
 
 // eslint-disable-next-line react-refresh/only-export-components
 export default memo(forwardRef(FilesUpload));

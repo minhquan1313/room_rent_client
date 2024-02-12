@@ -1,16 +1,21 @@
-import { noWhiteSpace } from "@/rules/noWhiteSpace";
+import { noEmptyRule } from "@/rules/noEmptyRule";
+import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
+import i18n from "@/translations/i18n";
 import { isValidPhone } from "@/utils/isValidPhoneNumber";
 import logger from "@/utils/logger";
 import { Rule } from "antd/es/form";
 
-export const phoneRule: Rule[] = [
+const { t } = i18n;
+
+export const phoneRules: Rule[] = [
   // {
   //   min: 6,
   //   message: "Mật khẩu từ 6 kí tự trở lên",
   // },
-  ...noWhiteSpace,
+  noEmptyRule,
+  noWhiteSpaceRule,
   ({ getFieldValue }) => ({
-    message: "Số điện thoại không hợp lệ",
+    message: t("Extra.Invalid tel number"),
     validator(_, value) {
       logger(`🚀 ~ validator ~ value:`, value);
 
@@ -18,7 +23,7 @@ export const phoneRule: Rule[] = [
       const rc =
         getFieldValue("region_code") || getFieldValue(["phone", "region_code"]);
 
-      if (!rc) return Promise.reject(new Error("Thiếu mã vùng"));
+      if (!rc) return Promise.reject(new Error(t("Extra.Missing region code")));
 
       if (value && rc && isValidPhone(value, rc)) return Promise.resolve();
 

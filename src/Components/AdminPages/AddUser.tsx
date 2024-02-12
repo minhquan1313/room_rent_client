@@ -4,9 +4,9 @@ import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import SelectRole from "@/Components/SelectRole";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleTopAdmin } from "@/constants/roleType";
-import { noWhiteSpace } from "@/rules/noWhiteSpace";
-import { passwordRule } from "@/rules/passwordRule";
-import { phoneRule } from "@/rules/phoneRule";
+import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
+import { passwordRules } from "@/rules/passwordRule";
+import { phoneRules } from "@/rules/phoneRule";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";
@@ -98,18 +98,22 @@ const AddUser = ({
         <Form.Item<IUser>
           name={"username"}
           label="Username"
-          rules={noWhiteSpace}
+          rules={[noWhiteSpaceRule]}
         >
           <Input />
         </Form.Item>
         <Form.Item<IUser>
           name={"password"}
           label="Password"
-          rules={passwordRule}
+          rules={passwordRules}
         >
           <Input />
         </Form.Item>
-        <Form.Item<IUser> name={"first_name"} label="Tên" rules={noWhiteSpace}>
+        <Form.Item<IUser>
+          name={"first_name"}
+          label="Tên"
+          rules={[noWhiteSpaceRule]}
+        >
           <Input />
         </Form.Item>
         <Form.Item<IUser> name={"last_name"} label="Họ & tên đệm">
@@ -131,7 +135,7 @@ const AddUser = ({
         <Form.Item<IUser>
           name={["phone", "national_number"]}
           label="Phone"
-          rules={phoneRule}
+          rules={phoneRules}
           dependencies={[["phone", "region_code"]]}
         >
           <Input

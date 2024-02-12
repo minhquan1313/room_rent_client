@@ -47,6 +47,48 @@
       "mt": "Xung quanh",
       "kb": "Hihi huhu",
       "unknown": "Chưa phân loại"
+    },
+    "gender": {
+      "male": "Nam",
+      "female": "Nữ",
+      "unknown": "Không biết"
+    },
+    "role": {
+      "admin": "Admin",
+      "admin_lvl_2": "Admin - 2",
+      "user": "Người dùng",
+      "owner": "Chủ trọ"
+    },
+    "room": {
+      "owner": "Chủ phòng",
+      "room_type": "Loại phòng",
+      "location": "Địa chỉ",
+      "images": "Ảnh",
+      "services": "Dịch vụ",
+      "name": "Tên",
+      "sub_name": "Tên ngắn",
+      "description": "Thông tin",
+      "price_per_month": "Giá thuê mỗi tháng",
+      "price_currency_code": "Đơn vị tiền",
+      "usable_area": "Diện tích sử dụng",
+      "number_of_living_room": "Số phòng khách",
+      "number_of_bedroom": "Số phòng ngủ",
+      "number_of_bathroom": "Số phòng tắm",
+      "number_of_floor": "Số tầng",
+      "is_visible": "Trạng thái hiển thị",
+      "disabled": "Đã bị khoá",
+      "verified_real": "Admin xác thực",
+      "verified": "Đã duyệt bài",
+      "updatedAt": "Cập nhật lúc",
+      "createdAt": "Tạo lúc",
+      "saved": "Đã lưu"
+    },
+    "location": {
+      "province": "Tỉnh",
+      "district": "Quận / Huyện",
+      "ward": "Xã / Phường",
+      "detail": "Địa chỉ chi tiết",
+      "detail placeholder": "Số mấy, đường nào, toà nhà bao nhiêu"
     }
   }
 }

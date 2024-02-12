@@ -1,41 +1,25 @@
 import MyButton from "@/Components/MyButton";
-import PhoneOTP from "@/Components/PhoneOTP";
 import SelectGender from "@/Components/SelectGender";
-import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
+import EmailEdit from "@/Components/UserSetting/EmailEdit";
+import PhoneEdit from "@/Components/UserSetting/PhoneEdit";
 import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
-import { resendInterval } from "@/constants/resendInterval";
-import { emailRule } from "@/rules/emailRule";
-import { phoneRule } from "@/rules/phoneRule";
+import { noEmptyRule } from "@/rules/noEmptyRule";
+import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
 import { fetcher } from "@/services/fetcher";
-import { sendEmailVerify } from "@/services/sendEmailVerify";
-import { IUser } from "@/types/IUser";
-import { dateFormat } from "@/utils/dateFormat";
 import { isMobile } from "@/utils/isMobile";
 import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";
-import {
-  CheckCircleFilled,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
-import {
-  Alert,
-  Form,
-  Input,
-  Space,
-  Tooltip,
-  Typography,
-  message,
-  notification,
-  theme,
-} from "antd";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import Countdown from "react-countdown";
+import { Form, Input, message, notification } from "antd";
+import { useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 const NormalInfoEdit = () => {
+  const { t } = useTranslation();
+
   const [messageApi, contextHolder] = message.useMessage();
-  const [notiApi, contextNotiHolder] = notification.useNotification();
+  const [notifyApi, contextNotifyHolder] = notification.useNotification();
 
   const [query, setQuery] = useSearchParams();
 
@@ -49,6 +33,7 @@ const NormalInfoEdit = () => {
 
     query.delete("step");
     setQuery(query);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, user?.phone?.verified]);
 
   if (!user) return null;
@@ -87,7 +72,7 @@ const NormalInfoEdit = () => {
 
           messageApi.open({
             type: "success",
-            content: "Cập nhật thông tin thành công!",
+            content: t("Extra.Update successfully!"),
           });
 
           //   if ("email" in payload && user.email === null) {
@@ -100,11 +85,10 @@ const NormalInfoEdit = () => {
         } catch (error: any) {
           logger(`🚀 ~ error:`, error);
 
-          // const e = error.response.data as ErrorJsonResponse;
           notificationResponseError({
-            notification: notiApi,
+            notification: notifyApi,
             error,
-            message: "Cập nhật thất bại!",
+            message: t("Extra.Update failure!"),
           });
         }
       }}
@@ -115,32 +99,28 @@ const NormalInfoEdit = () => {
       }}
       size={isMobile() ? "large" : undefined}
       className="w-full"
-      // size="large"
     >
       {contextHolder}
-      {contextNotiHolder}
-      <Form.Item<TUserEditFields> name={"last_name"} label="Họ">
-        <Input />
-      </Form.Item>
-
+      {contextNotifyHolder}
       <Form.Item<TUserEditFields>
-        rules={[
-          {
-            required: true,
-            message: "Tên không bỏ trống",
-          },
-          {
-            pattern: /^[^\s]*$/,
-            message: "Tên không chứa khoảng trắng",
-          },
-        ]}
-        name={"first_name"}
-        label="Tên"
+        name={"last_name"}
+        label={t("User.Last name")}
       >
         <Input />
       </Form.Item>
 
-      <Form.Item<TUserEditFields> name={["gender", "title"]} label="Giới tính">
+      <Form.Item<TUserEditFields>
+        rules={[noEmptyRule, noWhiteSpaceRule]}
+        name={"first_name"}
+        label={t("User.First name")}
+      >
+        <Input />
+      </Form.Item>
+
+      <Form.Item<TUserEditFields>
+        name={["gender", "title"]}
+        label={t("User.Gender")}
+      >
         <SelectGender />
       </Form.Item>
 
@@ -157,337 +137,10 @@ const NormalInfoEdit = () => {
           //   danger={!!error}
           htmlType="submit"
         >
-          Lưu
+          {t("Extra.Save")}
         </MyButton>
       </Form.Item>
     </Form>
-  );
-};
-
-const PhoneEdit = ({ user, refresh }: { user: IUser; refresh(): void }) => {
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const {
-    token: { colorSuccess },
-  } = theme.useToken();
-
-  const [query, setQuery] = useSearchParams();
-  const [sendingCode, setSendingCode] = useState(false);
-
-  return (
-    <Form.Item<TUserEditFields>
-      label="Điện thoại"
-      tooltip={
-        user.phone?.verified && "Số điện thoại đã xác thực không thể thay đổi!"
-      }
-    >
-      {contextHolder}
-      <Space direction="vertical" className="w-full">
-        <Form.Item<TUserEditFields>
-          name={["phone", "national_number"]}
-          rules={[
-            {
-              message: "Số điện thoại không được trống",
-              required: true,
-            },
-            ...phoneRule,
-          ]}
-          noStyle
-        >
-          <Input
-            readOnly={user.phone?.verified}
-            addonBefore={
-              <Form.Item<TUserEditFields>
-                name={["phone", "region_code"]}
-                noStyle
-              >
-                <SelectPhoneRegion disabled={user.phone?.verified} />
-              </Form.Item>
-            }
-            addonAfter={
-              <Tooltip
-                title={user.phone?.verified ? "Đã xác thực" : "Chưa xác thực"}
-              >
-                {user.phone?.verified ? (
-                  <CheckCircleFilled
-                    style={{
-                      color: colorSuccess,
-                    }}
-                  />
-                ) : (
-                  <ExclamationCircleOutlined />
-                )}
-              </Tooltip>
-            }
-          />
-        </Form.Item>
-
-        {user.phone &&
-          !user.phone.verified &&
-          (!query.get("step") ? (
-            <>
-              <Alert
-                message="Số điện thoại chưa xác thực!"
-                type="error"
-                showIcon
-              />
-              <Space.Compact block>
-                <MyButton
-                  onClick={() => {
-                    query.set("step", "enter-otp");
-                    setQuery(query);
-                  }}
-                  block
-                >
-                  Nhập mã
-                </MyButton>
-                <MyButton
-                  onClick={async () => {
-                    setSendingCode(true);
-                    try {
-                      const payload = {
-                        tel: user.phone?.e164_format,
-                      };
-                      const d = await fetcher.post(
-                        `/misc/make-verify-tel`,
-                        payload,
-                      );
-                      logger(`🚀 ~ onClick={ ~ d:`, d);
-
-                      messageApi.open({
-                        type: "info",
-                        content:
-                          "Đã gửi mã, mã sẽ tới số điện thoại của bạn trong giây lát!",
-                        duration: 30,
-                      });
-
-                      query.set("step", "enter-otp");
-                      setQuery(query);
-                    } catch (error) {
-                      logger(`🚀 ~ error:`, error);
-                      messageApi.open({
-                        type: "error",
-                        content: "Có lỗi khi gửi mã!",
-                        duration: 30,
-                      });
-                    }
-                    setSendingCode(false);
-                  }}
-                  block
-                  loading={sendingCode}
-                  type="primary"
-                >
-                  Gửi mã
-                </MyButton>
-              </Space.Compact>
-            </>
-          ) : (
-            query.get("step") === "enter-otp" && (
-              // <>
-              <PhoneOTP
-                e164_format={user.phone.e164_format}
-                onSuccess={() => {
-                  refresh();
-                  messageApi.open({
-                    type: "success",
-                    content: "Xác thực số điện thoại thành công!",
-                  });
-                }}
-              />
-            )
-          ))}
-      </Space>
-    </Form.Item>
-  );
-};
-const EmailEdit = ({ user, email }: { user: IUser; email: IUser["email"] }) => {
-  const {
-    token: { colorSuccess },
-  } = theme.useToken();
-  const [notiApi, contextNotiHolder] = notification.useNotification();
-
-  const [mailCodeSent, setMailCodeSent] = useState(false);
-  const [mailCodeSentAt, setMailCodeSentAt] = useState<Date>();
-  const [mailCodeSending, setMailCodeSending] = useState(false);
-
-  const oldMail = useRef(email);
-
-  const countDownDate = useMemo(() => {
-    const d = mailCodeSentAt ? new Date(mailCodeSentAt) : new Date();
-    d.setSeconds(d.getSeconds() + resendInterval);
-    return d;
-  }, [mailCodeSent]);
-
-  async function mailCodeSend(mail: string) {
-    setMailCodeSending(true);
-    try {
-      await sendEmailVerify(mail);
-      logger(`mailCodeSend`);
-
-      notiApi.open({
-        type: "success",
-        duration: 30,
-        message: "Gửi mã thành công!",
-        description: (
-          <>
-            Hãy kiểm tra{" "}
-            <Typography.Text type="warning">hộp thư đến</Typography.Text> trong
-            email, và cả hộp thư{" "}
-            <Typography.Text type="warning">spam</Typography.Text>
-          </>
-        ),
-      });
-
-      setMailCodeSent(true);
-
-      const d = new Date();
-      setMailCodeSentAt(d);
-      localStorage.setItem("emailTokenSentAt", String(d.getTime()));
-    } catch (error) {
-      logger(`🚀 ~ error:`, error);
-
-      notificationResponseError({
-        error,
-        message: "Lỗi gửi mã",
-        notification: notiApi,
-      });
-      //
-    }
-    setMailCodeSending(false);
-  }
-
-  useEffect(() => {
-    /**
-     * Kiểm tra mail đã send hay chưa
-     */
-    try {
-      const d = localStorage.getItem("emailTokenSentAt");
-      if (!d) return;
-
-      const date = dateFormat(Number(d));
-      setMailCodeSentAt(date.toDate());
-
-      const now = dateFormat();
-
-      const diff = now.diff(date, "s");
-      logger(`🚀 ~ useEffect ~ diff:`, diff);
-
-      if (diff > resendInterval) {
-        setMailCodeSent(false);
-      } else {
-        setMailCodeSent(true);
-      }
-    } catch (error) {
-      //
-    }
-  }, []);
-
-  useEffect(() => {
-    /**
-     * Detect xem mail có phải mới được cập nhật không,
-     * nếu mail hiện tại khác mail trước đó thì bắn luôn cái
-     * token verify
-     */
-
-    logger(`🚀 ~ useEffect ~ oldMail.current:`, oldMail.current);
-    logger(`🚀 ~ useEffect ~ email:`, email);
-    if (oldMail.current?.email === email?.email) return;
-
-    oldMail.current = email;
-
-    if (!oldMail.current) return;
-
-    mailCodeSend(oldMail.current.email);
-  }, [email]);
-  return (
-    <Form.Item label="Email">
-      {contextNotiHolder}
-      <Space direction="vertical" className="w-full">
-        <Form.Item<TUserEditFields>
-          name={["email", "email"]}
-          // noStyle
-          rules={emailRule}
-          noStyle
-          validateTrigger="onBlur"
-        >
-          <Input
-            addonAfter={
-              user.email && (
-                <Tooltip
-                  title={user.email?.verified ? "Đã xác thực" : "Chưa xác thực"}
-                >
-                  {user.email?.verified ? (
-                    <CheckCircleFilled
-                      style={{
-                        color: colorSuccess,
-                      }}
-                    />
-                  ) : (
-                    <ExclamationCircleOutlined />
-                  )}
-                </Tooltip>
-              )
-            }
-          />
-        </Form.Item>
-
-        {!user.email ? (
-          <Alert
-            message={
-              <>
-                Hãy thêm email để có thể
-                <Typography.Text type="warning" strong underline>
-                  {" "}
-                  khôi phục mật khẩu{" "}
-                </Typography.Text>
-                hoặc
-                <Typography.Text type="warning"> nhận tin </Typography.Text>
-                về các phòng mới/phòng yêu thích thay đổi!
-              </>
-            }
-            type="error"
-            showIcon
-          />
-        ) : (
-          !user.email.verified && (
-            <MyButton
-              onClick={async () => {
-                //
-                if (!user.email) return;
-
-                await mailCodeSend(user.email.email);
-              }}
-              loading={mailCodeSending}
-              disabled={mailCodeSent}
-              type="dashed"
-              block
-            >
-              {mailCodeSent ? (
-                <Space size={"small"}>
-                  Gửi lại sau
-                  {/*  */}
-                  <Countdown
-                    key={countDownDate.getMilliseconds()}
-                    date={countDownDate}
-                    onComplete={() => {
-                      setMailCodeSent(false);
-                      logger(`🚀 ~ onComplete ~ setMailCodeSent(false):`);
-                    }}
-                    renderer={(props) =>
-                      dateFormat
-                        .duration(props.total, "milliseconds")
-                        .asSeconds() || ""
-                    }
-                  />
-                </Space>
-              ) : (
-                <>Gửi mã</>
-              )}
-            </MyButton>
-          )
-        )}
-      </Space>
-    </Form.Item>
   );
 };
 

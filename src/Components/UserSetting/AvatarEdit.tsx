@@ -1,4 +1,6 @@
-import FilesUpload, { FilesUploadRef } from "@/Components/FilesUpload";
+import FilesUpload, {
+  FilesUploadRef,
+} from "@/Components/FilesUpload/FilesUpload";
 import MyButton from "@/Components/MyButton";
 import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
@@ -8,8 +10,11 @@ import { fetcher } from "@/services/fetcher";
 import logger from "@/utils/logger";
 import { Form, message } from "antd";
 import { useContext, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const AvatarEdit = () => {
+  const { t } = useTranslation();
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const { user, refresh } = useContext(UserContext);
@@ -97,7 +102,7 @@ const AvatarEdit = () => {
     >
       {contextHolder}
       {isRoleOwner(user.role?.title) && (
-        <Form.Item<TUserEditFields> label="Chọn banner mới">
+        <Form.Item<TUserEditFields> label={t("User.Cover tab.Change cover")}>
           <FilesUpload
             ref={banner}
             multiple={false}
@@ -108,7 +113,7 @@ const AvatarEdit = () => {
       )}
 
       <Form.Item<TUserEditFields>
-        label="Chọn ảnh mới"
+        label={t("User.Cover tab.Change avatar")}
         className="mx-auto max-w-sm"
       >
         <FilesUpload ref={avatar} multiple={false} avatar accept="image/*" />
@@ -123,7 +128,7 @@ const AvatarEdit = () => {
           //   danger={!!error}
           htmlType="submit"
         >
-          Lưu
+          {t("Extra.Save")}
         </MyButton>
       </Form.Item>
     </Form>

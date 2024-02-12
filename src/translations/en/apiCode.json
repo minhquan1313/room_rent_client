@@ -47,6 +47,48 @@
       "mt": "Around",
       "kb": "Hihi huhu",
       "unknown": "Uncategorized"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "unknown": "Unknown"
+    },
+    "role": {
+      "admin": "Admin",
+      "admin_lvl_2": "Admin - 2",
+      "user": "User",
+      "owner": "Room owner"
+    },
+    "room": {
+      "owner": "Room owner",
+      "room_type": "Room type",
+      "location": "Address",
+      "images": "Images",
+      "services": "Room services",
+      "name": "Name",
+      "sub_name": "Sub description",
+      "description": "Description",
+      "price_per_month": "Cost per month",
+      "price_currency_code": "Currency unit",
+      "usable_area": "Usable area",
+      "number_of_living_room": "Living room",
+      "number_of_bedroom": "Bedroom",
+      "number_of_bathroom": "Bathroom",
+      "number_of_floor": "Floor",
+      "is_visible": "Visibility",
+      "disabled": "Locked",
+      "verified_real": "Admin verified",
+      "verified": "Verified",
+      "updatedAt": "Updated at",
+      "createdAt": "Created at",
+      "saved": "Saved"
+    },
+    "location": {
+      "province": "Province",
+      "district": "District",
+      "ward": "Ward",
+      "detail": "Detail address",
+      "detail placeholder": "Place number, road name, building name"
     }
   }
 }

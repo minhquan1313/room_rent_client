@@ -2,7 +2,9 @@
   "page name": {
     "home": "Home",
     "Find": "Search",
-    "Chat": "Chat"
+    "Chat": "Chat",
+    "Add room": "Add room",
+    "Profile settings": "Profile setting"
   },
   "home page": {
     "New boarding house nationwide": "Accommodation all over country",
@@ -34,7 +36,11 @@
     "Cost per month": "Cost per month",
     "Number of bedrooms": "Number of bedrooms",
     "Number of bathrooms": "Number of bathrooms",
-    "Number of living rooms": "Number of living rooms"
+    "Number of living rooms": "Number of living rooms",
+    "Owner ID": "Owner ID",
+    "Room name": "Room name",
+    "Room images": "Room images",
+    "Room image tooltip": "Drag and drop images to adjust order"
   },
 
   "Room detail": {
@@ -55,6 +61,8 @@
     "Living room": "Living room",
     "Floor": "Floor",
     "Verify": "Verify",
+    "Verified": "Verified",
+    "Not verified": "Not verified",
     "Status": "Status",
     "Cost per month": "Cost per month"
   },
@@ -70,13 +78,123 @@
   },
 
   "State": {
-    "Loading": "Đang tải",
-    "Loaded": "Đã tải"
+    "Loading": "Loading",
+    "Loaded": "Loaded"
   },
 
   "Theme": {
     "Light": "Light",
     "Dark": "Dark",
     "System": "System"
+  },
+
+  "Profile page": {
+    "Room for rent": "Room for rent"
+  },
+
+  "Extra": {
+    "No content": "No content",
+    "No more content": "No more content",
+
+    "Don't leave it empty": "Don't leave it empty",
+    "No space character allowed": "Không chứa khoảng trắng",
+    "Invalid tel number": "Invalid tel number",
+    "Missing region code": "Missing region code",
+
+    "OTP sent, the code will be delivered to your phone in sometime!": "OTP sent, the code will be delivered to your phone in sometime!",
+    "OTP send error, please try again!": "OTP send error, please try again!",
+    "Wrong OTP!": "Wrong OTP!",
+    "Error during verifying, please try again!": "Error during verifying, please try again!",
+    "Update successfully!": "Updated successfully!",
+    "Update failure!": "Updated failure!",
+    "Save": "Save",
+    "Code send succeed!": "Code send succeed!",
+    "Code send failed!": "Code send failed!",
+    "Send code": "Send code",
+    "Enter code": "Enter code",
+    "Verify successfully!": "Verify successfully!",
+
+    "Drop file here": "Drop file here",
+    "Not supported file type": "Not supported file type",
+    "Not supported region": "Not supported region",
+
+    "Add": "Add",
+    "Added successfully!": "Added successfully!"
+  },
+
+  "Drop down": {
+    "User nav btn": {
+      "Dashboard": "Dashboard",
+      "Add room": "Add room",
+      "Saved": "Saved",
+      "Sign out": "Sign out"
+    }
+  },
+
+  "Add room page": {
+    "Add new room": "Add new room",
+    "Only admin have permission to change this!": "Only admin have permission to change this!",
+    "Auto fill": "Auto fill",
+    "Get current location": "Get current location",
+
+    "API ran out of request": "API ran out of request :>",
+    "Error getting address!": "Error getting address!",
+    "Please fill address fields": "Please fill address fields",
+    "Please pin on map": "Please pin on map",
+    "Missing country": "Missing country",
+    "Missing province": "Missing province",
+    "Missing detail address": "Please add detail address to help people find the place easier"
+  },
+
+  "User": {
+    "Information": "Information",
+    "Cover": "Cover",
+    "Password": "Password",
+    "Notification": "Notification",
+
+    "Last name": "Last name",
+    "First name": "First name",
+    "Gender": "Gender",
+    "Phone number": "Tel",
+
+    "Email tab": {
+      "Please check email and in spam folder#1": "Please check",
+      "Please check email and in spam folder#2": "incoming",
+      "Please check email and in spam folder#3": "email, or maybe in",
+      "Please check email and in spam folder#4": "spam folder",
+
+      "Please add email to do what#1": "Please add email to be able to",
+      "Please add email to do what#2": "restore password",
+      "Please add email to do what#3": "or",
+      "Please add email to do what#4": "receive news",
+      "Please add email to do what#5": "about room or saved rooms changes!",
+
+      "Re-send after": "Re-send after"
+    },
+
+    "Phone tab": {
+      "Tel number haven't verified yet!": "Tel number haven't verified yet!"
+    },
+
+    "Cover tab": {
+      "Change cover": "Change cover",
+      "Change avatar": "Change avatar"
+    },
+
+    "Pass tab": {
+      "Current": "Current password",
+      "New": "New password",
+      "Repeat": "Repeat password",
+      "Repeat not match!": "Repeat not match!"
+    },
+
+    "Notification tab": {
+      "Turning notify message successfully!": "Turning notify message successfully!",
+      "Turning notify message failure!": "Turning notify message failure!",
+
+      "Notify new message": "Notify new message",
+
+      "User denied": "You denied to provide notify permission, please allow access by yourself in browser setting."
+    }
   }
 }
