@@ -21,7 +21,7 @@ interface Props {
   onSaveSuccess?(): void;
 }
 function AddRoom({ onSaveSuccess }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { t: tApi } = useTranslation("api");
 
   pageTitle(t("page name.Add room"));
@@ -134,11 +134,27 @@ function AddRoom({ onSaveSuccess }: Props) {
 
   return (
     <MyContainer className="py-5" noBg>
+      {/* <div className="aspect-square w-full overflow-hidden rounded-lg outline-none lg:aspect-[21/9]">
+        <GoogleMapReact
+          // key={i18n.language}
+          bootstrapURLKeys={ggMapKeyGenerator(
+            i18n.language as TAvailableLanguage,
+          )}
+          shouldUnregisterMapOnUnmount
+          defaultCenter={ggMapCenter}
+          defaultZoom={ggMapZoom}
+          options={ggMapOptions}
+          onClick={logger}
+        ></GoogleMapReact>
+      </div> */}
+
       {contextHolder}
       {!user?.phone?.verified ? (
         <Alert
-          message="Số điện thoại chưa xác thực!"
-          description="Hãy vào Cài đặt và xác thực số điện thoại để có thể đăng tin!"
+          message={t("User.Phone tab.Tel number haven't verified yet!")}
+          description={t(
+            "Add room page.Please go to profile setting and verify your tel number to post your rooms!",
+          )}
           type="error"
           showIcon
         />

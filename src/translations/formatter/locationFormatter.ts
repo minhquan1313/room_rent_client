@@ -4,11 +4,9 @@ import { Formatter } from "i18next";
 
 type IPatternType = "str" | "num" | undefined;
 
-const locationFormatter: Parameters<Formatter["add"]>["1"] = (
-  value,
-  lang,
-  options,
-) => {
+type TFormatterCallBack = Parameters<Formatter["add"]>["1"];
+
+const locationFormatter: TFormatterCallBack = (value, lang) => {
   if (typeof value !== "string" || !lang) return value;
 
   const locationI18n = i18n.getResourceBundle(lang, "location");

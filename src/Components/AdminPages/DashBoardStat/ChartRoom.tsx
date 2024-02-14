@@ -13,11 +13,11 @@ import {
   theme,
 } from "antd";
 import { SegmentedLabeledOption } from "antd/es/segmented";
-import { Dayjs } from "dayjs";
 import { EChartsOption, graphic } from "echarts";
 import EChartsReact from "echarts-for-react";
 import QueryString from "qs";
 import { useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import useSWR from "swr";
 
 type NewType = SegmentedLabeledOption & {
@@ -39,18 +39,20 @@ const TYPE: NewType[] = [
   },
 ];
 const initQuery: {
-  from: Dayjs;
-  to: Dayjs;
+  from: Date;
+  to: Date;
   countBy: "day" | "month";
 } = {
-  from: dateFormat().startOf("w"),
-  to: dateFormat().endOf("w"),
+  from: dateFormat().startOf("w").toDate(),
+  to: dateFormat().endOf("w").toDate(),
   // from: dateFormat().hour(0).minute(0).second(0).weekday(1),
   // to: dateFormat().hour(0).minute(0).second(0).weekday(7),
   countBy: "day",
 };
 
 function ChartRoom() {
+  const { t } = useTranslation();
+
   const { myTheme } = useContext(ThemeContext);
 
   const { token } = theme.useToken();
@@ -58,8 +60,8 @@ function ChartRoom() {
   const [type, setType] = useState(TYPE[0].value);
   const [query, setQuery] = useState(initQuery);
 
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(
-    dateFormat(query.from),
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    query.from,
   );
 
   const { data, isLoading } = useSWR<TCountData[]>(() => {
@@ -83,7 +85,8 @@ function ChartRoom() {
     if (!data) return;
 
     setDataDisplay(() => {
-      const date = query.from;
+      const dateFrom = dateFormat(query.from);
+      const dateTo = dateFormat(query.to);
       let format = "MM";
       let fillAmount = 1;
 
@@ -91,7 +94,7 @@ function ChartRoom() {
       switch (type) {
         case "week":
           format = "dddd";
-          firstValue = (i) => date.weekday(i).format(format);
+          firstValue = (i) => dateFrom.weekday(i).format(format);
           //  {
           //   const d = date.weekday(i).format(format);
           //   return d[0].toUpperCase() + d.slice(1);
@@ -100,12 +103,12 @@ function ChartRoom() {
           break;
         case "month":
           format = "DD";
-          firstValue = (i) => date.date(i + 1).format(format);
-          fillAmount = query.to.date();
+          firstValue = (i) => dateFrom.date(i + 1).format(format);
+          fillAmount = dateTo.date();
           break;
         case "year":
           format = "MMMM";
-          firstValue = (i) => date.month(i).format(format);
+          firstValue = (i) => dateFrom.month(i).format(format);
           fillAmount = 12;
           break;
       }
@@ -150,8 +153,8 @@ function ChartRoom() {
     }
 
     if (selectedDate) {
-      const start = selectedDate.startOf(type);
-      const end = selectedDate.endOf(type);
+      const start = dateFormat(selectedDate).startOf(type).toDate();
+      const end = dateFormat(selectedDate).endOf(type).toDate();
 
       setQuery((q) => ({
         ...q,
@@ -163,23 +166,23 @@ function ChartRoom() {
 
   useEffect(() => {
     updateQueries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, selectedDate]);
 
   useEffect(() => {
     updateDataDisplay();
-  }, [data, JSON.stringify(query)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, JSON.stringify(query), t]);
 
   function previousDate(): void {
     setSelectedDate((d) => {
-      if (!d) return null;
-      return d.subtract(1, type);
+      return dateFormat(d).subtract(1, type).toDate();
     });
   }
 
   function nextDate(): void {
     setSelectedDate((d) => {
-      if (!d) return null;
-      return d.add(1, type);
+      return dateFormat(d).add(1, type).toDate();
     });
   }
 
@@ -250,20 +253,22 @@ function ChartRoom() {
     if (!selectedDate) return undefined;
     let s = `Các bài đăng của `;
 
+    const date = dateFormat(selectedDate);
+
     switch (type) {
       case "week":
         // s += `tuần ${selectedDate.week()} tháng ${
         //   selectedDate.month() + 1
         // } năm ${selectedDate?.year()}`;
-        s += `tuần ${selectedDate.week()} ${selectedDate.format("MMMM YYYY")}`;
+        s += `tuần ${date.week()} ${date.format("MMMM YYYY")}`;
         break;
       case "month":
-        s += selectedDate.format("MMMM YYYY");
-        // s += `tháng ${selectedDate.month() + 1} năm ${selectedDate?.year()}`;
+        s += date.format("MMMM YYYY");
+        // s += `tháng ${date.month() + 1} năm ${date?.year()}`;
         break;
       case "year":
-        s += selectedDate.format("YYYY");
-        // s += `năm ${selectedDate?.year()}`;
+        s += date.format("YYYY");
+        // s += `năm ${date?.year()}`;
         break;
     }
 
@@ -282,9 +287,11 @@ function ChartRoom() {
               </MyButton>
 
               <DatePicker
-                onChange={setSelectedDate}
+                onChange={(value) => {
+                  setSelectedDate(value?.toDate());
+                }}
                 picker={type}
-                value={selectedDate}
+                value={dateFormat(selectedDate)}
                 changeOnBlur
               />
 

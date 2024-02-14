@@ -1,9 +1,11 @@
 import { proximityThreshold } from "@/constants";
 import { VITE_GOOGLE_MAP_API_KEY } from "@/constants/env";
+import { TAvailableLanguage } from "@/translations/i18n";
 import { calculateDistance } from "@/utils/calculateDistance";
 import logger from "@/utils/logger";
 import { Coords } from "google-map-react";
 import { ReactNode, createContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   children: ReactNode;
@@ -49,8 +51,22 @@ interface IContext {
   ) => google.maps.Marker | undefined;
 }
 
+const langRegionMapI18n: {
+  [k in TAvailableLanguage]: [string, string];
+} = {
+  vi: ["vi", "VN"],
+  en: ["en", "US"],
+};
+
+const __stop = !0;
+
 export const GoogleMapContext = createContext<IContext>(null as never);
+
 export default function GoogleMapProvider({ children }: Props) {
+  const {
+    i18n: { language },
+  } = useTranslation();
+
   const appended = useRef(false);
   const [isReady, setIsReady] = useState(false);
   const [geocoder, setGeocoder] = useState<google.maps.Geocoder>();
@@ -331,6 +347,7 @@ export default function GoogleMapProvider({ children }: Props) {
   // function addMarkers() {}
 
   useEffect(() => {
+    if (__stop) return;
     if (appended.current || document.querySelector("#googleMapScript")) return;
     const functionName = "initMap";
 
@@ -346,8 +363,8 @@ export default function GoogleMapProvider({ children }: Props) {
     // const _lang = navigator.languages[navigator.languages.length - 1];
 
     // const [lang, region] = navigator.languages[0].split("-");
-    const [lang, region] = ["vi", "VN"];
-    // logger(`🚀 ~ useEffect ~ [lang, region]:`, [lang, region]);
+    // const [lang, region] = ["vi", "VN"];
+    const [lang, region] = langRegionMapI18n[language as TAvailableLanguage];
 
     script.src = `https://maps.googleapis.com/maps/api/js?key=${
       VITE_GOOGLE_MAP_API_KEY ?? ""

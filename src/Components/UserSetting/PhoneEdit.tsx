@@ -2,7 +2,7 @@ import MyButton from "@/Components/MyButton";
 import PhoneOTP from "@/Components/PhoneOTP";
 import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import { TUserEditFields } from "@/Pages/UserInfo";
-import { phoneRules } from "@/rules/phoneRule";
+import { phoneRules } from "@/rules/phoneRules";
 import { fetcher } from "@/services/fetcher";
 import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";
@@ -147,7 +147,7 @@ const PhoneEdit = memo(({ user, refresh }: Props) => {
                   refresh();
                   messageApi.open({
                     type: "success",
-                    content: t("Extra.Verify successfully!"),
+                    content: t("User.Phone tab.Tel verify successfully!"),
                   });
                 }}
               />

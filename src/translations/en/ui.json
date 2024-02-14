@@ -5,7 +5,9 @@
     "Chat": "Chat",
     "Add room": "Add room",
     "Profile settings": "Profile setting",
-    "Bookmark": "Bookmark"
+    "Bookmark": "Bookmark",
+    "Login": "Sign in",
+    "Register": "Sign up"
   },
   "home page": {
     "New boarding house nationwide": "Accommodations over country",
@@ -147,7 +149,9 @@
     "Please pin on map": "Please pin on map",
     "Missing country": "Missing country",
     "Missing province": "Missing province",
-    "Missing detail address": "Please add detail address to help people find the place easier"
+    "Missing detail address": "Please add detail address to help people find the place easier",
+
+    "Please go to profile setting and verify your tel number to post your rooms!": "Please go to profile setting and verify your tel number to post your rooms!"
   },
 
   "User": {
@@ -160,6 +164,8 @@
     "First name": "First name",
     "Gender": "Gender",
     "Phone number": "Tel",
+    "Role": "Role",
+    "Region code": "Region code",
 
     "Email tab": {
       "Please check email and in spam folder#1": "Please check",
@@ -177,7 +183,8 @@
     },
 
     "Phone tab": {
-      "Tel number haven't verified yet!": "Tel number haven't verified yet!"
+      "Tel number haven't verified yet!": "Tel number haven't verified yet!",
+      "Tel verify successfully!": "Tel verify successfully!"
     },
 
     "Cover tab": {
@@ -213,5 +220,15 @@
     "Bookmark page": {
       "Bookmarked rooms": "Bookmarked rooms"
     }
+  },
+
+  "Register page": {
+    "Sign in": "Sign in",
+    "Signing in": "Signing in",
+
+    "Sign up": "Sign up",
+
+    "Username": "Username",
+    "Remember": "Remember"
   }
 }

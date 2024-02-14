@@ -1,7 +1,7 @@
 import MyButton from "@/Components/MyButton";
 import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
-import { passwordRules } from "@/rules/passwordRule";
+import { passwordRules } from "@/rules/passwordRules";
 import { fetcher } from "@/services/fetcher";
 import logger from "@/utils/logger";
 import { notificationResponseError } from "@/utils/notificationResponseError";

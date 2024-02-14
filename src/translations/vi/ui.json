@@ -5,7 +5,9 @@
     "Chat": "Trò chuyện",
     "Add room": "Thêm phòng",
     "Profile settings": "Thay đổi thông tin",
-    "Bookmark": "Đã lưu"
+    "Bookmark": "Đã lưu",
+    "Login": "Đăng nhập",
+    "Register": "Đăng kí"
   },
   "home page": {
     "New boarding house nationwide": "Trọ mới toàn quốc",
@@ -147,7 +149,9 @@
     "Please pin on map": "Hãy ghim trên bản đồ",
     "Missing country": "Thiếu thông tin về quốc gia",
     "Missing province": "Thiếu thông tin về tỉnh thành",
-    "Missing detail address": "Nếu có hãy thêm địa chỉ chi tiết để mọi người dễ tìm hơn"
+    "Missing detail address": "Nếu có hãy thêm địa chỉ chi tiết để mọi người dễ tìm hơn",
+
+    "Please go to profile setting and verify your tel number to post your rooms!": "Hãy vào Cài đặt và xác thực số điện thoại để có thể đăng tin!"
   },
 
   "User": {
@@ -156,10 +160,12 @@
     "Password": "Mật khẩu",
     "Notification": "Thông báo",
 
-    "Last name": "Họ",
+    "Last name": "Họ và tên đệm",
     "First name": "Tên",
     "Gender": "Giới tính",
     "Phone number": "Điện thoại",
+    "Role": "Vai trò",
+    "Region code": "Mã vùng",
 
     "Email tab": {
       "Please check email and in spam folder#1": "Hãy kiểm tra",
@@ -177,7 +183,8 @@
     },
 
     "Phone tab": {
-      "Tel number haven't verified yet!": "Số điện thoại chưa xác thực!"
+      "Tel number haven't verified yet!": "Số điện thoại chưa xác thực!",
+      "Tel verify successfully!": "Xác thực số điện thoại thành công!"
     },
 
     "Cover tab": {
@@ -213,5 +220,15 @@
     "Bookmark page": {
       "Bookmarked rooms": "Các phòng đã lưu"
     }
+  },
+
+  "Register page": {
+    "Sign in": "Đăng nhập",
+    "Signing in": "Đang đăng nhập",
+
+    "Sign up": "Đăng ký",
+
+    "Username": "Tên đăng nhập",
+    "Remember": "Ghi nhớ"
   }
 }

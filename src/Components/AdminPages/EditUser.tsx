@@ -9,7 +9,7 @@ import { UserContext } from "@/Contexts/UserProvider";
 import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner, isRoleTopAdmin } from "@/constants/roleType";
 import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
-import { phoneRules } from "@/rules/phoneRule";
+import { phoneRules } from "@/rules/phoneRules";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";

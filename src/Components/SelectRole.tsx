@@ -3,6 +3,7 @@ import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { TRole } from "@/types/IRole";
 import { Select, SelectProps } from "antd";
 import { memo, useContext } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props extends SelectProps {
   disableRoles?: TRole[];
@@ -11,6 +12,9 @@ interface Props extends SelectProps {
 }
 
 const SelectRole = memo(({ disableRoles, ...rest }: Props) => {
+  const { t } = useTranslation();
+  const { t: tApi } = useTranslation("api");
+
   const { roles } = useContext(GlobalDataContext);
 
   const r = !disableRoles
@@ -20,13 +24,13 @@ const SelectRole = memo(({ disableRoles, ...rest }: Props) => {
   return (
     <Select
       notFoundContent={<NotFoundContent />}
-      placeholder="Giới tính"
+      placeholder={t("User.Role")}
       {...rest}
     >
       {r &&
-        r.map(({ display_name, title }) => (
+        r.map(({ title }) => (
           <Select.Option value={title} key={title}>
-            {display_name}
+            {tApi(`data code.role.${title}`)}
           </Select.Option>
         ))}
     </Select>

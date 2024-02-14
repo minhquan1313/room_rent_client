@@ -6,9 +6,11 @@ import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import SelectRole from "@/Components/SelectRole";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
+import { noEmptyRule } from "@/rules/noEmptyRule";
 import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
-import { passwordRules } from "@/rules/passwordRule";
-import { phoneRules } from "@/rules/phoneRule";
+import { passwordRules } from "@/rules/passwordRules";
+import { phoneRules } from "@/rules/phoneRules";
+import { usernameRules } from "@/rules/usernameRules";
 import { sendOtp } from "@/services/sendOtp";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 import { UserRegisterPayload } from "@/types/IUser";
@@ -27,10 +29,13 @@ import {
   message,
 } from "antd";
 import { useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 function Register() {
-  pageTitle("Đăng ký");
+  const { t } = useTranslation();
+
+  pageTitle(t("page name.Register"));
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -103,6 +108,7 @@ function Register() {
       query.set("step", "enter-otp");
       setQuery(query);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // when user press go back but not login
@@ -132,7 +138,8 @@ function Register() {
   return (
     <MyContainer.Center className="max-w-sm py-5">
       {contextHolder}
-      <Typography.Title>Đăng ký</Typography.Title>
+      <Typography.Title>{t("Register page.Sign up")}</Typography.Title>
+
       {!query.get("step") ? (
         <Form
           name="register"
@@ -153,36 +160,17 @@ function Register() {
           size={isMobile() ? "large" : undefined}
         >
           <Form.Item<UserRegisterPayload>
-            label="Tên đăng nhập"
+            label={t("Register page.Username")}
             name="username"
-            rules={[
-              {
-                required: true,
-                message: "Tên đăng nhập không bỏ trống",
-              },
-              // {
-              //   min: 6,
-              //   message: "Tên người dùng từ 6 kí tự trở lên",
-              // },
-              {
-                pattern: /^[^\s]*$/,
-                message: "Tên người dùng không chứa khoảng trắng",
-              },
-            ]}
+            rules={usernameRules}
           >
             <Input />
           </Form.Item>
 
           <Form.Item<UserRegisterPayload>
-            label="Mật khẩu"
+            label={t("User.Password")}
             name="password"
-            rules={[
-              {
-                required: true,
-                message: "Mật khẩu không bỏ trống",
-              },
-              ...passwordRules,
-            ]}
+            rules={passwordRules}
           >
             <Input.Password />
           </Form.Item>
@@ -190,7 +178,7 @@ function Register() {
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item<UserRegisterPayload>
-                label="Họ và tên đệm"
+                label={t("User.Last name")}
                 name="last_name"
               >
                 <Input />
@@ -198,15 +186,9 @@ function Register() {
             </Col>
             <Col span={12}>
               <Form.Item<UserRegisterPayload>
-                label="Tên"
+                label={t("User.First name")}
                 name="first_name"
-                rules={[
-                  {
-                    required: true,
-                    message: "Tên không bỏ trống",
-                  },
-                  noWhiteSpaceRule,
-                ]}
+                rules={[noEmptyRule, noWhiteSpaceRule]}
               >
                 <Input />
               </Form.Item>
@@ -214,15 +196,9 @@ function Register() {
           </Row>
 
           <Form.Item<UserRegisterPayload>
-            label="Số điện thoại"
+            label={t("User.Phone number")}
             name="tell"
-            rules={[
-              {
-                message: "Số điện thoại không được trống",
-                required: true,
-              },
-              ...phoneRules,
-            ]}
+            rules={phoneRules}
           >
             <Input
               addonBefore={
@@ -234,27 +210,17 @@ function Register() {
           </Form.Item>
 
           <Form.Item<UserRegisterPayload>
-            label="Vai trò"
+            label={t("User.Role")}
             name="role"
-            rules={[
-              {
-                message: "Không được trống",
-                required: true,
-              },
-            ]}
+            rules={[noEmptyRule]}
           >
             {!roles ? <Skeleton.Input active block /> : <SelectRole />}
           </Form.Item>
 
           <Form.Item<UserRegisterPayload>
-            label="Giới tính"
+            label={t("User.Gender")}
             name="gender"
-            rules={[
-              {
-                message: "Không được trống",
-                required: true,
-              },
-            ]}
+            rules={[noEmptyRule]}
           >
             {!roles ? <Skeleton.Input active block /> : <SelectGender />}
           </Form.Item>
@@ -262,7 +228,7 @@ function Register() {
           <Form.Item noStyle={!error}>
             <Space.Compact block>
               <MyButton block loading={isLogging} type="default" to="/login">
-                Đăng nhập
+                {t("Register page.Sign in")}
               </MyButton>
 
               <MyButton
@@ -273,7 +239,7 @@ function Register() {
                 danger={!!error}
                 htmlType="submit"
               >
-                Đăng ký
+                {t("Register page.Sign up")}
               </MyButton>
             </Space.Compact>
           </Form.Item>
@@ -301,7 +267,7 @@ function Register() {
                 refresh();
                 messageApi.open({
                   type: "success",
-                  content: "Xác thực số điện thoại thành công!",
+                  content: t("User.Phone tab.Tel verify successfully!"),
                 });
               }}
             />

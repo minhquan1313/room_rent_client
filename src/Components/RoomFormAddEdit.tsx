@@ -1,7 +1,7 @@
 import FilesUpload, {
   FilesUploadRef,
 } from "@/Components/FilesUpload/FilesUpload";
-import LocationFormInputs from "@/Components/LocationFormInputs";
+import LocationFormInputs from "@/Components/LocationFormInputs copy";
 import SelectCurrency from "@/Components/SelectCurrency";
 import SelectMeasure from "@/Components/SelectMeasure";
 import SelectRoomType from "@/Components/SelectRoomType";
@@ -34,6 +34,10 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
 
   return (
     <>
+      <Form.Item<RoomPayload> noStyle name={"location"}>
+        <LocationFormInputs location={room?.location} ref={location} />
+      </Form.Item>
+
       <Form.Item<RoomPayload>
         label={t("Search page.Owner ID")}
         name="owner"
@@ -178,9 +182,9 @@ const RoomFormAddEdit = ({ room, files, location }: Props) => {
         />
       </Form.Item>
 
-      <Form.Item<RoomPayload> noStyle name={"location"}>
+      {/* <Form.Item<RoomPayload> noStyle name={"location"}>
         <LocationFormInputs location={room?.location} ref={location} />
-      </Form.Item>
+      </Form.Item> */}
     </>
   );
 };

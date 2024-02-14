@@ -1,3 +1,12 @@
+import "@/translations/i18n";
+
+import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
+import "@/styles/flickityOverwrite.css";
+import "@/styles/googleMapOverride.css";
+import "@/styles/tailwind.css";
+import "antd/dist/reset.css";
+import "flickity/css/flickity.css";
+
 import App from "@/App";
 import AntDProvider from "@/Contexts/AntDProvider";
 import ChatSocketProvider from "@/Contexts/ChatSocketProvider";
@@ -9,12 +18,6 @@ import SavedProvider from "@/Contexts/SavedProvider";
 import ThemeProvider from "@/Contexts/ThemeProvider";
 import UserLocationProvider from "@/Contexts/UserLocationProvider";
 import UserProvider from "@/Contexts/UserProvider";
-import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
-import "@/styles/flickityOverwrite.css";
-import "@/styles/tailwind.css";
-import "@/translations/i18n";
-import "antd/dist/reset.css";
-import "flickity/css/flickity.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";

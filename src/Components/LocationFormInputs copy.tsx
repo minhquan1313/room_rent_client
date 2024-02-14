@@ -1,18 +1,19 @@
 import MyButton from "@/Components/MyButton";
+import MyGoogleMap from "@/Components/MyGoogleMap";
 import NotFoundContent from "@/Components/NotFoundContent";
 import {
   SelectDistrict,
   SelectProvince,
   SelectWard,
 } from "@/Components/SelectProvince";
-import { GoogleMapContext } from "@/Contexts/GoogleMapProvider";
 import { UserLocationContext } from "@/Contexts/UserLocationProvider";
 import { fetcher } from "@/services/fetcher";
 import { locationResolve } from "@/services/locationResolve";
-import { GoogleClickEvent } from "@/types/GoogleClickEvent";
 import { RoomLocationPayload } from "@/types/IRoom";
 import { IRoomLocation } from "@/types/IRoomLocation";
 import { Location3rd } from "@/types/Location3rd";
+import { GGMapProps } from "@/types/TGGMapProps";
+import { getAddressFromMarker } from "@/utils/googleMapUtils";
 import { isProduction } from "@/utils/isProduction";
 import logger from "@/utils/logger";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
@@ -51,18 +52,10 @@ const LocationFormInputs = memo(
     const { t } = useTranslation();
     const { t: tApi } = useTranslation("api");
 
-    const { loadMapTo, addMarker, clearMarker, getAddressFromMarker } =
-      useContext(GoogleMapContext);
-
     const { locationDenied, refreshCoords } = useContext(UserLocationContext);
     const [messageApi, contextHolder] = message.useMessage();
 
-    const mapRef = useRef<HTMLDivElement>(null);
-    // const detailRef = useRef<InputRef>(null);
-    const [map, setMap] = useState<google.maps.Map>();
-    const [mk, setMk] = useState<google.maps.Marker>();
-
-    const [coord, setCoords] = useState<Coords | undefined>(
+    const [coord, setCoord] = useState<Coords | undefined>(
       location
         ? {
             lat: location.lat_long.coordinates[1],
@@ -70,6 +63,7 @@ const LocationFormInputs = memo(
           }
         : undefined,
     );
+    const [geoCoding, setGeoCoding] = useState<google.maps.Geocoder>();
 
     const [detailLocation, setDetailLocation] = useState<string | undefined>(
       location?.detail_location,
@@ -190,16 +184,10 @@ const LocationFormInputs = memo(
     };
 
     async function onCoordChange() {
-      if (!coord || !map) return;
-      mk && clearMarker(mk);
+      if (!coord) return;
 
-      const mk_ = addMarker(map, coord);
-      if (!mk_) return;
-      setMk(mk_);
-      map.setCenter(coord);
-
-      const z = map.getZoom();
-      z && z < 18 && map.setZoom(18);
+      // const z = map.getZoom();
+      // z && z < 18 && map.setZoom(18);
 
       if (!allowSpecialFeature) return;
       // setAllowSpecialFeature(false);
@@ -241,35 +229,33 @@ const LocationFormInputs = memo(
       }
     }
 
-    useEffect(() => {
-      if (!mapRef.current || loaded.current) return;
-      (async () => {
-        if (!mapRef.current) return;
-
-        const { map } = await loadMapTo({
-          ref: mapRef.current,
-        });
-        setMap(() => map);
-      })();
-      loaded.current = true;
-    }, [loadMapTo]);
-
-    useEffect(() => {
-      logger(`🚀 ~ useEffect ~ map:`, map);
-      if (!map) return;
-
-      map.addListener("click", (env: GoogleClickEvent) => {
-        setCoords({
-          lat: env.latLng.lat(),
-          lng: env.latLng.lng(),
-        });
+    const mapClickHandle: GGMapProps["onClick"] = ({ lat, lng }) => {
+      setCoord({
+        lat,
+        lng,
       });
+    };
 
+    // useEffect(() => {
+    //   if (!mapRef.current || loaded.current) return;
+    //   (async () => {
+    //     if (!mapRef.current) return;
+
+    //     const { map } = await loadMapTo({
+    //       ref: mapRef.current,
+    //     });
+    //     setMap(() => map);
+    //   })();
+    //   loaded.current = true;
+    // }, [loadMapTo]);
+
+    useEffect(() => {
       if (coord) onCoordChange();
       if (location) {
         resolveLocationFromGG("Viet nam", province, district, ward);
       }
-    }, [map]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
       onCoordChange();
@@ -301,12 +287,22 @@ const LocationFormInputs = memo(
         <Form.Item label={tApi("data code.room.location")} required>
           <Space.Compact direction="vertical" block className="relative">
             <div className="relative">
-              {/* Google map manual */}
+              <div className="aspect-square w-full overflow-hidden rounded-t-lg outline-none lg:aspect-[21/9]">
+                <MyGoogleMap
+                  onClick={mapClickHandle}
+                  onPinsChange={(c, a) => {}}
+                  resolveAddressOnPin
+                  allowAddPin="multiple"
+                  center={coord}
+                  yesIWantToUseGoogleMapApiInternals
+                  onGoogleApiLoaded={({ maps }) => {
+                    setGeoCoding(new maps.Geocoder());
+                  }}
+                >
+                  {/*  */}
+                </MyGoogleMap>
+              </div>
 
-              <div
-                ref={mapRef}
-                className="aspect-square w-full rounded-t-lg lg:aspect-[21/9]"
-              />
               <Card
                 // onClick={() => {
                 //   setAllowSpecialFeature(!allowSpecialFeature);
@@ -333,7 +329,7 @@ const LocationFormInputs = memo(
                 if (!coord) {
                   // setLocationDenied(true);
                 } else {
-                  setCoords(coord);
+                  setCoord(coord);
                 }
                 setGettingLocation(false);
               }}
@@ -509,11 +505,7 @@ interface SelectOptionProps {
   onSelect: (value: Location3rd) => void;
 }
 
-const SelectOptions = memo(function SelectOptions({
-  data,
-  value,
-  onSelect,
-}: SelectOptionProps) {
+const SelectOptions = memo(({ data, value, onSelect }: SelectOptionProps) => {
   return (
     <Select
       notFoundContent={<NotFoundContent />}

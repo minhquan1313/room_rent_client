@@ -2,6 +2,7 @@ import NotFoundContent from "@/Components/NotFoundContent";
 import { telCodes } from "@/constants/telCodes";
 import { Select, SelectProps } from "antd";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props extends SelectProps {
   // value?: string[];
@@ -9,10 +10,12 @@ interface Props extends SelectProps {
 }
 
 const SelectPhoneRegion = memo(({ ...rest }: Props) => {
+  const { t } = useTranslation();
+
   return (
     <Select
       notFoundContent={<NotFoundContent />}
-      placeholder="Mã vùng"
+      placeholder={t("User.Region code")}
       {...rest}
     >
       {telCodes.map(({ code, label }) => (

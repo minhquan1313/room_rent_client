@@ -1,6 +1,6 @@
 import { IRoom } from "@/types/IRoom";
 import { numberFormat } from "@/utils/numberFormat";
-import { toStringLocation } from "@/utils/toString";
+import { toStringCurrencyCode, toStringLocation } from "@/utils/toString";
 import {
   CheckCircleOutlined,
   ExclamationCircleOutlined,
@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 type Props = { room: IRoom };
 const DescriptionsRoom = memo(({ room }: Props) => {
   const { t } = useTranslation();
+  const { t: tApi } = useTranslation("api");
 
   return (
     <Descriptions
@@ -27,12 +28,14 @@ const DescriptionsRoom = memo(({ room }: Props) => {
         {
           key: "Diện tích sử dụng",
           label: t("Room detail.Usable area"),
-          children: room.usable_area + " m²",
+          children: room.usable_area && numberFormat(room.usable_area) + " m²",
         },
         {
           key: "Kiểu phòng",
           label: t("Room detail.Room type"),
-          children: room.room_type?.display_name ?? "",
+          children:
+            room.room_type?.title &&
+            tApi(`data code.room type.${room.room_type.title}`),
           span: 2,
         },
         {
@@ -60,11 +63,11 @@ const DescriptionsRoom = memo(({ room }: Props) => {
           key: "Xác thực",
           label: t("Room detail.Verify"),
           children: room.verified ? (
-            <Tooltip title="Đã xác thực">
+            <Tooltip title={t("Room detail.Verified")}>
               <CheckCircleOutlined />
             </Tooltip>
           ) : (
-            <Tooltip title="Chưa xác thực">
+            <Tooltip title={t("Room detail.Not verified")}>
               <ExclamationCircleOutlined />
             </Tooltip>
           ),
@@ -84,7 +87,9 @@ const DescriptionsRoom = memo(({ room }: Props) => {
           key: "Tiền thuê mỗi tháng",
           label: t("Room detail.Cost per month"),
           children:
-            numberFormat(room.price_per_month) + " " + room.price_currency_code,
+            numberFormat(room.price_per_month) +
+            " " +
+            toStringCurrencyCode(room.price_currency_code),
           span: 3,
         },
       ]}

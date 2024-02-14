@@ -1,6 +1,8 @@
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
 import { UserContext } from "@/Contexts/UserProvider";
+import { passwordRules } from "@/rules/passwordRules";
+import { usernameRules } from "@/rules/usernameRules";
 import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
 
 import { UserLoginPayload } from "@/types/IUser";
@@ -9,6 +11,7 @@ import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Alert, Checkbox, Form, Input, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type TUserLoginPayload = UserLoginPayload & {
@@ -16,7 +19,9 @@ type TUserLoginPayload = UserLoginPayload & {
 };
 
 function Login() {
-  pageTitle("Đăng nhập");
+  const { t } = useTranslation();
+
+  pageTitle(t("page name.Login"));
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,7 +85,7 @@ function Login() {
 
   return (
     <MyContainer.Center className="max-w-sm py-5">
-      <Typography.Title>Đăng nhập</Typography.Title>
+      <Typography.Title>{t("Register page.Sign in")}</Typography.Title>
       <Form
         className="w-full"
         layout="vertical"
@@ -94,39 +99,17 @@ function Login() {
         size={isMobile() ? "large" : undefined}
       >
         <Form.Item<TUserLoginPayload>
-          label="Tên đăng nhập"
+          label={t("Register page.Username")}
           name="username"
-          rules={[
-            {
-              required: true,
-              message: "Tên đăng nhập không bỏ trống",
-            },
-            // {
-            //   min: 6,
-            //   message: "Tên người dùng từ 6 kí tự trở lên",
-            // },
-            {
-              pattern: /^[^\s]*$/,
-              message: "Tên người dùng không chứa khoảng trắng",
-            },
-          ]}
+          rules={usernameRules}
         >
           <Input />
         </Form.Item>
 
         <Form.Item<TUserLoginPayload>
-          label="Mật khẩu"
+          label={t("User.Password")}
           name="password"
-          rules={[
-            {
-              required: true,
-              message: "Mật khẩu không bỏ trống",
-            },
-            // {
-            //   min: 6,
-            //   message: "Mật khẩu từ 6 kí tự trở lên",
-            // },
-          ]}
+          rules={passwordRules}
         >
           <Input.Password />
         </Form.Item>
@@ -137,7 +120,7 @@ function Login() {
             valuePropName="checked"
             noStyle
           >
-            <Checkbox>Ghi nhớ</Checkbox>
+            <Checkbox>{t("Register page.Remember")}</Checkbox>
           </Form.Item>
         </Form.Item>
 
@@ -150,10 +133,10 @@ function Login() {
               danger={!!error}
               htmlType="submit"
             >
-              Đăng nhập
+              {t("Register page.Sign in")}
             </MyButton>
             <MyButton block type="default" to="/register">
-              Đăng ký
+              {t("Register page.Sign up")}
             </MyButton>
           </Space.Compact>
         </Form.Item>

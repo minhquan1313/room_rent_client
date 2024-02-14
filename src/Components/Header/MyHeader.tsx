@@ -12,9 +12,12 @@ import { Col, Row, Space, theme } from "antd";
 import { Header } from "antd/es/layout/layout";
 import classNames from "classnames";
 import { memo, useContext, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 const MyHeader = memo(() => {
+  const { t } = useTranslation();
+
   const { token } = theme.useToken();
   const { user, isLogging } = useContext(UserContext);
 
@@ -78,11 +81,13 @@ const MyHeader = memo(() => {
               ) : (
                 <>
                   <MyButton loading={isLogging} to="/login">
-                    {isLogging ? "Đang đăng nhập" : "Đăng nhập"}
+                    {isLogging
+                      ? t("Register page.Signing in")
+                      : t("Register page.Sign in")}
                   </MyButton>
 
                   <MyButton loading={isLogging} to="/register">
-                    Đăng ký
+                    {t("Register page.Sign up")}
                   </MyButton>
                 </>
               )}
