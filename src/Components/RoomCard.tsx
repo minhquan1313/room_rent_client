@@ -21,7 +21,7 @@ interface RoomCardProps {
 
 const { Text, Paragraph, Title } = Typography;
 
-export const RoomCard = ({ room, showState }: RoomCardProps) => {
+export const RoomCard = ({ room }: RoomCardProps) => {
   const { t } = useTranslation("location");
 
   const { _id, images, name, location, createdAt, price_per_month } = room;

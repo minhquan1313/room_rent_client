@@ -108,7 +108,6 @@ function Register() {
       query.set("step", "enter-otp");
       setQuery(query);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   // when user press go back but not login

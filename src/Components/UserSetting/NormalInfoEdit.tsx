@@ -33,7 +33,6 @@ const NormalInfoEdit = () => {
 
     query.delete("step");
     setQuery(query);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query, user?.phone?.verified]);
 
   if (!user) return null;

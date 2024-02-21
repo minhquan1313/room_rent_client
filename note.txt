@@ -1,5 +1,21 @@
 #BUG
-thêm icon cho mỗi service
 
-Thêm link nhắc vào lịch google calendar
+# Thêm link nhắc vào lịch google calendar
 https://calendar.google.com/calendar/u/0/r/eventedit?dates=20241217/20241231&details=-+T%C3%AAn+mi%E1%BB%81n+%3Ca+href%3D%22http://roomrent.io.vn%22%3Eroomrent.io.vn%3C/a%3E+s%E1%BA%BD+h%E1%BA%BFt+h%E1%BA%A1n+v%C3%A0o+ng%C3%A0y+07-01-2025.%3Cbr%3E-+Truy+c%E1%BA%ADp+%3Ca+href%3D%22https://support.pavietnam.vn/index.php?pa%3Dservice%26type%3Dall%26flag%3D2%22%3Ehttps://support.pavietnam.vn%3C/a%3E+%C4%91%E1%BB%83+xem+chi+ti%E1%BA%BFt.&location=344+Hu%E1%BB%B3nh+T%E1%BA%A5n+Ph%C3%A1t,+P.+B%C3%ACnh+Thu%E1%BA%ADn,+Q.7,+TPHCM&text=Gia+h%E1%BA%A1n+T%C3%AAn+mi%E1%BB%81n+t%E1%BA%A1i+P.A+Vi%E1%BB%87t+Nam&pli=1
+
+
+# Bound map
+new google.maps.Map(document.getElementById("map")!, {
+  zoom,
+  center,
+  minZoom: zoom - 3,
+  maxZoom: zoom + 3,
+  restriction: {
+    latLngBounds: {
+      north: -10,
+      south: -40,
+      east: 160,
+      west: 100,
+    },
+  },
+});

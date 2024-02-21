@@ -318,8 +318,6 @@ export default function ChatSocketProvider({ children }: IProps) {
     } else {
       // setMessages([]);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.room]);
 
   useEffect(() => {
@@ -384,7 +382,6 @@ export default function ChatSocketProvider({ children }: IProps) {
         room.members.map((e) => e.user),
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room?.room]);
 
   // useEffect(() => {

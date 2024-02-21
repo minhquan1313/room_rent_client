@@ -22,42 +22,28 @@ const SelectService = memo(({ ...rest }: Props) => {
       placeholder={t("home page.Room service")}
       {...rest}
     >
-      {
-        roomServicesConverted &&
-          roomServicesConverted.map(({ category, services }) => (
-            <Select.OptGroup
-              label={tApi(
-                `data code.room service cate.${category === "unknown" ? "unknown" : category.title}`,
-              )}
-              // label={
-              //   category === "unknown"
-              //     ? "Chưa phân loại"
-              //     : category.display_name ?? category.title
-              // }
-              key={category === "unknown" ? -1 : category.title}
-            >
-              {services.map(({ display_name, title }) => (
-                <Select.Option
-                  value={title}
-                  key={title}
-                  label={tApi(`data code.room service.${title}`)}
-                  // label={display_name}
-                >
-                  <Space>
-                    {roomServiceIcon(title)}{" "}
-                    {tApi(`data code.room service.${title}`)}
-                    {/* {roomServiceIcon(title)} {display_name} */}
-                  </Space>
-                </Select.Option>
-              ))}
-            </Select.OptGroup>
-          ))
-        // roomServices.map(({ display_name, title }) => (
-        //   <Select.Option key={title} value={title}>
-        //     {display_name}
-        //   </Select.Option>
-        // ))
-      }
+      {roomServicesConverted &&
+        roomServicesConverted.map(({ category, services }) => (
+          <Select.OptGroup
+            label={tApi(
+              `data code.room service cate.${category === "unknown" ? "unknown" : category.title}`,
+            )}
+            key={category === "unknown" ? -1 : category.title}
+          >
+            {services.map(({ title }) => (
+              <Select.Option
+                value={title}
+                key={title}
+                label={tApi(`data code.room service.${title}`)}
+              >
+                <Space>
+                  {roomServiceIcon(title)}{" "}
+                  {tApi(`data code.room service.${title}`)}
+                </Space>
+              </Select.Option>
+            ))}
+          </Select.OptGroup>
+        ))}
     </Select>
   );
 });

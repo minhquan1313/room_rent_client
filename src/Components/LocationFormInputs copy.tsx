@@ -1,5 +1,6 @@
+import MyGoogleMap from "@/Components/GoogleMap/MyGoogleMap";
+import MyAvatar from "@/Components/MyAvatar";
 import MyButton from "@/Components/MyButton";
-import MyGoogleMap from "@/Components/MyGoogleMap";
 import NotFoundContent from "@/Components/NotFoundContent";
 import {
   SelectDistrict,
@@ -12,12 +13,9 @@ import { locationResolve } from "@/services/locationResolve";
 import { RoomLocationPayload } from "@/types/IRoom";
 import { IRoomLocation } from "@/types/IRoomLocation";
 import { Location3rd } from "@/types/Location3rd";
-import { GGMapProps } from "@/types/TGGMapProps";
-import { getAddressFromMarker } from "@/utils/googleMapUtils";
 import { isProduction } from "@/utils/isProduction";
 import logger from "@/utils/logger";
 import { searchFilterTextHasLabel } from "@/utils/searchFilterTextHasLabel";
-import { StopOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -26,6 +24,7 @@ import {
   Skeleton,
   Space,
   Switch,
+  Typography,
   message,
 } from "antd";
 import { Coords } from "google-map-react";
@@ -36,11 +35,12 @@ import {
   useContext,
   useEffect,
   useImperativeHandle,
-  useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import useSWR from "swr";
+
+const { Text } = Typography;
 
 const LocationFormInputs = memo(
   forwardRef<
@@ -63,7 +63,6 @@ const LocationFormInputs = memo(
           }
         : undefined,
     );
-    const [geoCoding, setGeoCoding] = useState<google.maps.Geocoder>();
 
     const [detailLocation, setDetailLocation] = useState<string | undefined>(
       location?.detail_location,
@@ -82,8 +81,6 @@ const LocationFormInputs = memo(
     const [gettingLocation, setGettingLocation] = useState(false);
     const [allowSpecialFeature, setAllowSpecialFeature] = useState(true);
     const [resolving, setResolving] = useState(false);
-
-    const loaded = useRef(false);
 
     const [thirdCountryCode, setThirdCountryCode] = useState<
       string | undefined
@@ -183,58 +180,51 @@ const LocationFormInputs = memo(
       setResolving(false);
     };
 
-    async function onCoordChange() {
-      if (!coord) return;
+    // async function onCoordChange() {
+    //   if (!coord) return;
 
-      // const z = map.getZoom();
-      // z && z < 18 && map.setZoom(18);
+    //   // const z = map.getZoom();
+    //   // z && z < 18 && map.setZoom(18);
 
-      if (!allowSpecialFeature) return;
-      // setAllowSpecialFeature(false);
+    //   if (!allowSpecialFeature) return;
+    //   // setAllowSpecialFeature(false);
 
-      let geoLocation;
-      setResolving(true);
-      try {
-        geoLocation = await getAddressFromMarker(coord);
-      } catch (error) {
-        logger(`🚀 ~ onCoordChange ~ error:`, error);
+    //   let geoLocation;
+    //   setResolving(true);
+    //   try {
+    //     geoLocation = await getAddressFromMarker(coord);
+    //   } catch (error) {
+    //     logger(`🚀 ~ onCoordChange ~ error:`, error);
 
-        messageApi.open({
-          type: "error",
-          content:
-            error === "OVER_QUERY_LIMIT"
-              ? t("Add room page.API ran out of request")
-              : t("Add room page.Error getting address!"),
-          duration: 30,
-          icon: <StopOutlined />,
-        });
-      }
-      setResolving(false);
+    //     messageApi.open({
+    //       type: "error",
+    //       content:
+    //         error === "OVER_QUERY_LIMIT"
+    //           ? t("Add room page.API ran out of request")
+    //           : t("Add room page.Error getting address!"),
+    //       duration: 30,
+    //       icon: <StopOutlined />,
+    //     });
+    //   }
+    //   setResolving(false);
 
-      if (geoLocation) {
-        logger({ geoLocation });
+    //   if (geoLocation) {
+    //     logger({ geoLocation });
 
-        const [district, province, country] = geoLocation.address_components
-          .slice(-3)
-          .map((e) => e.long_name);
-        const str = geoLocation.formatted_address.split(", ").slice(0, -3);
+    //     const [district, province, country] = geoLocation.address_components
+    //       .slice(-3)
+    //       .map((e) => e.long_name);
+    //     const str = geoLocation.formatted_address.split(", ").slice(0, -3);
 
-        const ward = str.pop();
+    //     const ward = str.pop();
 
-        const detailLocation = str.join(", ");
+    //     const detailLocation = str.join(", ");
 
-        setDetailLocation(detailLocation);
+    //     setDetailLocation(detailLocation);
 
-        await resolveLocationFromGG("Viet nam", province, district, ward);
-      }
-    }
-
-    const mapClickHandle: GGMapProps["onClick"] = ({ lat, lng }) => {
-      setCoord({
-        lat,
-        lng,
-      });
-    };
+    //     await resolveLocationFromGG("Viet nam", province, district, ward);
+    //   }
+    // }
 
     // useEffect(() => {
     //   if (!mapRef.current || loaded.current) return;
@@ -250,16 +240,14 @@ const LocationFormInputs = memo(
     // }, [loadMapTo]);
 
     useEffect(() => {
-      if (coord) onCoordChange();
+      // if (coord) onCoordChange();
       if (location) {
         resolveLocationFromGG("Viet nam", province, district, ward);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-      onCoordChange();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // onCoordChange();
     }, [JSON.stringify(coord)]);
 
     useImperativeHandle(ref, () => {
@@ -285,31 +273,27 @@ const LocationFormInputs = memo(
         {contextHolder}
 
         <Form.Item label={tApi("data code.room.location")} required>
-          <Space.Compact direction="vertical" block className="relative">
+          <div className="relative">
             <div className="relative">
               <div className="aspect-square w-full overflow-hidden rounded-t-lg outline-none lg:aspect-[21/9]">
                 <MyGoogleMap
-                  onClick={mapClickHandle}
-                  onPinsChange={(c, a) => {}}
-                  resolveAddressOnPin
-                  allowAddPin="multiple"
+                  onPinsChange={(coords) => setCoord(coords[0])}
+                  // onAddressesChange={(add) => {
+                  //   // logger(`🚀 ~ addresses:`, addresses);
+                  //   // const { address, coord: c } = addresses[0];
+                  //   // logger(c, coord);
+                  //   // logger(JSON.stringify(c) === JSON.stringify(coord));
+                  // }}
+                  pins={coord && [coord]}
+                  icon={<MyAvatar className="bg-cyan-400/50">A</MyAvatar>}
+                  // resolveAddressOnPin={false}
+                  // onResolvingAddressChange={(s) => {}}
+                  allowAddPin="single"
                   center={coord}
-                  yesIWantToUseGoogleMapApiInternals
-                  onGoogleApiLoaded={({ maps }) => {
-                    setGeoCoding(new maps.Geocoder());
-                  }}
-                >
-                  {/*  */}
-                </MyGoogleMap>
+                />
               </div>
 
-              <Card
-                // onClick={() => {
-                //   setAllowSpecialFeature(!allowSpecialFeature);
-                // }}
-                size="small"
-                className="absolute bottom-4 right-2"
-              >
+              <Card size="small" className="absolute bottom-4 right-2">
                 <Space>
                   <Switch
                     checked={allowSpecialFeature}
@@ -343,7 +327,7 @@ const LocationFormInputs = memo(
                   ? t("Permission.Denied")
                   : t("Add room page.Get current location")}
             </MyButton>
-          </Space.Compact>
+          </div>
         </Form.Item>
 
         {!isProduction && (
@@ -364,12 +348,12 @@ const LocationFormInputs = memo(
 
         {!isProduction && (
           <>
-            <Form.Item<RoomLocationPayload> label="[DEV] Vĩ độ">
-              <Input value={coord?.lat} />
+            <Form.Item label="[DEV] Vĩ độ">
+              <Text copyable>{coord?.lat || "null"}</Text>
             </Form.Item>
 
-            <Form.Item<RoomLocationPayload> label="[DEV] Kinh độ">
-              <Input value={coord?.lng} />
+            <Form.Item label="[DEV] Kinh độ">
+              <Text copyable>{coord?.lng || "null"}</Text>
             </Form.Item>
           </>
         )}

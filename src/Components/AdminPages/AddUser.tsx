@@ -65,7 +65,7 @@ const AddUser = ({
 
       logger(`🚀 ~ handleFinish ~ payload:`, payload);
 
-      const d = await UserService.create(payload);
+      await UserService.create(payload);
 
       onSaveSuccess();
       form.resetFields();

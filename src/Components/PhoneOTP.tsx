@@ -69,7 +69,7 @@ const PhoneOTP = memo(({ e164_format, onSuccess }: Props) => {
   const onResendCode = async () => {
     setOtpResending(true);
     try {
-      const d = await sendOtp(e164_format);
+      await sendOtp(e164_format);
 
       const now = new Date();
       logger(`🚀 ~ onResendCode ~ now:`, now);

@@ -1,9 +1,10 @@
-import { ButtonProps, Divider, Input } from "antd";
+import { Divider, Input } from "antd";
 import OTPInput from "react-otp-input";
 
-type Props = Pick<ButtonProps, "loading"> & {
+type Props = {
   size: number;
   value: string;
+  loading?: boolean;
   onChange(e: string): void;
 };
 
@@ -17,25 +18,15 @@ const MyOtpInput = ({ onChange, value, loading, size }: Props) => {
       numInputs={size}
       inputType="number"
       renderSeparator={<Divider type="vertical"></Divider>}
-      renderInput={({ ref, style, ...props }) => (
+      renderInput={({ ref, ...props }) => (
         <Input
           {...props}
+          disabled={loading}
           className="aspect-square text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           ref={(e) => ref(e?.input ?? null)}
         />
       )}
     />
-
-    //   <MyButton
-    //     onClick={onClick}
-    //     type="primary"
-    //     disabled={otp.length !== size}
-    //     block
-    //     loading={loading}
-    //   >
-    //     Xác thực
-    //   </MyButton>
-    // </Space>
   );
 };
 

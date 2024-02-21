@@ -2,10 +2,6 @@ import { IRoomType } from "@/types/IRoomType";
 import { dateFormat } from "@/utils/dateFormat";
 import { ColumnsType } from "antd/es/table";
 
-type Props = {
-  //
-};
-
 export function roomTypes(): ColumnsType<IRoomType> {
   return [
     {

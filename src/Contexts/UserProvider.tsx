@@ -130,7 +130,6 @@ export default function UserProvider({ children }: IProps) {
         loginTokenBackground(token, true);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // refresh token background

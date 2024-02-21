@@ -86,7 +86,6 @@ const RoomSearch = () => {
   useEffect(() => {
     // set setSearchPayload when route first load
     form.submit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -135,7 +134,6 @@ const RoomSearch = () => {
         form.setFieldValue("search_close_to_long", coord.lng);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSearchCloseTo]);
 
   return (
@@ -393,7 +391,6 @@ const SearchFilter = ({
         c && setDistrictCode(c);
       })();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

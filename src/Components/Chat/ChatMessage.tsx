@@ -19,6 +19,8 @@ interface Props {
   seen: IChatSeen[];
 }
 const ChatMessage_ = ({ user, message, date, showDetailUser, seen }: Props) => {
+  // need this hook but no use to get dayjs locale update and rerender as language change
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { t } = useTranslation();
 
   const { token } = theme.useToken();

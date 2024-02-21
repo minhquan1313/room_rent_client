@@ -1,11 +1,13 @@
 import { TAvailableLanguage } from "@/translations/i18n";
 import { Coords, MapOptions } from "google-map-react";
 
-export const ggMapZoom = 10;
+export const ggMapZoom = 12;
+// export const ggMapZoom = 15;
 export const ggMapOptions: MapOptions = {
   disableDefaultUI: true,
   clickableIcons: false,
   scrollwheel: true,
+  mapId: "DEMO_MAP_ID",
 };
 export const ggMapCenter: Coords = {
   lat: 10.79626,

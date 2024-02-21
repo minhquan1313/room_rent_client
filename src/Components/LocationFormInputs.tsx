@@ -226,6 +226,7 @@ const LocationFormInputs = memo(
       if (geoLocation) {
         logger({ geoLocation });
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [district, province, country] = geoLocation.address_components
           .slice(-3)
           .map((e) => e.long_name);
@@ -273,7 +274,6 @@ const LocationFormInputs = memo(
 
     useEffect(() => {
       onCoordChange();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [JSON.stringify(coord)]);
 
     useImperativeHandle(ref, () => {

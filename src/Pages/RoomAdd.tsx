@@ -21,7 +21,7 @@ interface Props {
   onSaveSuccess?(): void;
 }
 function AddRoom({ onSaveSuccess }: Props) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { t: tApi } = useTranslation("api");
 
   pageTitle(t("page name.Add room"));

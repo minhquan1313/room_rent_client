@@ -121,7 +121,7 @@ export function room(arg: Props): ColumnsType<IRoom> {
             value: title,
           }))
         : [],
-      render(value: IRoom["room_type"], record) {
+      render(value: IRoom["room_type"]) {
         return value?.display_name;
       },
     },

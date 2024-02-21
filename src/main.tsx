@@ -1,4 +1,5 @@
 import "@/translations/i18n";
+import "@/utils/polyFill.ts";
 
 import "@/assets/fonts/SVN-Poppins/SVN-Poppins.css";
 import "@/styles/flickityOverwrite.css";

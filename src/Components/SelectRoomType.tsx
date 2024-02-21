@@ -23,10 +23,9 @@ const SelectRoomType = memo(({ ...rest }: Props) => {
       {...rest}
     >
       {roomTypes &&
-        roomTypes.map(({ display_name, title }) => (
+        roomTypes.map(({ title }) => (
           <Select.Option value={title} key={title}>
             {tApi(`data code.room type.${title}`)}
-            {/* {display_name} */}
           </Select.Option>
         ))}
     </Select>

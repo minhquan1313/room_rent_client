@@ -41,7 +41,6 @@ function Verify() {
         submitted.current = true;
         break;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="mx-auto my-auto h-full items-center">

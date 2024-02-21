@@ -16,6 +16,7 @@
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^6.0.1",
     "@dnd-kit/sortable": "^7.0.2",
+    "animejs": "^3.2.2",
     "antd": "^5.14.1",
     "array-move": "^4.0.0",
     "axios": "^1.6.7",
@@ -45,6 +46,7 @@
     "swr": "^2.2.4"
   },
   "devDependencies": {
+    "@types/animejs": "^3.1.12",
     "@types/google-libphonenumber": "^7.4.30",
     "@types/google-map-react": "^2.1.10",
     "@types/google.maps": "^3.55.3",

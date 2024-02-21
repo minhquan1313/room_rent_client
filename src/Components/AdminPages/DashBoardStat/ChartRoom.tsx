@@ -166,12 +166,10 @@ function ChartRoom() {
 
   useEffect(() => {
     updateQueries();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, selectedDate]);
 
   useEffect(() => {
     updateDataDisplay();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, JSON.stringify(query), t]);
 
   function previousDate(): void {

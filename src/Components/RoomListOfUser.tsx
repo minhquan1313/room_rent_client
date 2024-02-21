@@ -54,7 +54,6 @@ const RoomListOfUser = memo(({ userId }: Props) => {
     if (fetched.current) return;
 
     loadMoreData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

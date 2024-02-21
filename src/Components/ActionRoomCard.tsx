@@ -21,6 +21,8 @@ const ActionRoomCard = ({ room }: Props): ReactNode[] => {
 
   const { add, remove } = useContext(SavedContext);
   const { user } = useContext(UserContext);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, set_] = useState({});
 
   function update() {

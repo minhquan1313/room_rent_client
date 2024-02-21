@@ -1,15 +1,25 @@
 import MyImage from "@/Components/MyImage";
 import { Avatar, AvatarProps } from "antd";
+import { memo } from "react";
 
-interface Props extends AvatarProps {
+export interface MyAvatarProps extends AvatarProps {
   addServer?: boolean;
   src?: string | null;
-  alt?: string;
   name?: string;
   preview?: boolean;
 }
 
-function MyAvatar({ src, addServer, alt, name, preview, ...rest }: Props) {
+const MyAvatar = memo(function MyAvatar(props: MyAvatarProps) {
+  const {
+    //
+    src,
+    addServer,
+    name,
+    preview,
+    children,
+    ..._props
+  } = props;
+
   return (
     <Avatar
       src={
@@ -24,16 +34,11 @@ function MyAvatar({ src, addServer, alt, name, preview, ...rest }: Props) {
           />
         ) : null
       }
-      {...rest}
+      {..._props}
     >
-      {alt
-        ? //
-          alt
-        : name
-        ? name[0].toUpperCase()
-        : null}
+      {name ? name[0].toUpperCase() : children}
     </Avatar>
   );
-}
+});
 
 export default MyAvatar;
