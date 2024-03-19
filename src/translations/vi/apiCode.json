@@ -1,7 +1,26 @@
 {
   "error code": {
-    "1": "Không thể xác thực!"
+    "000000": "Lỗi chưa xác định!",
+
+    "400001": "Nhập thiếu thông tin!",
+
+    "401001": "Bạn cần đăng nhập trước!",
+
+    "403001": "Thông tin không đúng định dạng!",
+    "403002": "Bạn không có quyền làm việc này!",
+
+    "403101": "Có lỗi khi gửi mã xác thực!",
+    "403102": "Bạn cần tạo mã xác thực trước!",
+    "403103": "Mã xác thực sai!",
+
+    "404001": "Tên đăng nhập hoặc mật khẩu sai!",
+    "404002": "Không tìm thấy người dùng!",
+
+    "500": "Máy chủ bị lỗi!",
+
+    "500001": "Có lỗi khi gửi file!"
   },
+
   "data code": {
     "room type": {
       "cc": "Căn hộ chung cư",
@@ -76,9 +95,9 @@
       "number_of_bathroom": "Số phòng tắm",
       "number_of_floor": "Số tầng",
       "is_visible": "Trạng thái hiển thị",
-      "disabled": "Đã bị khoá",
+      "disabled": "Bị khoá",
       "verified_real": "Admin xác thực",
-      "verified": "Đã duyệt bài",
+      "verified": "Duyệt bài",
       "updatedAt": "Cập nhật lúc",
       "createdAt": "Tạo lúc",
       "saved": "Đã lưu"

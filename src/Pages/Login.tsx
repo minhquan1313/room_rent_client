@@ -1,20 +1,20 @@
+import LanguageSwitcher from "@/Components/Header/LanguageSwitcher";
 import MyButton from "@/Components/MyButton";
 import MyContainer from "@/Components/MyContainer";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { UserContext } from "@/Contexts/UserProvider";
 import { passwordRules } from "@/rules/passwordRules";
 import { usernameRules } from "@/rules/usernameRules";
-import { ErrorJsonResponse } from "@/types/ErrorJsonResponse";
-
 import { UserLoginPayload } from "@/types/IUser";
 import { isMobile } from "@/utils/isMobile";
 import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
-import { Alert, Checkbox, Form, Input, Space, Typography } from "antd";
+import { Checkbox, Form, Input, Space, Typography } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
-type TUserLoginPayload = UserLoginPayload & {
+type TField = UserLoginPayload & {
   remember: boolean;
 };
 
@@ -28,22 +28,22 @@ function Login() {
 
   const { user, isLogging, login } = useContext(UserContext);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<ErrorJsonResponse>();
+  const [error, setError] = useState<unknown>();
 
-  const onFinish = (values: TUserLoginPayload) => {
+  const onFinish = async (values: TField) => {
     setError(undefined);
     setSubmitting(true);
-    const { remember } = values;
 
-    (async () => {
-      try {
-        await login(values, remember);
-      } catch (error: any) {
-        logger(`🚀 ~ error:`, error);
+    try {
+      const { remember } = values;
 
-        setError(error.response.data as ErrorJsonResponse);
-      }
-    })();
+      await login(values, remember);
+    } catch (error) {
+      logger(`🚀 ~ file: Login.tsx:43 ~ error:`, error);
+
+      setError((error as any)?.response?.data);
+    }
+
     setSubmitting(false);
   };
 
@@ -86,6 +86,7 @@ function Login() {
   return (
     <MyContainer.Center className="max-w-sm py-5">
       <Typography.Title>{t("Register page.Sign in")}</Typography.Title>
+      <LanguageSwitcher />
       <Form
         className="w-full"
         layout="vertical"
@@ -98,28 +99,24 @@ function Login() {
         onFinish={onFinish}
         size={isMobile() ? "large" : undefined}
       >
-        <Form.Item<TUserLoginPayload>
+        <Form.Item<TField>
           label={t("Register page.Username")}
           name="username"
-          rules={usernameRules}
+          rules={usernameRules()}
         >
           <Input />
         </Form.Item>
 
-        <Form.Item<TUserLoginPayload>
+        <Form.Item<TField>
           label={t("User.Password")}
           name="password"
-          rules={passwordRules}
+          rules={passwordRules()}
         >
           <Input.Password />
         </Form.Item>
 
         <Form.Item>
-          <Form.Item<TUserLoginPayload>
-            name="remember"
-            valuePropName="checked"
-            noStyle
-          >
+          <Form.Item<TField> name="remember" valuePropName="checked" noStyle>
             <Checkbox>{t("Register page.Remember")}</Checkbox>
           </Form.Item>
         </Form.Item>
@@ -142,16 +139,7 @@ function Login() {
         </Form.Item>
 
         <Form.Item noStyle>
-          {error && (
-            <Alert
-              type="error"
-              message={error.error.map(({ msg }) => (
-                <div key={msg} className="text-center">
-                  <Typography.Text type="danger">{msg}</Typography.Text>
-                </div>
-              ))}
-            />
-          )}
+          <ServerErrorResponse errors={error} />
         </Form.Item>
       </Form>
     </MyContainer.Center>

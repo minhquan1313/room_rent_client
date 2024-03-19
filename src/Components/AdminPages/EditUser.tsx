@@ -1,10 +1,11 @@
 import FilesUpload, {
-  FilesUploadRef,
-} from "@/Components/FilesUpload/FilesUpload";
+  ImagesUploadRef,
+} from "@/Components/FilesUpload/ImagesUpload";
 import MyButton from "@/Components/MyButton";
 import SelectGender from "@/Components/SelectGender";
 import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import SelectRole from "@/Components/SelectRole";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { UserContext } from "@/Contexts/UserProvider";
 import { bannerAspect } from "@/constants/bannerAspect";
 import { isRoleOwner, isRoleTopAdmin } from "@/constants/roleType";
@@ -13,8 +14,7 @@ import { phoneRules } from "@/rules/phoneRules";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
-import { Form, Input, Modal, Space, Switch, notification } from "antd";
+import { Form, Input, Modal, Space, Switch, message } from "antd";
 import QueryString from "qs";
 import { useContext, useEffect, useRef, useState } from "react";
 
@@ -30,40 +30,43 @@ const EditUser = ({
   // pageTitle("Chỉnh sửa - Người dùng - Quản trị");
   const { user: me } = useContext(UserContext);
 
-  const [notifyApi, contextHolder] = notification.useNotification();
+  const [notifyApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>();
 
-  const avatarRef = useRef<FilesUploadRef>(null);
-  const bannerRef = useRef<FilesUploadRef>(null);
+  const avatarRef = useRef<ImagesUploadRef>(null);
+  const bannerRef = useRef<ImagesUploadRef>(null);
 
   async function handleFinish(values: IUser): Promise<void> {
     if (!user?._id) return;
     setSaving(true);
-    logger(`🚀 ~ handleFinish ~ values:`, values);
-    const { phone, email, gender, role, ...rest } = values;
-
-    const body: any = rest;
-
-    logger(`🚀 ~ handleFinish ~ body:`, body);
-
-    if (phone?.national_number !== user.phone?.national_number) {
-      body.tell = phone?.national_number;
-      body.region_code = phone?.region_code;
-    }
-    body.tell_verify = phone?.verified;
-
-    if (email?.email !== user.email?.email) {
-      body.email = email?.email;
-    }
-    body.email_verify = email?.verified;
-
-    body.gender = gender?.title;
-    body.role = role?.title;
+    setError(undefined);
 
     try {
+      logger(`🚀 ~ handleFinish ~ values:`, values);
+      const { phone, email, gender, role, ...rest } = values;
+
+      const body: any = rest;
+
+      logger(`🚀 ~ handleFinish ~ body:`, body);
+
+      if (phone?.national_number !== user.phone?.national_number) {
+        body.tell = phone?.national_number;
+        body.region_code = phone?.region_code;
+      }
+      body.tell_verify = phone?.verified;
+
+      if (email?.email !== user.email?.email) {
+        body.email = email?.email;
+      }
+      body.email_verify = email?.verified;
+
+      body.gender = gender?.title;
+      body.role = role?.title;
+
       if (avatarRef.current?.files.length) {
         await UserService.update(user._id, {
           file_to: "avatar",
@@ -84,13 +87,12 @@ const EditUser = ({
       const d = await UserService.update(user._id, payload);
       logger(`🚀 ~ handleFinish ~ d:`, d);
       onSaveSuccess();
+      notifyApi.success({
+        content: "Lưu thành công",
+      });
     } catch (error) {
       logger(`🚀 ~ handleFinish ~ error:`, error);
-      notificationResponseError({
-        error,
-        message: "Lỗi gửi mã",
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
     setSaving(false);
   }
@@ -119,6 +121,7 @@ const EditUser = ({
       confirmLoading={saving}
     >
       {contextHolder}
+      <ServerErrorResponse errors={error} mode="notification" />
       {user && (
         <Form<IUser>
           initialValues={user}
@@ -151,7 +154,7 @@ const EditUser = ({
           <Form.Item<IUser>
             name={"first_name"}
             label="Tên"
-            rules={[noWhiteSpaceRule]}
+            rules={[noWhiteSpaceRule()]}
           >
             <Input />
           </Form.Item>
@@ -177,7 +180,7 @@ const EditUser = ({
           <Form.Item<IUser>
             name={["phone", "national_number"]}
             label="Phone"
-            rules={phoneRules}
+            rules={phoneRules()}
             dependencies={[["phone", "region_code"]]}
           >
             <Input

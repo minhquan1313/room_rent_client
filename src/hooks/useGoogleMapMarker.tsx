@@ -1,9 +1,10 @@
+import { TGeocoderRequest } from "@/types/TGGMapProps";
+import { ggMapLanguageMap, ggMapRegionMap } from "@/utils/ggMapRegionMap";
 import logger from "@/utils/logger";
 import { Coords } from "google-map-react";
 import { useEffect, useMemo, useState } from "react";
 
-type TAdvancedMarkerElement =
-  google.maps.MarkerLibrary["AdvancedMarkerElement"];
+type TAdvancedMarkerElement = google.maps.MarkerLibrary["AdvancedMarkerElement"];
 
 export interface GeneratedMarker {
   coord: Coords;
@@ -15,6 +16,8 @@ export type useGoogleMapMarkerProps = {
   maps?: typeof google.maps;
 };
 
+const geoCodeTypes = ["route", "premise", "point_of_interest"];
+
 const useGoogleMapMarker = (props: useGoogleMapMarkerProps) => {
   const { map, maps } = props;
 
@@ -23,18 +26,13 @@ const useGoogleMapMarker = (props: useGoogleMapMarkerProps) => {
 
   const fetchMarker = async () => {
     if (!maps) return;
-
-    const { AdvancedMarkerElement } = (await maps.importLibrary(
-      "marker",
-    )) as google.maps.MarkerLibrary;
-
-    setAME(() => AdvancedMarkerElement);
     setG(new maps.Geocoder());
+
+    const { AdvancedMarkerElement } = (await maps.importLibrary("marker")) as google.maps.MarkerLibrary;
+    setAME(() => AdvancedMarkerElement);
   };
 
-  const generateTransparentMarker = (
-    coord: Coords,
-  ): GeneratedMarker | undefined => {
+  const generateTransparentMarker = (coord: Coords): GeneratedMarker | undefined => {
     if (!aMarker) return undefined;
 
     const transparent = false;
@@ -47,7 +45,6 @@ const useGoogleMapMarker = (props: useGoogleMapMarkerProps) => {
       map,
       content: transparent ? div : undefined,
       position: coord,
-      zIndex: 1,
     });
 
     return {
@@ -56,34 +53,78 @@ const useGoogleMapMarker = (props: useGoogleMapMarkerProps) => {
     };
   };
 
-  const getAddressFromMarker = (coord: Coords) => {
+  const getAddressFromCoord = (coord: Coords, opts?: TGeocoderRequest) => {
     return new Promise<google.maps.GeocoderResult | null>((r, rj) => {
-      if (!geocoder) return r(null);
+      if (!geocoder) return rj("Provide maps api!");
+      // map?.data.
 
-      geocoder.geocode({ location: coord }, function (results, status) {
-        if (status === "OK") {
-          if (results && results[0]) {
-            logger(`🚀 ~ results:`, results);
+      // map?.
+      geocoder.geocode(
+        {
+          ...opts,
+          location: coord,
+          language: ggMapLanguageMap(opts?.language),
+          region: ggMapRegionMap(opts?.region),
+        },
+        function (results, status) {
+          if (status === "OK") {
+            if (results && results?.[0]) {
+              logger(`🚀 ~ results:`, results);
 
-            const res = results.sort(
-              (a, b) =>
-                b.address_components.length - a.address_components.length,
-            )[0];
-            logger(`🚀 ~ res:`, res);
+              let locSelected: google.maps.GeocoderResult;
+              const filteredLoc = results.find((v) => v.types.some((type) => geoCodeTypes.includes(type)));
+              // logger(`🚀 ~ file: useGoogleMapMarker.tsx:64 ~ filteredLoc:`, filteredLoc);
 
-            const address = res.formatted_address;
-            logger(`🚀 ~ address:`, address);
+              if (filteredLoc) {
+                locSelected = filteredLoc;
+              } else {
+                locSelected = results.sort((a, b) => b.address_components.length - a.address_components.length)[0];
+              }
 
-            return r(res);
-          } else {
-            logger("Không tìm thấy địa chỉ");
-            return r(null);
+              logger(`🚀 ~ file: useGoogleMapMarker.tsx:71 ~ locSelected:`, locSelected);
+
+              const address = locSelected.formatted_address;
+              logger(`🚀 ~ file: useGoogleMapMarker.tsx:74 ~ address:`, address);
+
+              return r(locSelected);
+            } else {
+              logger("Không tìm thấy địa chỉ");
+              return r(null);
+            }
           }
-        }
 
-        logger("Lỗi khi lấy địa chỉ: " + status);
-        return rj(status);
-      });
+          logger("Lỗi khi lấy địa chỉ: " + status);
+          return rj(status);
+        },
+      );
+    });
+  };
+
+  const getCoordsFromAddress = (address: string, opts?: TGeocoderRequest) => {
+    return new Promise<google.maps.GeocoderResult[]>((r, rj) => {
+      if (!geocoder) return rj("Provide maps api!");
+
+      geocoder.geocode(
+        {
+          ...opts,
+          address,
+          language: ggMapLanguageMap(opts?.language),
+          region: ggMapRegionMap(opts?.region),
+        },
+        function (results, status) {
+          if (status === "OK") {
+            if (results?.[0]) {
+              return r(results);
+            } else {
+              logger("Không tìm thấy địa chỉ");
+              return r([]);
+            }
+          }
+
+          logger("Lỗi khi lấy địa chỉ: " + status);
+          return rj(status);
+        },
+      );
     });
   };
 
@@ -99,7 +140,8 @@ const useGoogleMapMarker = (props: useGoogleMapMarkerProps) => {
     return {
       removeMarker,
       generateTransparentMarker,
-      getAddressFromMarker,
+      getAddressFromCoord,
+      getCoordsFromAddress,
     };
   }, [aMarker]);
 

@@ -6,12 +6,14 @@ import LOCATION_PATTERN_VI from "@/translations/vi/locationConvertPattern.json";
 import UI_VI from "@/translations/vi/ui.json";
 
 import locationFormatter from "@/translations/formatter/locationFormatter";
+import removeAccentFormatter from "@/translations/formatter/removeAccentFormatter";
+import { TGGMapLanguageCodes } from "@/types/TGGMapRegions";
 import logger from "@/utils/logger";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 export type TAvailableLanguage = keyof typeof resources;
-export const languagesLabels: { [k in TAvailableLanguage]: string } = {
+export const languagesLabels: { [k in Extract<TGGMapLanguageCodes, TAvailableLanguage>]: string } = {
   vi: "Tiếng Việt",
   en: "English",
 };
@@ -25,24 +27,11 @@ export function langChangeObserverAttach(cb: TLanguageObserverCB) {
 
   languageChangeCbs.push(cb);
 }
-// export function langChangeObserverDetach(cb: TLanguageObserverCB) {
-//   const index = languageChangeCbs.indexOf(cb);
-//   while (index !== -1) {
-//     languageChangeCbs.splice(index, 1);
-//   }
-// }
 
 i18n.on("languageChanged", (opt: TAvailableLanguage) => {
   languageChangeCbs.forEach((cb) => cb(opt));
 });
 
-// i18n.on("initialized", ({ lng }) => {
-//   languageChangeCbs.forEach((cb) => cb(lng as TAvailableLanguage));
-// });
-
-// the translations
-// (tip move them in a JSON file and import them,
-// or even better, manage them separated from your code: https://react.i18next.com/Navigations/multiple-translation-files)
 export const resources = {
   en: {
     ui: UI_EN,
@@ -74,6 +63,7 @@ i18n
     },
   });
 i18n.services.formatter?.add("locationFormatter", locationFormatter);
+i18n.services.formatter?.add("removeAccentFormatter", removeAccentFormatter);
 
 export function saveLanguage(language: string) {
   if (!i18n.isInitialized) logger.error("i18n not initialized");

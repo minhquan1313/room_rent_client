@@ -1,8 +1,9 @@
 import { TAvailableLanguage } from "@/translations/i18n";
+import { TGGMapLanguageCodes, TGGMapRegionCodes } from "@/types/TGGMapRegions";
 import { Coords, MapOptions } from "google-map-react";
 
 export const ggMapZoom = 12;
-// export const ggMapZoom = 15;
+export const ggMapZoomMarker = 17;
 export const ggMapOptions: MapOptions = {
   disableDefaultUI: true,
   clickableIcons: false,
@@ -18,7 +19,7 @@ export const ggMapCenter: Coords = {
  * [https://developers.google.com/maps/faq#languagesupport, https://developers.google.com/maps/coverage#coverage-legend]
  */
 export const langRegionMapI18n: {
-  [k in TAvailableLanguage]: [string, string];
+  [k in TAvailableLanguage]: [TGGMapLanguageCodes, TGGMapRegionCodes];
 } = {
   vi: ["vi", "VN"],
   en: ["en", "VN"],

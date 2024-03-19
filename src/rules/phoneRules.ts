@@ -1,19 +1,19 @@
 import { noEmptyRule } from "@/rules/noEmptyRule";
 import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
 import i18n from "@/translations/i18n";
+import { RulesFunc } from "@/types/RuleFunc";
 import { isValidPhone } from "@/utils/isValidPhoneNumber";
 import logger from "@/utils/logger";
-import { Rule } from "antd/es/form";
 
 const { t } = i18n;
 
-export const phoneRules: Rule[] = [
+export const phoneRules: RulesFunc = () => [
   // {
   //   min: 6,
   //   message: "Mật khẩu từ 6 kí tự trở lên",
   // },
-  noEmptyRule,
-  noWhiteSpaceRule,
+  noEmptyRule(),
+  noWhiteSpaceRule(),
   ({ getFieldValue }) => ({
     message: t("Extra.Invalid tel number"),
     validator(_, value) {

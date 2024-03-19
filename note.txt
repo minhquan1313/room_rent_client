@@ -19,3 +19,12 @@ new google.maps.Map(document.getElementById("map")!, {
     },
   },
 });
+
+
+Project tạm ngưng, nếu tiếp tục lại thì kiểm tra các mã
+lỗi api trả về mà component
+src\Components\ServerResponse\ServerErrorResponse.tsx
+có render lỗi ra đúng không?
+Sau đó là upgrade UI và code thêm backend, thêm marker cho map và thêm icon
+cho các room services
+Thêm frame motion cho page transition và so on

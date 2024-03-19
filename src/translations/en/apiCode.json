@@ -1,7 +1,26 @@
 {
   "error code": {
-    "1": "You are not authorized!"
+    "000000": "Some unknown errors occurred!",
+
+    "400001": "Missing fields!",
+
+    "401001": "You need to login first!",
+
+    "403001": "Invalid format in validators!",
+    "403002": "You are not allowed to perform this action!",
+
+    "403101": "Send mail verify error!",
+    "403102": "You need to create verification code before verify!",
+    "403103": "Wrong verification code!",
+
+    "404001": "Invalid username or password!",
+    "404002": "User not found!",
+
+    "500": "Serve occurred an uncaught error!",
+
+    "500001": "Error uploading file(s)!"
   },
+
   "data code": {
     "room type": {
       "cc": "Apartment",

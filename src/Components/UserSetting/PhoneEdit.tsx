@@ -43,7 +43,7 @@ const PhoneEdit = memo(({ user, refresh }: Props) => {
       <Space direction="vertical" className="w-full">
         <Form.Item<TUserEditFields>
           name={["phone", "national_number"]}
-          rules={phoneRules}
+          rules={phoneRules()}
           noStyle
         >
           <Input

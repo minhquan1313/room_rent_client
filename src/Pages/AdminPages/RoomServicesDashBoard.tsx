@@ -1,13 +1,13 @@
 import AddRoomService from "@/Components/AdminPages/AddRoomService";
 import EditRoomService from "@/Components/AdminPages/EditRoomService";
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { RoomSvService } from "@/services/RoomSvService";
 import { IRoomService } from "@/types/IRoomService";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { pageTitle } from "@/utils/pageTitle";
 import { Popconfirm, Space, Typography, notification } from "antd";
 import Table, { ColumnsType, TableProps } from "antd/es/table";
@@ -27,24 +27,23 @@ const RoomServicesDashBoard = () => {
 
   const [showAddItem, setShowAddItem] = useState(false);
   const [editItem, setEditItem] = useState<TDataTable>();
+  const [error, setError] = useState<unknown>();
 
   const fetchData = useCallback(async () => {
     setLoadingData(true);
+    setError(undefined);
 
     try {
       await mutateRoomServices();
       await mutateRoomServiceCategories();
     } catch (error) {
-      //
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
     setLoadingData(false);
   }, []);
 
   const update = async (item: IRoomService, payload: any) => {
+    setError(undefined);
     try {
       //
       await RoomSvService.update(item._id, payload);
@@ -56,10 +55,7 @@ const RoomServicesDashBoard = () => {
       await fetchData();
     } catch (error) {
       logger(`🚀 ~ update ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
   };
 
@@ -123,6 +119,7 @@ const RoomServicesDashBoard = () => {
   );
 
   const deleteItem = async (id: string) => {
+    setError(undefined);
     try {
       await RoomSvService.delete(id);
       notifyApi.success({
@@ -133,10 +130,7 @@ const RoomServicesDashBoard = () => {
       await fetchData();
     } catch (error) {
       logger(`🚀 ~ deleteItem ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
   };
 
@@ -171,6 +165,8 @@ const RoomServicesDashBoard = () => {
   return (
     <Space direction="vertical" className="h-full w-full py-5">
       {contextHolder}
+      <ServerErrorResponse errors={error} mode="notification" />
+
       <MyButton onClick={() => setShowAddItem(true)} type="primary" block>
         Thêm
       </MyButton>

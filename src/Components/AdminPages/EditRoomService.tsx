@@ -1,11 +1,11 @@
 import MyButton from "@/Components/MyButton";
 import SelectServiceCategory from "@/Components/SelectServiceCategory";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { RoomSvService } from "@/services/RoomSvService";
 import { IRoomService } from "@/types/IRoomService";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
-import { Form, Input, Modal, Space, notification } from "antd";
+import { Form, Input, Modal, Space, message } from "antd";
 import { useEffect, useState } from "react";
 
 type TData = IRoomService;
@@ -18,15 +18,17 @@ const EditRoomService = ({
   handleCancel(): void;
   onSaveSuccess(): void;
 }) => {
-  const [notifyApi, contextHolder] = notification.useNotification();
+  const [notifyApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>();
 
   async function handleFinish(body: TData): Promise<void> {
     if (!item?._id) return;
     setSaving(true);
+    setError(undefined);
     try {
       const payload = trimObjectValues(body);
 
@@ -34,16 +36,16 @@ const EditRoomService = ({
 
       onSaveSuccess();
       notifyApi.success({
-        message: `Lưu thành công như sẽ cập nhật sau vài phút (Server có cache) :>`,
-        duration: 30,
+        content: "Lưu thành công",
       });
     } catch (error) {
       logger(`🚀 ~ handleFinish ~ error:`, error);
-      notificationResponseError({
-        error,
-        message: "Lỗi gửi mã",
-        notification: notifyApi,
-      });
+      // notificationResponseError({
+      //   error,
+      //   message: "Lỗi gửi mã",
+      //   notification: notifyApi,
+      // });
+      setError((error as any)?.response?.data);
     }
     setSaving(false);
   }
@@ -67,6 +69,7 @@ const EditRoomService = ({
       onCancel={handleCancel}
     >
       {contextHolder}
+      <ServerErrorResponse errors={error} mode="notification" />
       {item && (
         <Form<TData>
           initialValues={item}

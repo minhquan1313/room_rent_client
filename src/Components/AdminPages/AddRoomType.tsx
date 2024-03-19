@@ -1,9 +1,9 @@
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { RoomTypeService } from "@/services/RoomTypeService";
 import { IRoomType } from "@/types/IRoomType";
 import { autoTitle } from "@/utils/autoTitle";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
 import { Form, Input, Modal, Space, notification } from "antd";
 import { useState } from "react";
@@ -23,9 +23,12 @@ const AddRoomType = ({
   const [form] = Form.useForm();
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>();
 
   async function handleFinish(body: TData): Promise<void> {
     setSaving(true);
+    setError(undefined);
+
     try {
       const payload = trimObjectValues(body);
 
@@ -41,10 +44,7 @@ const AddRoomType = ({
       form.resetFields();
     } catch (error) {
       logger(`🚀 ~ handleFinish ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
     setSaving(false);
   }
@@ -62,6 +62,9 @@ const AddRoomType = ({
       onCancel={handleCancel}
     >
       {contextHolder}
+
+      <ServerErrorResponse errors={error} mode="notification" />
+
       <Form<TData>
         form={form}
         onFinish={handleFinish}

@@ -1,21 +1,27 @@
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { emailVerify } from "@/services/sendEmailVerify";
 import logger from "@/utils/logger";
 import { pageTitle } from "@/utils/pageTitle";
 import { Result, Spin } from "antd";
 import classNames from "classnames";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 function Verify() {
-  pageTitle("Xác thực");
+  const { t } = useTranslation();
+
+  pageTitle(t("page name.Verify"));
 
   const [query] = useSearchParams();
   const [success, setSuccess] = useState<boolean>();
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<unknown>();
   const submitted = useRef(false);
 
   const verifyEmail = async (code: string) => {
+    setSuccess(undefined);
+
     try {
       const d = await emailVerify(code);
 
@@ -24,7 +30,7 @@ function Verify() {
     } catch (error: any) {
       logger(`🚀 ~ verifyEmail ~ error:`, error);
 
-      setError(error?.response?.data?.error?.[0]?.msg);
+      setError((error as any)?.response?.data);
 
       setSuccess(false);
     }
@@ -48,13 +54,15 @@ function Verify() {
         <Result
           status={success === true ? "success" : "error"}
           title={
-            success === true ? "Xác thực thành công!" : "Xác thực thất bại!"
+            success === true
+              ? t("Extra.Verify successfully!")
+              : t("Extra.Verify failure!")
           }
-          subTitle={success === false && error}
+          subTitle={success === false && <ServerErrorResponse errors={error} />}
           extra={
             success === true && (
               <MyButton type="primary" to="/">
-                Quay về trang chủ
+                {t("Extra.Go back home")}
               </MyButton>
             )
           }

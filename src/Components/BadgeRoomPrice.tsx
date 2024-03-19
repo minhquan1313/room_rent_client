@@ -1,4 +1,4 @@
-import { numberFormat } from "@/utils/numberFormat";
+import { moneyInputFormat } from "@/utils/numberFormat";
 import { Badge, BadgeProps } from "antd";
 
 interface Props extends BadgeProps {
@@ -8,7 +8,7 @@ const BadgeRoomPrice = ({ price, children, ...rest }: Props) => {
   return (
     <Badge.Ribbon
       {...rest}
-      text={numberFormat(String(price), true)}
+      text={moneyInputFormat(price, true)}
       color={(() => {
         if (price >= 3000000) return "red";
         if (price >= 2000000) return "gold";

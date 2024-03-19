@@ -11,7 +11,5 @@ export function searchFilterTextHasLabel(
 ) {
   if (!option?.label || typeof option.label !== "string") return false;
 
-  return removeAccents(option.label)
-    .toLowerCase()
-    .includes(removeAccents(input).toLowerCase());
+  return removeAccents(option.label).toLowerCase().includes(removeAccents(input).toLowerCase());
 }

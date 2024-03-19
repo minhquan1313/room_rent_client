@@ -1,5 +1,5 @@
-import AddRoom from "@/Components/AdminPages/AddRoom";
-import EditRoom from "@/Components/AdminPages/EditRoom";
+import AddRoomDashboard from "@/Components/AdminPages/AddRoomDashboard";
+import EditRoomDashboard from "@/Components/AdminPages/EditRoomDashboard";
 import MyButton from "@/Components/MyButton";
 import MyImage from "@/Components/MyImage";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
@@ -344,13 +344,13 @@ const AllRoomDashBoard = () => {
         />
       </div>
 
-      <EditRoom
+      <EditRoomDashboard
         room={editItem}
         handleCancel={handleCancel}
         onSaveSuccess={handleEdit}
       />
 
-      <AddRoom
+      <AddRoomDashboard
         handleCancel={handleCancel}
         onSaveSuccess={handleAdd}
         open={showAddUser}

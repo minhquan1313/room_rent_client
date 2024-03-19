@@ -1,7 +1,7 @@
 import useGoogleMapMarker from "@/hooks/useGoogleMapMarker";
 import logger from "@/utils/logger";
 import { Coords } from "google-map-react";
-import { ReactNode, memo, useEffect, useRef, useState } from "react";
+import { CSSProperties, ReactNode, memo, useEffect, useRef, useState } from "react";
 
 export interface MarkerProps {
   //
@@ -10,67 +10,81 @@ export interface MarkerProps {
   maps?: typeof google.maps;
   children?: ReactNode;
 
-  onDragStart?: () => void;
-  onDrag?: () => void;
-  onDragEnd?: () => void;
+  onDragEnd?: (coord: Coords, oldCoord: Coords) => void;
 }
-
-const defaultBL = {
-  bottom: `0%`,
-  left: `0%`,
-};
 
 const Marker = memo(function Marker(props: MarkerProps) {
   const {
-    //
     coord,
     map,
     maps,
+    // keys,
 
-    onDragStart,
-    onDrag,
+    // centerOnPin,
+    // onDragStart,
+    // onDrag,
     onDragEnd,
 
     children,
     ..._props
   } = props;
 
-  const [bottomLeft, setBottomLeft] = useState(defaultBL);
-
+  const [bottomLeft, setBottomLeft] = useState(() => calBottomLeft());
   const [shouldUpdate, setShouldUpdate] = useState({});
+  // const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(1);
 
-  const transform = useRef("");
-  const observeMapDiv = useRef<HTMLElement | null>(null);
+  const transform = useRef([0, 0]);
   const allowUpdate = useRef(true);
-
-  const isMDown = useRef(false);
-
-  const pinMainRef = useRef<HTMLDivElement>(null as never);
+  const observeMapDiv = useRef<HTMLElement | null>(null);
+  const pinMainRef = useRef<HTMLDivElement | null>(null);
+  const markerDragDataRef = useRef({
+    x: 0,
+    y: 0,
+    mDow: false,
+    mMoved: false,
+  });
+  // const scale = useRef(1);
+  // const pinVisualRef = useRef<HTMLDivElement | null>(null);
 
   const { generateTransparentMarker, removeMarker } = useGoogleMapMarker({
     map,
     maps,
   });
 
-  const updateTransform = (str: string) => {
-    transform.current = str;
-    pinMainRef.current.style.transform = `translateX(-50%) ${str}`;
+  const updateTransform = (xy: number[]) => {
+    if (!pinMainRef.current) return;
+    // logger(`~🤖 Marker 🤖~ `, { str });
+
+    transform.current = xy;
+
+    pinMainRef.current.style.transform = `translateX(-50%) translate(${xy[0]}px,${xy[1]}px)`;
   };
 
-  const updatePinLocation = () => {
+  const getBounds = () => {
     const ne = map?.getBounds()?.getNorthEast().toJSON();
     const sw = map?.getBounds()?.getSouthWest().toJSON();
-    if (!ne || !sw) return;
+
+    return { ne, sw };
+  };
+
+  function calBottomLeft() {
+    // const { ne, sw } = getBounds();
+    // if (!ne || !sw) return;
 
     const { bottom, left } = calLayoutPixel();
 
-    setBottomLeft({
+    return {
       bottom: bottom + "px",
       left: left + "px",
-    });
+    };
+  }
+
+  const updatePinLocation = () => {
+    setBottomLeft(calBottomLeft());
   };
 
-  const calLayoutPixel = () => {
+  function calLayoutPixel() {
     const o = { left: 0, bottom: 0 };
 
     const ele = map?.getDiv();
@@ -83,12 +97,9 @@ const Marker = memo(function Marker(props: MarkerProps) {
     o.left = centerX;
     o.bottom = centerY;
     return o;
-  };
+  }
 
-  function makeObserver<T extends HTMLElement>(
-    ele: T | null,
-    cb: (ele: T) => void,
-  ) {
+  function makeObserver<T extends HTMLElement>(ele: T | null, cb: (ele: T) => void) {
     if (!ele) return;
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -107,161 +118,272 @@ const Marker = memo(function Marker(props: MarkerProps) {
     };
   }
 
-  const extractValues = (str: string) => {
-    return str.match(/-?\d+/g)?.map((e) => parseInt(e));
+  const extractNumberStr = (str: string) => {
+    return str.match(/-?\d+/g)?.map((e) => parseInt(e)) || [0, 0];
   };
 
-  const mapDragListener = () => {
-    const ele = map?.getDiv();
-    if (!ele) return;
+  const extractTranslateMutableGGMarker = (ggMarker: HTMLElement) => {
+    const { transform } = ggMarker.style;
+    const t = transform.slice(transform.lastIndexOf("translate"));
 
-    let x = 0,
-      y = 0,
-      mUp = true;
+    return t;
+  };
 
+  const markerDragDoneUpdateMap = (marker: HTMLElement) => {
+    const projection = map?.getProjection();
+    const { ne, sw } = getBounds();
+
+    if (!projection || !ne || !sw || !map || !maps) return;
+
+    const containerPos = map.getDiv().getBoundingClientRect();
+    const pinPos = marker.getBoundingClientRect();
+
+    const mapPointTR = projection.fromLatLngToPoint(ne);
+    const mapPointBL = projection.fromLatLngToPoint(sw);
+
+    if (!mapPointTR || !mapPointBL) return;
+
+    const mapXyBL = { x: 0, y: 0 },
+      mapXyTR = { x: containerPos.width, y: containerPos.height };
+
+    const pinXy = {
+      x: pinPos.x - containerPos.x + pinPos.width / 2,
+      y: pinPos.y - containerPos.y + pinPos.height,
+    };
+
+    const percentOfPinXy = {
+      x: (pinXy.x * 100) / (mapXyTR.x - mapXyBL.x),
+      y: (pinXy.y * 100) / (mapXyTR.y - mapXyBL.y),
+    };
+
+    // convert to point
+    const pintPoint = {
+      x: mapPointBL.x + (percentOfPinXy.x * (mapPointTR.x - mapPointBL.x)) / 100,
+      y: mapPointTR.y + (percentOfPinXy.y * (mapPointBL.y - mapPointTR.y)) / 100,
+    };
+
+    const newCoord = projection.fromPointToLatLng(new maps.Point(pintPoint.x, pintPoint.y));
+
+    newCoord && onDragEnd?.(newCoord.toJSON(), coord);
+  };
+
+  const markerDragListener = (marker: HTMLElement) => {
+    const data = markerDragDataRef.current;
+    // let x = 0,
+    //   y = 0,
+    //   mDow = false,
+    //   mMoved = false;
+
+    const cursor: {
+      [keys in "grab" | "grabbing"]: Required<CSSProperties>["cursor"];
+    } = {
+      grab: "auto",
+      grabbing: "grabbing",
+    };
+
+    marker.style.cursor = cursor.grab;
+
+    /**
+     * HERE!!!!!!!!!!! THIS ONE Will prevent the click being triggered
+     * after you dragged the marker
+     */
+    const mClick = (e: MouseEvent) => {
+      if (!data.mMoved) return;
+
+      e.stopPropagation();
+    };
     const md = (e: MouseEvent): void => {
-      mUp = false;
-      isMDown.current = true;
+      // logger(`~🤖 Marker 🤖~ md`, { mMoved });
+      data.mDow = true;
+      data.mMoved = false;
 
-      const z = extractValues(transform.current) || [0, 0];
+      const mkTransf = extractNumberStr(extractTranslateMutableGGMarker(marker));
 
-      [x, y] = [e.x - z[0], e.y - z[1]];
+      const { x: ex, y: ey } = e;
+
+      [data.x, data.y] = [ex - mkTransf[0], ey - mkTransf[1]];
     };
 
     const mu = (): void => {
-      mUp = true;
-      isMDown.current = false;
+      if (data.mMoved && !data.mDow) marker.style.userSelect = "";
+
+      if (!data.mDow) return;
+      // logger(`~🤖 Marker 🤖~ mu`, { mMoved });
+      marker.style.userSelect = "";
+
+      data.mDow = false;
+      marker.style.cursor = cursor.grab;
+      setScale(1);
+
+      if (data.mMoved) markerDragDoneUpdateMap(marker);
+
+      // mMoved = false;
     };
 
     const mm = (e: MouseEvent): void => {
-      if (mUp || !allowUpdate.current) return;
-      logger(`~🤖 Marker 🤖~ mouse move`);
+      if (!data.mDow) {
+        marker.style.userSelect = "none";
+      }
 
-      const [xx, yy] = [e.x - x, e.y - y];
+      if (!data.mDow || !allowUpdate.current) return;
+      // logger(`~🤖 Marker 🤖~ mm`, { mMoved, x, y });
 
-      updateTransform(`translate(${xx}px, ${yy}px)`);
+      data.mMoved = true;
+      marker.style.userSelect = "none";
+      marker.style.cursor = cursor.grabbing;
+      setScale(2);
+      // pinVisual && (pinVisual.style.transform = `scale(2)`);
+
+      const { x: ex, y: ey } = e;
+
+      const [transfX, transfY] = [ex - data.x, ey - data.y];
+      // logger(`~🤖 Marker 🤖~ `, { transfX, transfY });
+
+      updateTransform([transfX, transfY]);
     };
 
-    ele.addEventListener("mousedown", md);
+    marker.addEventListener("click", mClick);
+    marker.addEventListener("mousedown", md);
     window.addEventListener("mouseup", mu);
     window.addEventListener("mousemove", mm);
 
     return {
       destroy: () => {
-        ele.removeEventListener("mousedown", md);
+        marker.removeEventListener("click", mClick);
+        marker.removeEventListener("mousedown", md);
         window.removeEventListener("mouseup", mu);
         window.removeEventListener("mousemove", mm);
       },
     };
   };
 
-  const markerDragListener = () => {};
-
   useEffect(() => {
     const mk = generateTransparentMarker(coord);
-    if (!map || !maps || !mk) return;
+    const pinMain = pinMainRef.current;
 
-    observeMapDiv.current = map
-      .getDiv()
-      .querySelector('*[style*="z-index: 4"]');
+    if (!map || !maps || !mk || !pinMain) return;
+    logger(`~🤖 Marker 🤖~ Effect run `, coord);
+
+    observeMapDiv.current = map.getDiv().querySelector('*[style*="z-index: 4"]');
 
     logger(`~🤖 Marker2 🤖~ `, {
       observeDiv: observeMapDiv.current,
-      mk: mk.marker.element,
+      ggMapMk: mk.marker.element,
+      mk: pinMain,
     });
 
     updatePinLocation();
 
-    let lastMarkerTransform = "";
-    let timeOut: number;
+    let lastGgMarkerTransform = "";
+    let idleTimeOut: number;
+    let resizeTimeOut: number;
+    let pinVisible = true;
+
+    const delay = 100;
 
     const onMapDivChange = (ele: HTMLElement): void => {
-      if (!allowUpdate.current || isMDown.current) return;
-      logger(`~🤖 Marker 🤖~ onMapDivChange`);
+      if (!pinVisible) return;
+      // logger(`~🤖 Marker 🤖~ onMapDivChange`);
 
-      // if (!document.contains(mk.marker.element)) {
-      //   pinMainRef.current.hidden = true;
-      //   return;
-      // } else {
-      //   pinMainRef.current.hidden = false;
-      // }
-
-      const b = extractValues(ele.style.transform) || [0, 0];
+      const b = extractNumberStr(ele.style.transform);
 
       if (b[0] === 0 && b[1] === 0) {
         if (!isRealPinVisible()) return;
       }
 
-      const a = extractValues(lastMarkerTransform) || [0, 0];
+      const a = extractNumberStr(lastGgMarkerTransform);
       const [x, y] = [a[0] + b[0], a[1] + b[1]];
-      logger(`~🤖 Marker 🤖~ `, { a, b, x, y });
+      // logger(`~🤖 Marker 🤖~ `, { a, b, x, y });
 
-      updateTransform(`translate(${x}px,${y}px)`);
+      // logger(`~🤖 Marker 🤖~ `, { x, y });
+
+      updateTransform([x, y]);
     };
 
-    function onMarkerChange(ele: HTMLElement) {
+    function onMarkerChange(marker: HTMLElement) {
       if (!allowUpdate.current) return;
-      logger(`~🤖 Marker 🤖~ onMarkerChange`);
+      // logger(`~🤖 Marker 🤖~ onMarkerChange`);
 
-      const { transform } = ele.style;
-      const t = transform.slice(transform.lastIndexOf("translate"));
+      const t = extractTranslateMutableGGMarker(marker);
 
-      lastMarkerTransform = t;
-      updateTransform(t);
+      lastGgMarkerTransform = t;
+      // logger(`~🤖 Marker 🤖~ `, { t });
+
+      updateTransform(extractNumberStr(t));
     }
 
     const isRealPinVisible = () => {
-      logger(`~🤖 Marker 🤖~ idle`);
       if (!document.contains(mk.marker.element)) {
-        logger(`~🤖 Marker 🤖~ idle !document.contains`, mk, mk.marker.element);
-        pinMainRef.current.hidden = true;
+        // logger(
+        //   `~🤖 Marker 🤖~ isRealPinVisible !document.contains`,
+        //   mk,
+        //   mk.marker.element,
+        // );
+        pinMain.hidden = true;
         allowUpdate.current = false;
+        pinVisible = false;
         return false;
       }
 
+      // logger(`~🤖 Marker 🤖~ isRealPinVisible`);
       allowUpdate.current = true;
-      pinMainRef.current.hidden = false;
+      pinMain.hidden = false;
+      pinVisible = true;
       return true;
     };
 
-    const listeners = mapDragListener();
-
-    const resize = () => setShouldUpdate({});
-
-    const obs1 = makeObserver(observeMapDiv.current, onMapDivChange);
-    const obs2 = makeObserver(mk.marker.element, onMarkerChange);
-
-    const ev5 = map.addListener("idle", () => {
-      clearTimeout(timeOut);
+    const onMapIdleChange = () => {
+      clearTimeout(idleTimeOut);
 
       const process = () => {
-        logger(`~🤖 Marker 🤖~ idle process`);
+        // logger(`~🤖 Marker 🤖~ idle process`);
 
         isRealPinVisible() && onMarkerChange(mk.marker.element);
       };
 
-      timeOut = setTimeout(process, 100);
-    });
+      idleTimeOut = setTimeout(process, delay);
+    };
 
-    window.addEventListener("resize", resize);
+    const onResize = () => {
+      clearTimeout(resizeTimeOut);
+
+      resizeTimeOut = setTimeout(() => {
+        setShouldUpdate({});
+      }, delay);
+    };
+
+    const obs1 = makeObserver(observeMapDiv.current, onMapDivChange);
+    const obs2 = makeObserver(mk.marker.element, onMarkerChange);
+
+    const ev5 = map.addListener("idle", onMapIdleChange);
+
+    window.addEventListener("resize", onResize);
 
     return () => {
       removeMarker(mk);
 
+      clearTimeout(idleTimeOut);
+      clearTimeout(resizeTimeOut);
+
       obs1?.destroy();
       obs2?.destroy();
 
-      lastMarkerTransform = null as any;
-
       maps.event.removeListener(ev5);
 
-      clearTimeout(timeOut);
-
-      listeners?.destroy();
-
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
     };
-  }, [JSON.stringify(coord), map, generateTransparentMarker, shouldUpdate]);
+  }, [JSON.stringify(coord), map, shouldUpdate, generateTransparentMarker]);
+
+  useEffect(() => {
+    const pinMain = pinMainRef.current;
+    if (!pinMain) return;
+
+    const mDragListener = onDragEnd ? markerDragListener(pinMain) : undefined;
+
+    return () => {
+      mDragListener?.destroy();
+    };
+  }, [onDragEnd]);
 
   if (!map) return null;
 
@@ -274,14 +396,17 @@ const Marker = memo(function Marker(props: MarkerProps) {
         transform: `translateX(-50%)`,
         zIndex: 1,
         transition: "none",
+        cursor: "grab",
       }}
       {..._props}
       ref={pinMainRef}
     >
-      {/* <div data-mask className="peer absolute inset-0 z-10" /> */}
       <div
         data-visual
-        className="origin-bottom transition-all peer-hover:scale-150"
+        className="origin-bottom transition-all duration-300"
+        style={{
+          transform: `scale(${scale})`,
+        }}
       >
         {children}
       </div>

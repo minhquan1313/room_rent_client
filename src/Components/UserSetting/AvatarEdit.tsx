@@ -1,6 +1,6 @@
 import FilesUpload, {
-  FilesUploadRef,
-} from "@/Components/FilesUpload/FilesUpload";
+  ImagesUploadRef,
+} from "@/Components/FilesUpload/ImagesUpload";
 import MyButton from "@/Components/MyButton";
 import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
@@ -19,8 +19,8 @@ const AvatarEdit = () => {
 
   const { user, refresh } = useContext(UserContext);
 
-  const avatar = useRef<FilesUploadRef>(null);
-  const banner = useRef<FilesUploadRef>(null);
+  const avatar = useRef<ImagesUploadRef>(null);
+  const banner = useRef<ImagesUploadRef>(null);
 
   const [uploading, setUploading] = useState(false);
 

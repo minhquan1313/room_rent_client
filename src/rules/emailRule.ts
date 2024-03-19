@@ -1,6 +1,9 @@
-import { Rule } from "antd/es/form";
+import i18n from "@/translations/i18n";
+import { RuleFunc } from "@/types/RuleFunc";
 
-export const emailRule: Rule = {
+const { t } = i18n;
+
+export const emailRule: RuleFunc = () => ({
   pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
-  message: "Email không hợp lệ",
-};
+  message: t("Extra.Email not valid"),
+});

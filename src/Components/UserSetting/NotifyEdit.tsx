@@ -1,7 +1,15 @@
 import { NotificationContext } from "@/Contexts/NotificationProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import logger from "@/utils/logger";
-import { Alert, Form, Space, Switch, Typography, message } from "antd";
+import {
+  Alert,
+  Form,
+  Space,
+  Switch,
+  SwitchProps,
+  Typography,
+  message,
+} from "antd";
 import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -19,7 +27,31 @@ const NotifyEdit = () => {
   const [form] = Form.useForm();
   logger(`🚀 ~ loading:`, loading);
 
+  const onSwitchChangeHandle: SwitchProps["onChange"] = async (e) => {
+    logger(`🚀 ~ onFinish={ ~ e:`, e);
+    setLoading(true);
+    if (e) {
+      if (await register()) {
+        messageApi.open({
+          type: "success",
+          content: t(
+            "User.Notification tab.Turning notify message successfully!",
+          ),
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: t("User.Notification tab.Turning notify message failure!"),
+        });
+      }
+    } else {
+      await unRegister();
+    }
+    setLoading(false);
+  };
+
   if (!user) return null;
+
   return (
     <Form className="w-full" form={form}>
       {contextHolder}
@@ -30,30 +62,7 @@ const NotifyEdit = () => {
               disabled={denied}
               checked={enabling}
               loading={loading}
-              onChange={async (e) => {
-                logger(`🚀 ~ onFinish={ ~ e:`, e);
-                setLoading(true);
-                if (e) {
-                  if (await register()) {
-                    messageApi.open({
-                      type: "success",
-                      content: t(
-                        "User.Notification tab.Turning notify message successfully!",
-                      ),
-                    });
-                  } else {
-                    messageApi.open({
-                      type: "error",
-                      content: t(
-                        "User.Notification tab.Turning notify message failure!",
-                      ),
-                    });
-                  }
-                } else {
-                  await unRegister();
-                }
-                setLoading(false);
-              }}
+              onChange={onSwitchChangeHandle}
             />
 
             <Typography.Text disabled={denied}>

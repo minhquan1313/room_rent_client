@@ -44,20 +44,20 @@ export interface IDataWithCount<T> {
   data: T[];
 }
 
-export type RoomPayload = {
-  owner?: string;
+export interface RoomPayload {
+  owner: string;
   room_type: TRoomType;
-  name: string;
 
-  services?: TRoomService[];
+  location: RoomLocationPayload;
 
-  // id of services
   images?: string[];
   imagesOrders?: number[];
   files?: File[];
 
-  location: RoomLocationPayload;
+  // id of services
+  services?: TRoomService[];
 
+  name: string;
   sub_name?: string;
   description?: string;
 
@@ -71,13 +71,14 @@ export type RoomPayload = {
   number_of_bedroom?: number;
   number_of_bathroom?: number;
   number_of_floor?: number;
-};
 
-export interface RoomLocationPayload
-  extends Omit<
-    IRoomLocation,
-    "_id" | "room" | "updatedAt" | "createdAt" | "lat_long"
-  > {
+  is_visible: boolean;
+  disabled?: boolean;
+  verified_real?: boolean;
+  verified?: boolean;
+}
+
+export interface RoomLocationPayload extends Omit<IRoomLocation, "_id" | "room" | "updatedAt" | "createdAt" | "lat_long"> {
   lat: number;
   long: number;
 }

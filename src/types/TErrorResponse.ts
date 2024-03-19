@@ -1,10 +1,12 @@
-export type ErrorJsonResponse = {
-  error: {
-    msg: string;
-    path?: string;
-  }[];
-  code: number;
-};
+import code from "@/constants/errorResponseCode.json";
+
+export type TErrorKey = keyof typeof code;
+
+export type TErrorResponse = {
+  code: TErrorKey;
+  error: string;
+  customMsg?: unknown;
+}[];
 
 // let z = (): (
 //   | {

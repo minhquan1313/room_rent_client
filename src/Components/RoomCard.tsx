@@ -7,6 +7,7 @@ import { routeRoomDetail } from "@/constants/route";
 import { IRoom } from "@/types/IRoom";
 import { calculateDistance } from "@/utils/calculateDistance";
 import { dateFormat } from "@/utils/dateFormat";
+import roomLocToCoord from "@/utils/roomLocToCoord";
 import { toStringLocation } from "@/utils/toString";
 import { Card, Typography } from "antd";
 import convert from "convert";
@@ -39,13 +40,7 @@ export const RoomCard = ({ room }: RoomCardProps) => {
                 room,
               }}
             >
-              <MyImage
-                src={images[0]?.image}
-                addServer
-                width={"100%"}
-                className="aspect-video object-cover"
-                preview={false}
-              />
+              <MyImage src={images[0]?.image} addServer width={"100%"} className="aspect-video object-cover" preview={false} />
             </Link>
           }
           actions={ActionRoomCard({ room })}
@@ -58,23 +53,16 @@ export const RoomCard = ({ room }: RoomCardProps) => {
             }}
           >
             <div className="flex justify-between">
-              <Paragraph ellipsis={{ rows: 1 }}>
-                {t("translate", { val: location?.province })}
-              </Paragraph>
+              <Paragraph ellipsis={{ rows: 1 }}>{t("translate", { val: location?.province })}</Paragraph>
 
-              <Text className="whitespace-nowrap">
-                {dateFormat(createdAt).fromNow()}
-              </Text>
+              <Text className="whitespace-nowrap">{dateFormat(createdAt).fromNow()}</Text>
             </div>
 
             <Title level={5} ellipsis={{ rows: 2 }} className="h-12 leading-6">
               {name}
             </Title>
 
-            <Paragraph
-              ellipsis={{ rows: 2 }}
-              className="!mb-0 !mt-auto h-12 leading-6"
-            >
+            <Paragraph ellipsis={{ rows: 2 }} className="!mb-0 !mt-auto h-12 leading-6">
               {location ? toStringLocation(location, false) : "..."}
             </Paragraph>
 
@@ -83,13 +71,7 @@ export const RoomCard = ({ room }: RoomCardProps) => {
             {coords && location && (
               <Paragraph ellipsis={{ rows: 1 }} className="!mb-0 text-right">
                 {(() => {
-                  const v = convert(
-                    calculateDistance(coords, {
-                      lat: location.lat_long.coordinates[1],
-                      lng: location.lat_long.coordinates[0],
-                    }),
-                    "m",
-                  ).to("best");
+                  const v = convert(calculateDistance(coords, roomLocToCoord(location)), "m").to("best");
 
                   return `${v.quantity.toFixed(0)} ${v.unit}`;
                 })()}

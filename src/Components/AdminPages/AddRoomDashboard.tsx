@@ -1,13 +1,22 @@
 import RoomAdd from "@/Pages/RoomAdd";
 import { Modal } from "antd";
+import { memo } from "react";
 
-interface Props {
+export interface AddRoomDashboardProps {
   open?: boolean;
   handleCancel(): void;
   onSaveSuccess(): void;
 }
-const AddRoom = ({ open, handleCancel, onSaveSuccess }: Props) => {
-  // pageTitle("Chỉnh sửa - Tất cả phòng - Quản trị");
+
+const AddRoomDashboard = memo(function AddRoomDashboard(
+  props: AddRoomDashboardProps,
+) {
+  const {
+    //
+    open,
+    handleCancel,
+    onSaveSuccess,
+  } = props;
 
   return (
     <Modal
@@ -25,6 +34,6 @@ const AddRoom = ({ open, handleCancel, onSaveSuccess }: Props) => {
       <RoomAdd onSaveSuccess={onSaveSuccess} />
     </Modal>
   );
-};
+});
 
-export default AddRoom;
+export default AddRoomDashboard;

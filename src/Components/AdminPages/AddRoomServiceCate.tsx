@@ -1,32 +1,42 @@
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { RoomSvCateService } from "@/services/RoomSvCateService";
 import { IRoomServiceCategory } from "@/types/IRoomServiceCategory";
 import { autoTitle } from "@/utils/autoTitle";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
-import { Form, Input, Modal, Space, notification } from "antd";
+import { Form, Input, Modal, Space, message } from "antd";
 import QueryString from "qs";
-import { useState } from "react";
+import { memo, useState } from "react";
 
-type TData = IRoomServiceCategory;
-const AddRoomServiceCate = ({
-  open,
-  handleCancel,
-  onSaveSuccess,
-}: {
+export interface AddRoomServiceCateProps {
   open?: boolean;
   handleCancel(): void;
   onSaveSuccess(): void;
-}) => {
-  const [notifyApi, contextHolder] = notification.useNotification();
+}
+
+type TField = IRoomServiceCategory;
+
+const AddRoomServiceCate = memo(function AddRoomServiceCate(
+  props: AddRoomServiceCateProps,
+) {
+  const {
+    open,
+
+    handleCancel,
+    onSaveSuccess,
+  } = props;
+
+  const [notifyApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>();
 
-  async function handleFinish(body: TData): Promise<void> {
+  async function handleFinish(body: TField): Promise<void> {
     setSaving(true);
+    setError(undefined);
     try {
       const payload = trimObjectValues(
         QueryString.parse(QueryString.stringify(body, { encode: false })),
@@ -37,18 +47,13 @@ const AddRoomServiceCate = ({
 
       onSaveSuccess();
       notifyApi.success({
-        message: "Lưu thành công",
-        description: `Lưu thành công như sẽ cập nhật sau vài phút (Server có cache) :>`,
-        duration: 30,
+        content: "Lưu thành công",
       });
 
       form.resetFields();
     } catch (error) {
       logger(`🚀 ~ handleFinish ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
     setSaving(false);
   }
@@ -66,16 +71,19 @@ const AddRoomServiceCate = ({
       onCancel={handleCancel}
     >
       {contextHolder}
-      <Form<TData>
+
+      <ServerErrorResponse errors={error} mode="notification" />
+
+      <Form<TField>
         form={form}
         onFinish={handleFinish}
-        onValuesChange={(e: TData) => {
+        onValuesChange={(e: TField) => {
           if (e.display_name) {
             form.setFieldValue("title", autoTitle(e.display_name));
           }
         }}
       >
-        <Form.Item<TData>
+        <Form.Item<TField>
           name={"title"}
           label="Key"
           rules={[
@@ -87,7 +95,7 @@ const AddRoomServiceCate = ({
         >
           <Input />
         </Form.Item>
-        <Form.Item<TData>
+        <Form.Item<TField>
           name={"display_name"}
           label="Tên"
           rules={[
@@ -109,6 +117,6 @@ const AddRoomServiceCate = ({
       </Form>
     </Modal>
   );
-};
+});
 
 export default AddRoomServiceCate;

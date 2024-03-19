@@ -7,6 +7,7 @@ import { IRoom } from "@/types/IRoom";
 import { calculateDistance } from "@/utils/calculateDistance";
 import { dateFormat } from "@/utils/dateFormat";
 import { numberFormat } from "@/utils/numberFormat";
+import roomLocToCoord from "@/utils/roomLocToCoord";
 import { toStringCurrencyCode, toStringLocation } from "@/utils/toString";
 import { List, Typography } from "antd";
 import convert from "convert";
@@ -23,50 +24,28 @@ const RoomListItem = memo(({ room, showState }: RoomCardProps) => {
   const { t } = useTranslation();
   const { t: tLocation } = useTranslation("location");
 
-  const {
-    _id,
-    images,
-    name,
-    location,
-    createdAt,
-    price_per_month,
-    price_currency_code,
-  } = room;
+  const { _id, images, name, location, createdAt, price_per_month, price_currency_code } = room;
 
   const { coords } = useContext(UserLocationContext);
 
   return (
     <List.Item actions={ActionRoomCard({ room })} className="">
       <div className="flex flex-col gap-2 md:flex-row">
-        <Link
-          state={{ room }}
-          to={`${routeRoomDetail}/${_id}`}
-          className="block flex-1"
-        >
+        <Link state={{ room }} to={`${routeRoomDetail}/${_id}`} className="block flex-1">
           <div className="flex justify-between">
-            <Typography.Paragraph>
-              {tLocation("translate", { val: location?.province ?? " " })}
-            </Typography.Paragraph>
+            <Typography.Paragraph>{tLocation("translate", { val: location?.province ?? " " })}</Typography.Paragraph>
           </div>
 
           <Typography.Title level={5} className="leading-6">
             {name}
           </Typography.Title>
 
-          <Typography.Paragraph className="!mt-auto leading-6">
-            {location ? toStringLocation(location, false) : "..."}
-          </Typography.Paragraph>
+          <Typography.Paragraph className="!mt-auto leading-6">{location ? toStringLocation(location, false) : "..."}</Typography.Paragraph>
 
           {coords && location && (
             <Typography.Paragraph className="text-right">
               {(() => {
-                const v = convert(
-                  calculateDistance(coords, {
-                    lat: location.lat_long.coordinates[1],
-                    lng: location.lat_long.coordinates[0],
-                  }),
-                  "m",
-                ).to("best");
+                const v = convert(calculateDistance(coords, roomLocToCoord(location)), "m").to("best");
 
                 return `${v.quantity.toFixed(0)} ${v.unit}`;
               })()}
@@ -79,8 +58,7 @@ const RoomListItem = memo(({ room, showState }: RoomCardProps) => {
           </Typography.Paragraph>
 
           <Typography.Paragraph>
-            {dateFormat(createdAt).fromNow()} -{" "}
-            {dateFormat(createdAt).format("LLL")}
+            {dateFormat(createdAt).fromNow()} - {dateFormat(createdAt).format("LLL")}
           </Typography.Paragraph>
 
           {showState !== false && <RoomStateTags room={room} />}
@@ -93,13 +71,7 @@ const RoomListItem = memo(({ room, showState }: RoomCardProps) => {
           }}
           className="block w-full md:w-96"
         >
-          <MyImage
-            src={images[0]?.image}
-            addServer
-            width={"100%"}
-            className="aspect-video rounded-md object-cover"
-            preview={false}
-          />
+          <MyImage src={images[0]?.image} addServer width={"100%"} className="aspect-video rounded-md object-cover" preview={false} />
         </Link>
       </div>
     </List.Item>

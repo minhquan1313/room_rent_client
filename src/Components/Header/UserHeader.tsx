@@ -39,7 +39,6 @@ const UserHeader = memo(() => {
             ? {
                 key: routeAdmin.index,
                 icon: <DashboardFilled />,
-                dashed: true,
                 label: (
                   <Link to={`${routeAdmin.index}/${routeAdmin.stats}`}>
                     {t("Drop down.User nav btn.Dashboard")}
@@ -89,6 +88,7 @@ const UserHeader = memo(() => {
           },
           {
             type: "divider",
+            dashed: true,
           },
           {
             key: "logout",

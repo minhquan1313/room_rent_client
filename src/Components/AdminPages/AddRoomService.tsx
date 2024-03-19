@@ -1,33 +1,45 @@
 import MyButton from "@/Components/MyButton";
 import SelectServiceCategory from "@/Components/SelectServiceCategory";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
+import { noEmptyRule } from "@/rules/noEmptyRule";
 import { RoomSvService } from "@/services/RoomSvService";
 import { IRoomService } from "@/types/IRoomService";
 import { autoTitle } from "@/utils/autoTitle";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { trimObjectValues } from "@/utils/trimObjectValues";
-import { Form, Input, Modal, Space, notification } from "antd";
+import { Form, Input, Modal, Space, message } from "antd";
 import QueryString from "qs";
-import { useState } from "react";
+import { memo, useState } from "react";
 
-type TData = IRoomService;
-const AddRoomService = ({
-  open,
-  handleCancel,
-  onSaveSuccess,
-}: {
+export interface AddRoomServiceProps {
   open?: boolean;
   handleCancel(): void;
   onSaveSuccess(): void;
-}) => {
-  const [notifyApi, contextHolder] = notification.useNotification();
+}
+
+type TField = IRoomService;
+
+const AddRoomService = memo(function AddRoomService(
+  props: AddRoomServiceProps,
+) {
+  const {
+    open,
+
+    handleCancel,
+    onSaveSuccess,
+  } = props;
+
+  const [notifyApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>();
 
-  async function handleFinish(body: TData): Promise<void> {
+  async function handleFinish(body: TField): Promise<void> {
     setSaving(true);
+    setError(undefined);
+
     try {
       const payload = trimObjectValues(
         QueryString.parse(QueryString.stringify(body, { encode: false })),
@@ -38,18 +50,13 @@ const AddRoomService = ({
 
       onSaveSuccess();
       notifyApi.success({
-        message: "Lưu thành công",
-        description: `Lưu thành công như sẽ cập nhật sau vài phút (Server có cache) :>`,
-        duration: 30,
+        content: "Lưu thành công",
       });
 
       form.resetFields();
     } catch (error) {
       logger(`🚀 ~ handleFinish ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
     setSaving(false);
   }
@@ -67,41 +74,30 @@ const AddRoomService = ({
       onCancel={handleCancel}
     >
       {contextHolder}
-      <Form<TData>
+
+      <ServerErrorResponse errors={error} mode="notification" />
+
+      <Form<TField>
         form={form}
         onFinish={handleFinish}
-        onValuesChange={(e: TData) => {
+        onValuesChange={(e: TField) => {
           if (e.display_name) {
             form.setFieldValue("title", autoTitle(e.display_name));
           }
         }}
       >
-        <Form.Item<TData>
-          name={"title"}
-          label="Key"
-          rules={[
-            {
-              required: true,
-              message: "Không được bỏ trống",
-            },
-          ]}
-        >
+        <Form.Item<TField> name={"title"} label="Key" rules={[noEmptyRule()]}>
           <Input />
         </Form.Item>
-        <Form.Item<TData>
+        <Form.Item<TField>
           name={"display_name"}
           label="Tên"
-          rules={[
-            {
-              required: true,
-              message: "Không được bỏ trống",
-            },
-          ]}
+          rules={[noEmptyRule()]}
         >
           <Input />
         </Form.Item>
 
-        <Form.Item<TData> name={["category", "title"]} label="Loại">
+        <Form.Item<TField> name={["category", "title"]} label="Loại">
           <SelectServiceCategory />
         </Form.Item>
 
@@ -114,6 +110,6 @@ const AddRoomService = ({
       </Form>
     </Modal>
   );
-};
+});
 
 export default AddRoomService;

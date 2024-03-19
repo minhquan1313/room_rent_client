@@ -16,7 +16,7 @@ const langFlagMap = {
   en: FlagUSIcon,
 };
 
-const LanguageHeader = memo(() => {
+const LanguageSwitcher = memo(function LanguageSwitcher() {
   const { i18n } = useTranslation();
 
   // const SelectedFlag = langFlagMap[i18n.language as TAvailableLanguage];
@@ -62,4 +62,4 @@ const LanguageHeader = memo(() => {
   );
 });
 
-export default LanguageHeader;
+export default LanguageSwitcher;

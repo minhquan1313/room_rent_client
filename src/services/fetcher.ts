@@ -8,14 +8,14 @@ interface MyAxiosInstance extends AxiosInstance {
 }
 
 export const fetcher = (() => {
-  const i: MyAxiosInstance = axios.create({
+  const instance: MyAxiosInstance = axios.create({
     baseURL: VITE_API,
     headers: {
       // "Content-Type": "application/json",
     },
   }) as never;
 
-  i.interceptors.request.use(
+  instance.interceptors.request.use(
     function (config) {
       // if (config.url?.startsWith("/chat"))
       //   logger(`🚀 ~ fetcher ~ config:`, config);
@@ -28,7 +28,7 @@ export const fetcher = (() => {
     },
   );
 
-  i.interceptors.response.use(
+  instance.interceptors.response.use(
     function (response) {
       // logger(`🚀 ~ fetcher ~ response.data:`, response.data);
 
@@ -44,7 +44,7 @@ export const fetcher = (() => {
     },
   );
 
-  i.update = function ({ token }) {
+  instance.update = function ({ token }) {
     if (token)
       this.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     else if (token == null)
@@ -52,7 +52,7 @@ export const fetcher = (() => {
   };
 
   const token = localStorage.getItem("token");
-  if (token) i.update({ token });
+  if (token) instance.update({ token });
 
-  return i;
+  return instance;
 })();

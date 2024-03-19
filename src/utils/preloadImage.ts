@@ -1,29 +1,27 @@
 import { VITE_SERVER } from "@/constants/env";
 
-export function preloadImage({
-  url,
-  onDone,
-  addServer,
-}: {
+type TPreloadImgParams = {
   url?: string;
   onDone?: () => void;
   addServer?: boolean;
-} = {}) {
+};
+
+export function preloadImage(params: TPreloadImgParams = {}) {
   return new Promise<void>((r, rj) => {
+    const { url, onDone, addServer } = params;
+
     if (!url) return r();
 
-    if (addServer) {
-      url = VITE_SERVER + url;
-    }
+    const prefix = addServer ? VITE_SERVER : "";
+
     const image = new Image();
-    image.src = url;
+    image.src = prefix + url;
 
     image.onload = () => {
-      onDone && onDone();
+      onDone?.();
       r();
     };
-    image.onerror = () => {
-      rj();
-    };
+
+    image.onerror = rj;
   });
 }

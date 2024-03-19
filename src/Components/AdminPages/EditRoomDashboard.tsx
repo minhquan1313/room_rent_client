@@ -7,7 +7,7 @@ interface Props {
   handleCancel(): void;
   onSaveSuccess(): void;
 }
-const EditRoom = ({ room, handleCancel, onSaveSuccess }: Props) => {
+const EditRoomDashboard = ({ room, handleCancel, onSaveSuccess }: Props) => {
   // pageTitle("Chỉnh sửa - Tất cả phòng - Quản trị");
 
   return (
@@ -28,10 +28,11 @@ const EditRoom = ({ room, handleCancel, onSaveSuccess }: Props) => {
           key={room._id + room.updatedAt}
           room={room}
           onSaveSuccess={onSaveSuccess}
+          floatSaveButton={false}
         />
       )}
     </Modal>
   );
 };
 
-export default EditRoom;
+export default EditRoomDashboard;

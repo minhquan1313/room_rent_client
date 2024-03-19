@@ -1,49 +1,63 @@
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { UserContext } from "@/Contexts/UserProvider";
 import { TUserEditFields } from "@/Pages/UserInfo";
 import { passwordRules } from "@/rules/passwordRules";
 import { fetcher } from "@/services/fetcher";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
-import { Form, Input, message, notification } from "antd";
-import { useContext } from "react";
+import { Form, Input, message } from "antd";
+import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const PasswordEdit = () => {
+import { memo } from "react";
+
+export interface PasswordEditProps {
+  //
+}
+
+const PasswordEdit = memo(function PasswordEdit(props: PasswordEditProps) {
   const { t } = useTranslation();
 
-  const [notifyApi, contextHolder] = notification.useNotification();
-  const [messageApi, contextHolderMessage] = message.useMessage();
+  const [notifyApi, contextHolder] = message.useMessage();
 
   const { user, refresh } = useContext(UserContext);
 
   const [form] = Form.useForm();
 
+  const [error, setError] = useState<unknown>();
+
+  const onFinishHandle = async (e: TUserEditFields) => {
+    if (!user) return null;
+    setError(undefined);
+    try {
+      const d = await fetcher.patch(`/users/${user._id}`, e);
+      logger(`🚀 ~ PasswordEdit ~ d:`, d);
+
+      logger(`🚀 ~ NormalInfoEdit ~ e:`, e);
+      notifyApi.open({
+        type: "success",
+        content: t("Extra.Update successfully!"),
+      });
+      refresh();
+      form.resetFields();
+    } catch (error: any) {
+      logger(`🚀 ~ error:`, error);
+
+      setError((error as any)?.response?.data);
+
+      // notificationResponseError({
+      //   error,
+      //   message: t("Extra.Update failure!"),
+      //   notification: notifyApi,
+      // });
+    }
+  };
+
   if (!user) return null;
 
   return (
     <Form
-      onFinish={async (e: TUserEditFields) => {
-        try {
-          const d = await fetcher.patch(`/users/${user._id}`, e);
-          logger(`🚀 ~ PasswordEdit ~ d:`, d);
-
-          logger(`🚀 ~ NormalInfoEdit ~ e:`, e);
-          messageApi.open({
-            type: "success",
-            content: t("Extra.Update successfully!"),
-          });
-          refresh();
-          form.resetFields();
-        } catch (error: any) {
-          logger(`🚀 ~ error:`, error);
-          notificationResponseError({
-            error,
-            message: t("Extra.Update failure!"),
-            notification: notifyApi,
-          });
-        }
-      }}
+      onFinish={onFinishHandle}
       labelCol={{
         xs: { span: 24 },
         sm: { span: 8 },
@@ -52,9 +66,10 @@ const PasswordEdit = () => {
       form={form}
     >
       {contextHolder}
-      {contextHolderMessage}
+      <ServerErrorResponse errors={error} mode="notification" />
+
       <Form.Item<TUserEditFields>
-        rules={passwordRules}
+        rules={passwordRules()}
         name={"old_password"}
         label={t("User.Pass tab.Current")}
         hasFeedback
@@ -63,7 +78,7 @@ const PasswordEdit = () => {
       </Form.Item>
 
       <Form.Item<TUserEditFields>
-        rules={passwordRules}
+        rules={passwordRules()}
         name={"password"}
         label={t("User.Pass tab.New")}
         hasFeedback
@@ -106,6 +121,6 @@ const PasswordEdit = () => {
       </Form.Item>
     </Form>
   );
-};
+});
 
 export default PasswordEdit;

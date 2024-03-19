@@ -1,13 +1,13 @@
 import AddRoomServiceCate from "@/Components/AdminPages/AddRoomServiceCate";
 import EditRoomServiceCate from "@/Components/AdminPages/EditRoomServiceCate";
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { RoomSvCateService } from "@/services/RoomSvCateService";
 import { IRoomServiceCategory } from "@/types/IRoomServiceCategory";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { pageTitle } from "@/utils/pageTitle";
 import { Popconfirm, Space, Typography, notification } from "antd";
 import Table, { ColumnsType, TableProps } from "antd/es/table";
@@ -27,6 +27,7 @@ const RoomServiceCategoriesDashBoard = () => {
 
   const [showAddItem, setShowAddItem] = useState(false);
   const [editItem, setEditItem] = useState<TDataTable>();
+  const [error, setError] = useState<unknown>();
 
   const fetchData = useCallback(async () => {
     setLoadingData(true);
@@ -94,6 +95,7 @@ const RoomServiceCategoriesDashBoard = () => {
   );
 
   const deleteItem = async (id: string) => {
+    setError(undefined);
     try {
       await RoomSvCateService.delete(id);
       notifyApi.success({
@@ -104,10 +106,13 @@ const RoomServiceCategoriesDashBoard = () => {
       fetchData();
     } catch (error) {
       logger(`🚀 ~ deleteItem ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+
+      setError((error as any)?.response?.data);
+
+      // notificationResponseError({
+      //   error,
+      //   notification: notifyApi,
+      // });
     }
   };
 
@@ -141,6 +146,8 @@ const RoomServiceCategoriesDashBoard = () => {
   return (
     <Space direction="vertical" className="h-full w-full py-5">
       {contextHolder}
+      <ServerErrorResponse errors={error} mode="notification" />
+
       <MyButton onClick={() => setShowAddItem(true)} type="primary" block>
         Thêm
       </MyButton>

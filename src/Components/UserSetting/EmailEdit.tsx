@@ -1,4 +1,5 @@
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { TUserEditFields } from "@/Pages/UserInfo";
 import { resendInterval } from "@/constants/resendInterval";
 import { emailRule } from "@/rules/emailRule";
@@ -6,7 +7,6 @@ import { sendEmailVerify } from "@/services/sendEmailVerify";
 import { IUser } from "@/types/IUser";
 import { dateFormat } from "@/utils/dateFormat";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import {
   CheckCircleFilled,
   ExclamationCircleOutlined,
@@ -41,6 +41,7 @@ const EmailEdit = memo(({ user, email }: Props) => {
   const [mailCodeSent, setMailCodeSent] = useState(false);
   const [mailCodeSentAt, setMailCodeSentAt] = useState<Date>();
   const [mailCodeSending, setMailCodeSending] = useState(false);
+  const [error, setError] = useState<unknown>();
 
   const oldMail = useRef(email);
 
@@ -52,6 +53,8 @@ const EmailEdit = memo(({ user, email }: Props) => {
 
   async function mailCodeSend(mail: string) {
     setMailCodeSending(true);
+    setError(undefined);
+
     try {
       await sendEmailVerify(mail);
       logger(`mailCodeSend`);
@@ -82,11 +85,13 @@ const EmailEdit = memo(({ user, email }: Props) => {
     } catch (error) {
       logger(`🚀 ~ error:`, error);
 
-      notificationResponseError({
-        error,
-        message: t("Extra.Code send failed!"),
-        notification: notify,
-      });
+      setError((error as any)?.response?.data);
+
+      // notificationResponseError({
+      //   error,
+      //   message: t("Extra.Code send failed!"),
+      //   notification: notify,
+      // });
       //
     }
     setMailCodeSending(false);
@@ -135,14 +140,17 @@ const EmailEdit = memo(({ user, email }: Props) => {
 
     mailCodeSend(oldMail.current.email);
   }, [email]);
+
   return (
     <Form.Item label="Email">
       {contextNotify}
+      <ServerErrorResponse errors={error} mode="notification" />
+
       <Space direction="vertical" className="w-full">
         <Form.Item<TUserEditFields>
           name={["email", "email"]}
           // noStyle
-          rules={[emailRule]}
+          rules={[emailRule()]}
           noStyle
           validateTrigger="onBlur"
         >

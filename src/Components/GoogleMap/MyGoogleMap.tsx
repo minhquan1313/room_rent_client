@@ -1,169 +1,285 @@
 import Marker from "@/Components/GoogleMap/Marker";
 import MyButton from "@/Components/MyButton";
-import {
-  ggMapCenter,
-  ggMapOptions,
-  ggMapZoom,
-} from "@/constants/googleMapConstants";
+import { ggMapCenter, ggMapOptions, ggMapZoom } from "@/constants/googleMapConstants";
 import useGoogleMapMarker from "@/hooks/useGoogleMapMarker";
 import { TAvailableLanguage } from "@/translations/i18n";
-import { GGMapProps, GGMapPropsOmit } from "@/types/TGGMapProps";
+import { GGMapProps, GGMapPropsOmit, TGeocoderRequest } from "@/types/TGGMapProps";
 import { ggMapKeyGenerator } from "@/utils/googleMapUtils";
 import logger from "@/utils/logger";
-import { StopOutlined } from "@ant-design/icons";
-import { message } from "antd";
+import classNames from "classnames";
 import GoogleMapReact, { Coords } from "google-map-react";
-import { ReactNode, memo, useEffect, useState } from "react";
+import { ReactNode, forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export type MyGoogleMapProps = GGMapPropsOmit & {
+type TAddressParam = {
+  coord: Coords;
+  address: google.maps.GeocoderResult | null;
+};
+
+type TOnAddressesChange = (addresses: TAddressParam[]) => void;
+
+export interface MyGoogleMapProps extends GGMapPropsOmit {
   allowAddPin?: "single" | "multiple";
   pins?: Coords[];
   icon?: ReactNode | ((coord: Coords) => ReactNode);
-  onPinsChange?: (coords: Coords[]) => void;
 
-  onAddressesChange?: (
-    addresses: {
-      coord: Coords;
-      address: google.maps.GeocoderResult | null;
-    }[],
-  ) => void;
+  disabled?: boolean;
+  allowDrag?: boolean;
+  allowDeGeocode?: boolean;
+  geoCodeLanguage?: TGeocoderRequest["language"];
+
+  zoom?: number | ((current: number) => number | undefined);
+
+  onPinsChange?: (coords: Coords[]) => void;
+  onAddressesChange?: TOnAddressesChange;
   onAddressesChangeError?: (error: google.maps.GeocoderStatus) => void;
   onResolvingAddressChange?: (status: boolean) => void;
-};
+}
 
-const MyGoogleMap = memo(function MyGoogleMap(props: MyGoogleMapProps) {
-  const {
-    pins: _pins,
+export interface MyGoogleMapRef {
+  map?: google.maps.Map;
+  maps?: typeof google.maps;
+  deGeocode: (pin: Coords, opts?: TGeocoderRequest) => Promise<TAddressParam>;
+}
 
-    allowAddPin,
-    icon,
-    onPinsChange,
+const MyGoogleMap = memo(
+  forwardRef<MyGoogleMapRef, MyGoogleMapProps>(function MyGoogleMap(props, ref) {
+    const {
+      pins: _pins,
 
-    onAddressesChange,
-    onAddressesChangeError,
-    onResolvingAddressChange,
+      allowAddPin,
+      icon,
+      disabled,
+      allowDrag,
+      allowDeGeocode,
+      geoCodeLanguage,
 
-    onClick,
-    ..._props
-  } = props as MyGoogleMapProps;
+      onPinsChange,
+      onAddressesChange,
+      onAddressesChangeError,
+      onResolvingAddressChange,
 
-  const { t, i18n } = useTranslation();
+      googleMapKeys,
+      zoom,
+      onClick,
+      onGoogleApiLoaded,
+      ..._props
+    } = props as MyGoogleMapProps;
 
-  const [messageApi, contextHolder] = message.useMessage();
+    const { i18n } = useTranslation();
 
-  const [pins, setPins] = useState<Coords[]>([]);
-  const [map, setM] = useState<google.maps.Map>();
-  const [maps, setMs] = useState<typeof google.maps>();
-  const { getAddressFromMarker } = useGoogleMapMarker({ map, maps });
+    const [pins, setPins] = useState<Coords[]>([]);
 
-  const addPinHandle = ({ lat, lng }: Coords) => {
-    setPins((old) => {
+    const pinKeys = useRef<{ [k in string]?: number }>({});
+
+    const [map, setM] = useState<google.maps.Map>();
+    const [maps, setMs] = useState<typeof google.maps>();
+
+    const autoID = useRef(1);
+
+    const { getAddressFromCoord } = useGoogleMapMarker({ map, maps });
+
+    const addPinHandle = (coord: Coords) => {
       switch (allowAddPin) {
         case "single":
-          return [{ lat, lng }];
+          autoID.current = 1;
+          pinKeys.current = {};
+          createPinKey(coord);
+          setPins([coord]);
+
+          return;
 
         case "multiple":
-          return [...old, { lat, lng }];
+          createPinKey(coord);
+          setPins([...pins, coord]);
+
+          return;
 
         default:
-          return [];
+          autoID.current = 1;
+          pinKeys.current = {};
+          return setPins([]);
       }
-    });
-  };
+    };
 
-  const mapClickHandle: GGMapProps["onClick"] = (value) => {
-    onClick?.(value);
+    const updatePinHandle = (update: Coords, old: Coords) => {
+      // change where it is
+      // [1,2,3,change,5,6,7] => [1,2,3,new,5,6,7]
+      // const newPins = pins.map((pin) => {
+      //   const match = JSON.stringify(pin) === JSON.stringify(old);
 
-    allowAddPin && addPinHandle(value);
-  };
+      //   if (match) {
+      //     return update;
+      //   }
 
-  const onPinsChangeWithAddress = async () => {
-    onResolvingAddressChange?.(true);
+      //   return match ? update : pin;
+      // });
 
-    try {
-      onPinsChange?.(pins);
+      // change goes to last
+      // [1,2,3,change,5,6,7] => [1,2,3,5,6,7,new]
+      const newPins = pins.filter((pin) => JSON.stringify(pin) !== JSON.stringify(old)).concat(update);
 
-      const addresses = await pins.mapAsync(async (pin) => ({
+      setPins(newPins);
+      updatePinKeys({ old, update });
+    };
+
+    const createPinKey = (coord: Coords) => {
+      const v = autoID.current++;
+      const key = JSON.stringify(coord);
+      pinKeys.current[key] = v;
+
+      return v;
+    };
+    const updatePinKeys = ({ old, update }: { old?: Coords; update: Coords }) => {
+      const k = pinKeys.current[JSON.stringify(old)];
+
+      if (!k) {
+        createPinKey(update);
+        return;
+      }
+
+      pinKeys.current[JSON.stringify(update)] = k;
+    };
+
+    const getKeys = (coord: Coords) => {
+      const k = pinKeys.current[JSON.stringify(coord)];
+
+      if (!k) {
+        return createPinKey(coord);
+      }
+
+      return k;
+    };
+
+    const mapClickHandle: GGMapProps["onClick"] = (value) => {
+      if (disabled) return;
+
+      onClick?.(value);
+
+      allowAddPin && addPinHandle({ lat: value.lat, lng: value.lng });
+    };
+
+    const deGeocode: MyGoogleMapRef["deGeocode"] = async (pin, opts) => {
+      return {
         coord: pin,
-        address: await getAddressFromMarker(pin),
-      }));
+        address: await getAddressFromCoord(pin, {
+          language: geoCodeLanguage,
+          ...opts,
+        }),
+      };
+    };
 
-      onAddressesChange?.(addresses);
-    } catch (error) {
-      logger(new Error(error as any));
+    const onPinsChangeWithAddress = async () => {
+      onResolvingAddressChange?.(true);
 
-      messageApi.open({
-        type: "error",
-        content:
-          error === google.maps.GeocoderStatus.OVER_QUERY_LIMIT
-            ? t("Add room page.API ran out of request")
-            : t("Add room page.Error getting address!"),
-        duration: 30,
-        icon: <StopOutlined />,
-      });
+      try {
+        const addresses = await pins.mapAsync((pin) =>
+          deGeocode(pin, {
+            language: geoCodeLanguage,
+          }),
+        );
 
-      onAddressesChangeError?.(error as google.maps.GeocoderStatus);
+        onAddressesChange?.(addresses);
+      } catch (error) {
+        logger(new Error(error as any));
+
+        onAddressesChangeError?.(error as google.maps.GeocoderStatus);
+      }
+
+      onResolvingAddressChange?.(false);
+    };
+
+    const onGoogleApiLoadedHandle: GGMapProps["onGoogleApiLoaded"] = (data) => {
+      const { maps, map } = data;
+
+      setM(map);
+      setMs(maps);
+
+      onGoogleApiLoaded?.(data);
+    };
+
+    function setZoom(zoom: MyGoogleMapProps["zoom"]) {
+      if (!map) return;
+
+      let current: number | undefined;
+      let z: number | undefined;
+
+      switch (typeof zoom) {
+        case "function":
+          current = map.getZoom();
+          if (typeof current !== "number") return;
+
+          z = zoom(current);
+          if (z === undefined) return;
+
+          map.setZoom(z);
+
+          break;
+
+        case "number":
+          map.setZoom(zoom);
+          break;
+      }
     }
 
-    onResolvingAddressChange?.(false);
-  };
+    useEffect(() => {
+      if (pins.length === 0 && _pins?.length === 0) return;
 
-  const onGoogleApiLoadedHandle: GGMapProps["onGoogleApiLoaded"] = ({
-    maps,
-    map,
-  }) => {
-    setM(map);
-    setMs(maps);
-  };
+      zoom && setZoom(zoom);
+    }, [JSON.stringify(pins), JSON.stringify(_pins)]);
 
-  useEffect(() => {
-    if (!onPinsChange || pins.length === 0) return;
+    useEffect(() => {
+      if (pins.length === 0) return;
 
-    if (onAddressesChange) onPinsChangeWithAddress();
-    else onPinsChange(pins);
-  }, [pins]);
+      onPinsChange?.(pins);
 
-  return (
-    <div className="relative h-full w-full overflow-hidden">
-      {contextHolder}
+      allowDeGeocode && onPinsChangeWithAddress?.();
+    }, [JSON.stringify(pins)]);
 
-      <div>
-        {(_pins || pins).map((pin) => (
-          <Marker
-            key={JSON.stringify(pin)}
-            onDrag={logger}
-            coord={pin}
-            map={map}
-            maps={maps}
-          >
-            {icon ? (
-              typeof icon === "function" ? (
-                icon(pin)
-              ) : (
-                icon
-              )
-            ) : (
-              <MyButton>P</MyButton>
-            )}
-          </Marker>
-        ))}
+    useImperativeHandle(
+      ref,
+      () => ({
+        map,
+        maps,
+        deGeocode,
+      }),
+      [getAddressFromCoord, geoCodeLanguage],
+    );
+
+    return (
+      <div
+        className={classNames("relative h-full w-full overflow-hidden transition-all duration-300", {
+          "pointer-events-none grayscale": disabled,
+        })}
+      >
+        <div>
+          {(_pins || pins).map((pin) => {
+            return (
+              <Marker key={(() => getKeys(pin))()} onDragEnd={allowDrag ? updatePinHandle : undefined} coord={pin} map={map} maps={maps}>
+                {icon ? typeof icon === "function" ? icon(pin) : icon : <MyButton>P</MyButton>}
+              </Marker>
+            );
+          })}
+        </div>
+
+        <GoogleMapReact
+          bootstrapURLKeys={
+            googleMapKeys ||
+            ggMapKeyGenerator({
+              language: i18n.language as TAvailableLanguage,
+            })
+          }
+          onClick={mapClickHandle}
+          yesIWantToUseGoogleMapApiInternals
+          onGoogleApiLoaded={onGoogleApiLoadedHandle}
+          defaultCenter={ggMapCenter}
+          defaultZoom={ggMapZoom}
+          options={ggMapOptions}
+          {..._props}
+        />
       </div>
-
-      <GoogleMapReact
-        bootstrapURLKeys={ggMapKeyGenerator(
-          i18n.language as TAvailableLanguage,
-        )}
-        onClick={mapClickHandle}
-        yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={onGoogleApiLoadedHandle}
-        defaultCenter={ggMapCenter}
-        defaultZoom={ggMapZoom}
-        options={ggMapOptions}
-        {..._props}
-      />
-    </div>
-  );
-});
+    );
+  }),
+);
 
 export default MyGoogleMap;

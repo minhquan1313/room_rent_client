@@ -3,11 +3,13 @@
     "home": "Home",
     "Find": "Search",
     "Chat": "Chat",
-    "Add room": "Add room",
+    "Add room": "Add room{{val}}",
+    "Edit room": "Edit room{{val}}",
     "Profile settings": "Profile setting",
     "Bookmark": "Bookmark",
     "Login": "Sign in",
-    "Register": "Sign up"
+    "Register": "Sign up",
+    "Verify": "Verify"
   },
   "home page": {
     "New boarding house nationwide": "Accommodations over country",
@@ -66,6 +68,7 @@
     "Verify": "Verify",
     "Verified": "Verified",
     "Not verified": "Not verified",
+    "Invisible": "Invisible",
     "Status": "Status",
     "Cost per month": "Cost per month"
   },
@@ -100,9 +103,10 @@
     "No more content": "No more content",
 
     "Don't leave it empty": "Don't leave it empty",
-    "No space character allowed": "Không chứa khoảng trắng",
+    "No space character allowed": "No space character allowed",
     "Invalid tel number": "Invalid tel number",
     "Missing region code": "Missing region code",
+    "Email not valid": "Email not valid",
 
     "OTP sent, the code will be delivered to your phone in sometime!": "OTP sent, the code will be delivered to your phone in sometime!",
     "OTP send error, please try again!": "OTP send error, please try again!",
@@ -116,6 +120,7 @@
     "Send code": "Send code",
     "Enter code": "Enter code",
     "Verify successfully!": "Verify successfully!",
+    "Verify failure!": "Verify failure!",
 
     "Drop file here": "Drop file here",
     "Not supported file type": "Not supported file type",
@@ -125,7 +130,11 @@
     "Update": "Update",
     "Added successfully!": "Added successfully!",
 
-    "Month": "Month"
+    "Month": "Month",
+    "Error occurred!": "Error occurred!",
+    "Go back home": "Go back home",
+    "Start typing to get suggestion...": "Start typing to get suggestion...",
+    "Reset": "Reset"
   },
 
   "Drop down": {
@@ -151,7 +160,13 @@
     "Missing province": "Missing province",
     "Missing detail address": "Please add detail address to help people find the place easier",
 
-    "Please go to profile setting and verify your tel number to post your rooms!": "Please go to profile setting and verify your tel number to post your rooms!"
+    "Please go to profile setting and verify your tel number to post your rooms!": "Please go to profile setting and verify your tel number to post your rooms!",
+    "Find address": "Find address",
+    "Type address": "Type address"
+  },
+
+  "Edit room page": {
+    "Title": "Edit room"
   },
 
   "User": {

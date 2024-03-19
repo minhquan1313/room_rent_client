@@ -3,11 +3,13 @@
     "home": "Trang chủ",
     "Find": "Tìm kiếm",
     "Chat": "Trò chuyện",
-    "Add room": "Thêm phòng",
+    "Add room": "Thêm phòng{{val}}",
+    "Edit room": "Sửa phòng{{val}}",
     "Profile settings": "Thay đổi thông tin",
     "Bookmark": "Đã lưu",
     "Login": "Đăng nhập",
-    "Register": "Đăng kí"
+    "Register": "Đăng kí",
+    "Verify": "Xác thực"
   },
   "home page": {
     "New boarding house nationwide": "Trọ mới toàn quốc",
@@ -63,9 +65,10 @@
     "Bedroom": "Số phòng ngủ",
     "Living room": "Số phòng khách",
     "Floor": "Số tầng",
-    "Verify": "Xác thực",
-    "Verified": "Đã xác thực",
-    "Not verified": "Chưa xác thực",
+    "Verify": "Duyệt bài",
+    "Verified": "Đã duyệt",
+    "Not verified": "Chưa duyệt",
+    "Invisible": "Đang ẩn",
     "Status": "Trạng thái",
     "Cost per month": "Tiền thuê mỗi tháng"
   },
@@ -103,6 +106,7 @@
     "No space character allowed": "Không chứa khoảng trắng",
     "Invalid tel number": "Số điện thoại không hợp lệ",
     "Missing region code": "Thiếu mã vùng",
+    "Email not valid": "Email không hợp lệ",
 
     "OTP sent, the code will be delivered to your phone in sometime!": "Đã gửi mã, mã sẽ tới số điện thoại của bạn trong giây lát!",
     "OTP send error, please try again!": "Có lỗi khi gửi mã OTP, xin thử lại!",
@@ -116,6 +120,7 @@
     "Send code": "Gửi mã",
     "Enter code": "Nhập mã",
     "Verify successfully!": "Xác thực thành công!",
+    "Verify failure!": "Xác thực thất bại!",
 
     "Drop file here": "Thả file vô đây",
     "Not supported file type": "Kiểu file không hỗ trợ",
@@ -125,7 +130,11 @@
     "Update": "Chỉnh sửa",
     "Added successfully!": "Thêm thành công!",
 
-    "Month": "Tháng"
+    "Month": "Tháng",
+    "Error occurred!": "Có lỗi xảy ra!",
+    "Go back home": "Quay về trang chủ",
+    "Start typing to get suggestion...": "Bắt đầu nhập để hiện gợi ý...",
+    "Reset": "Hoàn tác"
   },
 
   "Drop down": {
@@ -151,7 +160,13 @@
     "Missing province": "Thiếu thông tin về tỉnh thành",
     "Missing detail address": "Nếu có hãy thêm địa chỉ chi tiết để mọi người dễ tìm hơn",
 
-    "Please go to profile setting and verify your tel number to post your rooms!": "Hãy vào Cài đặt và xác thực số điện thoại để có thể đăng tin!"
+    "Please go to profile setting and verify your tel number to post your rooms!": "Hãy vào Cài đặt và xác thực số điện thoại để có thể đăng tin!",
+    "Find address": "Tìm địa chỉ",
+    "Type address": "Gõ địa chỉ"
+  },
+
+  "Edit room page": {
+    "Title": "Sửa phòng"
   },
 
   "User": {

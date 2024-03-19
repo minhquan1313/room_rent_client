@@ -7,9 +7,10 @@ type TLogger = {
 
 const logger: TLogger = (() => {
   if (isProduction) {
-    const temp = () => {};
-    temp.error = () => {};
-    return temp;
+    const v = () => {};
+    v.error = (...s: unknown[]) => console.error(...s);
+    // v.error = () => {};
+    return v;
   }
 
   const v = (...s: unknown[]) => console.log(...s);

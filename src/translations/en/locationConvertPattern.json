@@ -18,7 +18,14 @@
     "thị xã": "{{val}} District Town"
   },
 
-  "removeAccent": true,
+  "country": {
+    "Việt Nam": "Vietnam"
+  },
 
-  "translate": "{{val,locationFormatter}}"
+  "config": {
+    "removeAccent": true
+  },
+
+  "translate": "{{val,locationFormatter}}",
+  "remove accents": "{{val,removeAccentFormatter}}"
 }

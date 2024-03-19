@@ -1,13 +1,13 @@
 import AddRoomType from "@/Components/AdminPages/AddRoomType";
 import EditRoomType from "@/Components/AdminPages/EditRoomType";
 import MyButton from "@/Components/MyButton";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
 import { UserContext } from "@/Contexts/UserProvider";
 import { RoomTypeService } from "@/services/RoomTypeService";
 import { IRoomType } from "@/types/IRoomType";
 import getTableColumn from "@/utils/getTableColumn/getTableColumn";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
 import { pageTitle } from "@/utils/pageTitle";
 import { Popconfirm, Space, Typography, notification } from "antd";
 import Table, { ColumnsType, TableProps } from "antd/es/table";
@@ -26,6 +26,7 @@ const RoomTypesDashBoard = () => {
 
   const [showAddUser, setShowAddUser] = useState(false);
   const [editItem, setEditItem] = useState<TDataTable>();
+  const [error, setError] = useState<unknown>();
 
   const fetchData = useCallback(async () => {
     setLoadingData(true);
@@ -96,6 +97,7 @@ const RoomTypesDashBoard = () => {
   );
 
   const deleteItem = async (id: string) => {
+    setError(undefined);
     try {
       await RoomTypeService.delete(id);
       notifyApi.success({
@@ -106,10 +108,7 @@ const RoomTypesDashBoard = () => {
       await mutateRoomTypes();
     } catch (error) {
       logger(`🚀 ~ deleteItem ~ error:`, error);
-      notificationResponseError({
-        error,
-        notification: notifyApi,
-      });
+      setError((error as any)?.response?.data);
     }
   };
 
@@ -143,6 +142,8 @@ const RoomTypesDashBoard = () => {
   return (
     <Space direction="vertical" className="h-full w-full py-5">
       {contextHolder}
+      <ServerErrorResponse errors={error} mode="notification" />
+
       <MyButton onClick={() => setShowAddUser(true)} type="primary" block>
         Thêm
       </MyButton>

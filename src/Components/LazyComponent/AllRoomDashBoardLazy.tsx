@@ -1,14 +1,14 @@
 import SuspensePage from "@/Components/SuspensePage";
-import { lazy, memo } from "react";
+import { lazy } from "react";
 
 const LazyPage = lazy(() => import("@/Pages/AdminPages/AllRoomDashBoard"));
 
-const AllRoomDashBoardLazy = memo(() => {
+const AllRoomDashBoardLazy = () => {
   return (
     <SuspensePage>
       <LazyPage />
     </SuspensePage>
   );
-});
+};
 
 export default AllRoomDashBoardLazy;

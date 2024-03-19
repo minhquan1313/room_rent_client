@@ -1,12 +1,12 @@
 import { noEmptyRule } from "@/rules/noEmptyRule";
 import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
-import { Rule } from "antd/es/form";
+import { RulesFunc } from "@/types/RuleFunc";
 
-export const passwordRules: Rule[] = [
+export const passwordRules: RulesFunc = () => [
   // {
   //   min: 6,
   //   message: "Mật khẩu từ 6 kí tự trở lên",
   // },
-  noEmptyRule,
-  noWhiteSpaceRule,
+  noEmptyRule(),
+  noWhiteSpaceRule(),
 ];

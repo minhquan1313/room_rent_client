@@ -1,14 +1,14 @@
 import SuspensePage from "@/Components/SuspensePage";
-import { lazy, memo } from "react";
+import { lazy } from "react";
 
 const LazyPage = lazy(() => import("@/Pages/RoomAdd"));
 
-const AddRoomLazy = memo(() => {
+const RoomAddLazy = () => {
   return (
     <SuspensePage>
       <LazyPage />
     </SuspensePage>
   );
-});
+};
 
-export default AddRoomLazy;
+export default RoomAddLazy;

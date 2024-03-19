@@ -1,27 +1,23 @@
 import i18n from "@/translations/i18n";
+import { TI18nFormatter } from "@/types/TI18nFormatter";
 import { removeAccents } from "@/utils/removeAccents";
-import { Formatter } from "i18next";
 
 type IPatternType = "str" | "num" | undefined;
 
-type TFormatterCallBack = Parameters<Formatter["add"]>["1"];
-
-const locationFormatter: TFormatterCallBack = (value, lang) => {
+const locationFormatter: TI18nFormatter = (value, lang) => {
   if (typeof value !== "string" || !lang) return value;
 
-  const locationI18n = i18n.getResourceBundle(lang, "location");
+  const tLocObj = i18n.getResourceBundle(lang, "location");
 
-  const patterns = locationI18n["pattern"];
+  const patterns = tLocObj["pattern"];
 
-  const { matchPattern, nameWithoutPostfix } = extractPatternKey(
-    patterns,
-    value,
-  );
+  const extracted = extractPatternKey(patterns, value);
+  const { matchPattern, nameWithoutPostfix } = extracted;
 
   if (!matchPattern || !nameWithoutPostfix) return value;
 
   const str = i18n.t(`location:pattern.${matchPattern}` as any, {
-    val: (locationI18n["removeAccent"]
+    val: (tLocObj["config"]["removeAccent"]
       ? removeAccents(nameWithoutPostfix)
       : nameWithoutPostfix
     ).trim(),
@@ -43,7 +39,7 @@ function isMatchPatternType(restStr: string, type: IPatternType) {
   }
 }
 
-function extractPatternKey(patterns: any, value: string) {
+function extractPatternKey(patterns: object, value: string) {
   let matchPattern: string | undefined;
   let key, type, nameWithoutPostfix;
 

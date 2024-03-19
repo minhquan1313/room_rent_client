@@ -2,6 +2,7 @@ import MyButton from "@/Components/MyButton";
 import SelectGender from "@/Components/SelectGender";
 import SelectPhoneRegion from "@/Components/SelectPhoneRegion";
 import SelectRole from "@/Components/SelectRole";
+import ServerErrorResponse from "@/Components/ServerResponse/ServerErrorResponse";
 import { UserContext } from "@/Contexts/UserProvider";
 import { isRoleTopAdmin } from "@/constants/roleType";
 import { noWhiteSpaceRule } from "@/rules/noWhiteSpace";
@@ -10,8 +11,7 @@ import { phoneRules } from "@/rules/phoneRules";
 import { UserService } from "@/services/UserService";
 import { IUser } from "@/types/IUser";
 import logger from "@/utils/logger";
-import { notificationResponseError } from "@/utils/notificationResponseError";
-import { Form, Input, Modal, Space, Switch, notification } from "antd";
+import { Form, Input, Modal, Space, Switch, message } from "antd";
 import QueryString from "qs";
 import { useContext, useState } from "react";
 
@@ -27,36 +27,38 @@ const AddUser = ({
   // pageTitle("Thêm - Người dùng - Quản trị");
   const { user: me } = useContext(UserContext);
 
-  const [notifyApi, contextHolder] = notification.useNotification();
+  const [notifyApi, contextHolder] = message.useMessage();
 
   const [form] = Form.useForm();
   const national_number = Form.useWatch(["phone", "national_number"], form);
   const email = Form.useWatch(["email", "email"], form);
 
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<unknown>();
 
   async function handleFinish(values: IUser): Promise<void> {
     logger(`🚀 ~ handleFinish ~ values:`, values);
 
     setSaving(true);
-    // const { phone, email, gender, role, ...rest } = values;
-    const { phone, email, gender, role, ...rest } = values;
-
-    const body: any = rest;
-
-    body.tell = phone?.national_number;
-    body.region_code = phone?.region_code;
-    body.tell_verify = phone?.verified;
-
-    body.email = email?.email;
-    body.email_verify = email?.verified;
-
-    body.gender = gender?.title;
-    body.role = role?.title;
-
-    logger(`🚀 ~ handleFinish ~ body:`, body);
-
+    setError(undefined);
     try {
+      // const { phone, email, gender, role, ...rest } = values;
+      const { phone, email, gender, role, ...rest } = values;
+
+      const body: any = rest;
+
+      body.tell = phone?.national_number;
+      body.region_code = phone?.region_code;
+      body.tell_verify = phone?.verified;
+
+      body.email = email?.email;
+      body.email_verify = email?.verified;
+
+      body.gender = gender?.title;
+      body.role = role?.title;
+
+      logger(`🚀 ~ handleFinish ~ body:`, body);
+
       const payload = QueryString.parse(QueryString.stringify(body));
       logger(
         `🚀 ~ handleFinish ~ QueryString.stringify(body):`,
@@ -68,14 +70,20 @@ const AddUser = ({
       await UserService.create(payload);
 
       onSaveSuccess();
+
+      notifyApi.success({
+        content: "Thêm thành công",
+      });
+
       form.resetFields();
     } catch (error) {
       logger(`🚀 ~ handleFinish ~ error:`, error);
-      notificationResponseError({
-        error,
-        message: "Lỗi gửi mã",
-        notification: notifyApi,
-      });
+      // notificationResponseError({
+      //   error,
+      //   message: "Lỗi gửi mã",
+      //   notification: notifyApi,
+      // });
+      setError((error as any)?.response?.data);
     }
     setSaving(false);
   }
@@ -94,25 +102,26 @@ const AddUser = ({
       confirmLoading={saving}
     >
       {contextHolder}
+      <ServerErrorResponse errors={error} mode="notification" />
       <Form<IUser> onFinish={handleFinish} form={form}>
         <Form.Item<IUser>
           name={"username"}
           label="Username"
-          rules={[noWhiteSpaceRule]}
+          rules={[noWhiteSpaceRule()]}
         >
           <Input />
         </Form.Item>
         <Form.Item<IUser>
           name={"password"}
           label="Password"
-          rules={passwordRules}
+          rules={passwordRules()}
         >
           <Input />
         </Form.Item>
         <Form.Item<IUser>
           name={"first_name"}
           label="Tên"
-          rules={[noWhiteSpaceRule]}
+          rules={[noWhiteSpaceRule()]}
         >
           <Input />
         </Form.Item>
@@ -135,7 +144,7 @@ const AddUser = ({
         <Form.Item<IUser>
           name={["phone", "national_number"]}
           label="Phone"
-          rules={phoneRules}
+          rules={phoneRules()}
           dependencies={[["phone", "region_code"]]}
         >
           <Input

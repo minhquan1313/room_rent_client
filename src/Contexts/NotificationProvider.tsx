@@ -82,7 +82,9 @@ export default function NotificationProvider({ children }: Props) {
      * thì lần này không hiện
      */
     if (getStorage() === false) {
-      logger(`User đã từ chối`);
+      logger(
+        `🚀 ~ file: NotificationProvider.tsx:85 ~ useEffect ~ User đã từ chối:`,
+      );
 
       setEnabling(false);
       return;

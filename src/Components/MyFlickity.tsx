@@ -34,6 +34,8 @@ export function MyFlickity({ children }: IProps) {
     };
   }, [flickity]);
 
+  if (!children) return null;
+
   return (
     <Flickity
       className={"-mx-2"}

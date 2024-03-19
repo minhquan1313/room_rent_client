@@ -18,7 +18,14 @@
     "thị xã": "Thị trấn {{val}}"
   },
 
-  "removeAccent": false,
+  "country": {
+    "Việt Nam": "Việt Nam"
+  },
 
-  "translate": "{{val,locationFormatter}}"
+  "config": {
+    "removeAccent": false
+  },
+
+  "translate": "{{val,locationFormatter}}",
+  "remove accents": "{{val,removeAccentFormatter}}"
 }

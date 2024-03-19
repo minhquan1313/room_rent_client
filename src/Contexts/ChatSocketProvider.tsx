@@ -360,10 +360,18 @@ export default function ChatSocketProvider({ children }: IProps) {
 
     socket.on(chatSocketAction.S_SEEN_MSG, onMessageSeen);
 
+    socket.on("connect_error", (error) => {
+      console.log(
+        `🚀 ~ file: ChatSocketProvider.tsx:374 ~ useEffect ~ error:`,
+        error,
+      );
+    });
+
     return () => {
       socket.off(chatSocketAction.S_SEND_MSG);
       socket.off(chatSocketAction.S_DELETE_ROOM);
       socket.off(chatSocketAction.S_SEEN_MSG);
+      socket.off("connect_error");
     };
   });
 

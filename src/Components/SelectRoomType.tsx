@@ -1,6 +1,5 @@
 import NotFoundContent from "@/Components/NotFoundContent";
 import { GlobalDataContext } from "@/Contexts/GlobalDataProvider";
-import logger from "@/utils/logger";
 import { Select, SelectProps } from "antd";
 import { memo, useContext } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +13,7 @@ const SelectRoomType = memo(({ ...rest }: Props) => {
   const { t } = useTranslation();
   const { t: tApi } = useTranslation("api");
   const { roomTypes } = useContext(GlobalDataContext);
-  logger(`🚀 ~ SelectRoomType ~ roomTypes:`, roomTypes);
+  // logger(`🚀 ~ SelectRoomType ~ roomTypes:`, roomTypes);
 
   return (
     <Select

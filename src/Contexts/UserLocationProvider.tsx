@@ -26,12 +26,12 @@ export default function UserLocationProvider({ children }: IProps) {
     const coord = await getUserCoords();
     logger(`🚀 ~ refreshCoords ~ coord:`, coord);
 
-    if (!coord) {
-      if (coord === null) setLocationDenied(true);
-    } else {
-      setCoords(coord);
+    if (typeof coord !== "object") {
+      if (coord === "PERMISSION_DENIED") setLocationDenied(true);
+      return null;
     }
 
+    setCoords(coord);
     return coord;
   };
 
